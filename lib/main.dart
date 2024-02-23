@@ -12,13 +12,14 @@ void main() async {
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   DebugUtils.printDebug('Firebase has been initialized.');
-
+  ProfileSetupNotifier _profileSetupNotifier = ProfileSetupNotifier();
+  _profileSetupNotifier.clearAllValues();
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(
             create: (_) =>
-                ProfileSetupNotifier()), // Add more providers for other notifiers
+                _profileSetupNotifier), // Add more providers for other notifiers
         // Add more ChangeNotifierProviders for other notifiers if needed
       ],
       child: const MyApp(),

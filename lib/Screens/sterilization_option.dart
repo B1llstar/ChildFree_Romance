@@ -3,7 +3,13 @@ import 'package:provider/provider.dart';
 
 import '../Notifiers/profile_setup_notifier.dart';
 
-class SterilizationStatusPage extends StatelessWidget {
+class SterilizationStatusPage extends StatefulWidget {
+  @override
+  _SterilizationStatusPageState createState() =>
+      _SterilizationStatusPageState();
+}
+
+class _SterilizationStatusPageState extends State<SterilizationStatusPage> {
   @override
   Widget build(BuildContext context) {
     return Consumer<ProfileSetupNotifier>(

@@ -1,77 +1,42 @@
-import 'package:childfree_romance/Screens/sterilization_option.dart';
-import 'package:childfree_romance/Screens/welcome_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_breadcrumb/flutter_breadcrumb.dart';
 import 'package:provider/provider.dart';
 
 import '../Notifiers/profile_setup_notifier.dart';
+import '../Utils/debug_utils.dart';
 import 'choose_gender_preference.dart';
 import 'dob_selection.dart';
-import 'drink_preference_screen.dart';
-import 'interests_page.dart';
-import 'sexual_orientation_preference.dart'; // Import the new screen
-import 'smoke_preference_screen.dart';
+import 'dream_partner_screen.dart';
+import 'drink_smoke_preference_screen.dart';
+import 'long_distance_page.dart';
+import 'no_children_reason_screen.dart';
+import 'sterilization_option.dart';
+import 'welcome_page.dart';
 
-class ProfileSetupScreen extends StatefulWidget {
+class ProfileSetupScreen extends StatelessWidget {
   const ProfileSetupScreen({Key? key}) : super(key: key);
 
   @override
-  State<ProfileSetupScreen> createState() => _ProfileSetupScreenState();
-}
-
-class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
-  late PageController _pageController;
-
-  List<String> buttonNames = [
-    'Welcome',
-    'Gender',
-    'Sexuality',
-    'Drink',
-    'Smoke',
-    'Interests',
-    'DOB',
-    'Sterilization Status', // Add the new button name
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-    _pageController = PageController();
-  }
-
-  void setSelectedIndex(int index) {
-    _pageController.jumpToPage(index);
-    Provider.of<ProfileSetupNotifier>(context, listen: false)
-        .setCurrentPageIndex(index);
-  }
-
-  void nextPage() {
-    if (_pageController.page! < buttonNames.length - 1) {
-      _pageController.nextPage(
-        duration: Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
-    }
-  }
-
-  void previousPage() {
-    if (_pageController.page! > 0) {
-      _pageController.previousPage(
-        duration: Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
+    List<String> buttonNames = [
+      'Welcome',
+      '♂️♀️',
+      // 'Sexuality',
+      '🩺',
+      '🌎  ',
+      '🥂',
+      '🙅🧒',
+      '😊💑',
+      'DOB'
+    ];
     return Scaffold(
       body: Container(
         child: Column(
           children: [
             Expanded(
               child: PageView(
-                controller: _pageController,
+                controller:
+                    Provider.of<ProfileSetupNotifier>(context).pageController,
                 physics: BouncingScrollPhysics(),
                 onPageChanged: (index) {
                   Provider.of<ProfileSetupNotifier>(context, listen: false)
@@ -80,26 +45,36 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                 children: [
                   WelcomePage(),
                   GenderPreferenceScreen(),
-                  SexualOrientationPreferenceScreen(),
-                  DrinkPreferenceScreen(),
-                  SmokePreferenceScreen(),
-                  InterestsPage(),
-                  DateOfBirthPreferenceScreen(),
+                  // SexualOrientationPreferenceScreen(),
                   SterilizationStatusPage(), // Add the new screen here
+                  LongDistancePreferenceScreen(),
+                  DrinkSmokePreferenceScreen(),
+                  // DrinkPreferenceScreen(),
+                  // SmokePreferenceScreen(),
+                  NoChildrenReasonScreen(),
+                  DreamPartnerScreen(),
+                  DateOfBirthPreferenceScreen(),
                 ],
               ),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
+                /*
                 ElevatedButton(
-                  onPressed: previousPage,
+                  onPressed: () {
+                    Provider.of<ProfileSetupNotifier>(context, listen: false)
+                        .previousPage();
+                  },
                   child: Text('Back'),
                 ),
                 ElevatedButton(
-                  onPressed: nextPage,
+                  onPressed: () {
+                    Provider.of<ProfileSetupNotifier>(context, listen: false)
+                        .nextPage();
+                  },
                   child: Text('Next'),
-                ),
+                ),*/
               ],
             ),
             BreadCrumb(
@@ -111,10 +86,19 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                     content: BreadCrumbButtonItem(
                       buttonText: buttonNames[i],
                       index: i,
-                      onPressed: setSelectedIndex,
+                      onPressed: (index) {
+                        Provider.of<ProfileSetupNotifier>(context,
+                                listen: false)
+                            .pageController
+                            .jumpToPage(index);
+                        Provider.of<ProfileSetupNotifier>(context,
+                                listen: false)
+                            .setCurrentPageIndex(index);
+                      },
                       isSelected: i ==
                           Provider.of<ProfileSetupNotifier>(context)
                               .currentPageIndex,
+                      hasValue: _checkValue(i, context),
                     ),
                   ),
               ],
@@ -124,19 +108,66 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       ),
     );
   }
+
+  // Validators to determine user progress in the setup process
+  // They change the color of the breadcrumb bar
+  bool _checkValue(int index, BuildContext context) {
+    ProfileSetupNotifier notifier = Provider.of<ProfileSetupNotifier>(context);
+    switch (index) {
+      case 0:
+        // Check if value is present for Welcome page (if any)
+        return false;
+      case 1:
+        return notifier.desiredGender != null;
+      case 2:
+        //  return notifier.sexualOrientation != null;
+
+        return notifier.sterilizationStatus != null;
+      case 3:
+        // return notifier.drinkingPreference != null;
+        return notifier.longDistancePreference != null;
+      case 4:
+        return (notifier.smokingPreference != null &&
+                notifier.drinkingPreference != null) !=
+            null;
+      case 5:
+        DebugUtils.printDebug(
+            'Length of no children reason: ${notifier.noChildrenReason.length}');
+        // Check if value is present for Interests page (if any)
+        return notifier.noChildrenReason.isNotEmpty &&
+            notifier.noChildrenReason.length >= 20;
+      // return false;
+      case 6:
+        // Check if value is present for DOB page (if any)
+        return ((notifier.whyImYourDreamPartner.isNotEmpty &&
+                    notifier.whyImYourDreamPartner.length >= 20) &&
+                notifier.myDesiredPartner.isNotEmpty &&
+                notifier.myDesiredPartner.length >= 20) !=
+            null;
+      // return false;
+      case 7:
+        return notifier.longDistancePreference != null;
+      case 8:
+        return notifier.sterilizationStatus != null;
+      default:
+        return false;
+    }
+  }
 }
 
 class BreadCrumbButtonItem extends StatefulWidget {
   final String buttonText;
   final int index;
-  final bool isSelected;
+  final bool isSelected; // Add isSelected property
+  final bool hasValue;
   final void Function(int) onPressed;
 
   const BreadCrumbButtonItem({
     required this.buttonText,
     required this.index,
-    required this.onPressed,
     required this.isSelected,
+    required this.hasValue,
+    required this.onPressed,
     Key? key,
   }) : super(key: key);
 
@@ -150,7 +181,10 @@ class _BreadCrumbButtonItemState extends State<BreadCrumbButtonItem> {
     return ElevatedButton(
       style: ButtonStyle(
         backgroundColor: MaterialStateProperty.all<Color>(
-          widget.isSelected ? Colors.blue : Colors.white,
+          widget.hasValue
+              ? Colors.green
+              : (widget.isSelected ? Colors.blue : Colors.white),
+          // Change color to green if value present, maintain isSelected color otherwise
         ),
       ),
       onPressed: () {
@@ -159,7 +193,10 @@ class _BreadCrumbButtonItemState extends State<BreadCrumbButtonItem> {
       child: Text(
         widget.buttonText,
         style: TextStyle(
-          color: widget.isSelected ? Colors.white : Colors.black,
+          color: widget.hasValue
+              ? Colors.white
+              : (widget.isSelected ? Colors.white : Colors.black),
+          // Text color based on value present or isSelected
         ),
       ),
     );

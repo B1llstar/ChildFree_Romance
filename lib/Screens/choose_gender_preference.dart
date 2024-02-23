@@ -18,7 +18,7 @@ class GenderPreferenceScreen extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Text(
-                  'What\'s your gender identity?',
+                  'I am:',
                   style: TextStyle(
                     fontSize: 24.0,
                     fontWeight: FontWeight.bold,
@@ -29,36 +29,70 @@ class GenderPreferenceScreen extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  GenderOptionCard(
+                  GenderButton(
                     title: 'Male',
-                    cardIcon: Icons.male,
-                    iconColor: Colors.blue,
                     onPressed: () {
-                      notifier.genderIdentity = GenderIdentity.male;
+                      notifier.setOwnGender(Gender.male);
+                      checkAndAdvancePage(notifier, context);
                     },
-                    isSelected: notifier.genderIdentity == GenderIdentity.male,
+                    isSelected: notifier.ownGender == Gender.male,
                   ),
-                  GenderOptionCard(
+                  GenderButton(
                     title: 'Female',
-                    cardIcon: Icons.female,
-                    iconColor: Colors.pink,
                     onPressed: () {
-                      notifier.genderIdentity = GenderIdentity.female;
+                      notifier.setOwnGender(Gender.female);
+                      checkAndAdvancePage(notifier, context);
                     },
-                    isSelected:
-                        notifier.genderIdentity == GenderIdentity.female,
+                    isSelected: notifier.ownGender == Gender.female,
+                  ),
+                  GenderButton(
+                    title: 'Other',
+                    onPressed: () {
+                      notifier.setOwnGender(Gender.other);
+                      checkAndAdvancePage(notifier, context);
+                    },
+                    isSelected: notifier.ownGender == Gender.other,
                   ),
                 ],
               ),
+              SizedBox(height: 40.0),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  'Looking for:',
+                  style: TextStyle(
+                    fontSize: 24.0,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              SizedBox(height: 20.0),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  GenderOptionCard(
-                    title: 'Other',
+                  GenderButton(
+                    title: 'Male',
                     onPressed: () {
-                      notifier.genderIdentity = GenderIdentity.other;
+                      notifier.setDesiredGender(DesiredGender.male);
+                      checkAndAdvancePage(notifier, context);
                     },
-                    isSelected: notifier.genderIdentity == GenderIdentity.other,
+                    isSelected: notifier.desiredGender == DesiredGender.male,
+                  ),
+                  GenderButton(
+                    title: 'Female',
+                    onPressed: () {
+                      notifier.setDesiredGender(DesiredGender.female);
+                      checkAndAdvancePage(notifier, context);
+                    },
+                    isSelected: notifier.desiredGender == DesiredGender.female,
+                  ),
+                  GenderButton(
+                    title: 'Any',
+                    onPressed: () {
+                      notifier.setDesiredGender(DesiredGender.any);
+                      checkAndAdvancePage(notifier, context);
+                    },
+                    isSelected: notifier.desiredGender == DesiredGender.any,
                   ),
                 ],
               ),
@@ -68,56 +102,46 @@ class GenderPreferenceScreen extends StatelessWidget {
       },
     );
   }
+
+  void checkAndAdvancePage(
+      ProfileSetupNotifier notifier, BuildContext context) {
+    if (notifier.ownGender != null && notifier.desiredGender != null) {
+      notifier.advancePage(context);
+    }
+  }
 }
 
-class GenderOptionCard extends StatelessWidget {
+class GenderButton extends StatelessWidget {
   final String title;
   final VoidCallback onPressed;
-  final IconData? cardIcon;
-  final Color? iconColor;
   final bool isSelected;
 
-  const GenderOptionCard({
+  const GenderButton({
     required this.title,
     required this.onPressed,
-    this.cardIcon,
-    this.iconColor,
     required this.isSelected,
     Key? key,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onPressed,
-      child: Card(
-        elevation: 4.0,
-        margin: EdgeInsets.all(8.0),
-        color:
-            isSelected ? Colors.green : null, // Highlight in green if selected
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Row(
-            children: [
-              if (cardIcon != null)
-                Icon(
-                  cardIcon,
-                  size: 24.0,
-                  color: iconColor,
-                ),
-              SizedBox(width: 8.0),
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.bold,
-                  color: isSelected
-                      ? Colors.white
-                      : Colors.black, // Text color based on selection
-                ),
-              ),
-            ],
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ButtonStyle(
+        backgroundColor: MaterialStateProperty.all<Color?>(
+          isSelected ? Colors.green : null,
+        ),
+        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18.0),
           ),
+        ),
+      ),
+      child: Text(
+        title,
+        style: TextStyle(
+          fontSize: 18.0,
+          color: isSelected ? Colors.white : Colors.black,
         ),
       ),
     );

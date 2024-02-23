@@ -55,7 +55,7 @@ class _LoginPageState extends State<LoginPage> {
       // Clear existing preferences
       ProfileSetupNotifier profileSetupNotifier =
           Provider.of<ProfileSetupNotifier>(context, listen: false);
-      profileSetupNotifier.clearPreferences();
+      profileSetupNotifier.clearAllValues();
 
       // Create user in Firestore
       _createUserInFirestore(data);
