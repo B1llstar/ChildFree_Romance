@@ -20,9 +20,12 @@ class _DreamPartnerScreenState extends State<DreamPartnerScreen> {
     super.initState();
     _textEditingController = TextEditingController();
     _notifier = Provider.of<ProfileSetupNotifier>(context, listen: false);
-    _textEditingController.text = _currentIndex == 0
-        ? _notifier.whyImYourDreamPartner
-        : _notifier.myDesiredPartner;
+
+    if (_currentIndex == 0 && _notifier.whyImYourDreamPartner != null) {
+      _textEditingController.text = _notifier.whyImYourDreamPartner!;
+    } else if (_currentIndex == 1 && _notifier.myDesiredPartner != null) {
+      _textEditingController.text = _notifier.myDesiredPartner!;
+    }
   }
 
   void goToNext() {
@@ -31,18 +34,23 @@ class _DreamPartnerScreenState extends State<DreamPartnerScreen> {
 
       _currentIndex++;
 
-      _textEditingController.text = _currentIndex == 0
-          ? _notifier.whyImYourDreamPartner
-          : _notifier.myDesiredPartner;
+      if (_currentIndex == 0 && _notifier.whyImYourDreamPartner != null) {
+        _textEditingController.text = _notifier.whyImYourDreamPartner!;
+      } else if (_currentIndex == 1 && _notifier.myDesiredPartner != null) {
+        _textEditingController.text = _notifier.myDesiredPartner!;
+      }
     });
   }
 
   void goToPrevious() {
     setState(() {
       _currentIndex--;
-      _textEditingController.text = _currentIndex == 0
-          ? _notifier.whyImYourDreamPartner
-          : _notifier.myDesiredPartner;
+
+      if (_currentIndex == 0 && _notifier.whyImYourDreamPartner != null) {
+        _textEditingController.text = _notifier.whyImYourDreamPartner!;
+      } else if (_currentIndex == 1 && _notifier.myDesiredPartner != null) {
+        _textEditingController.text = _notifier.myDesiredPartner!;
+      }
     });
   }
 
@@ -65,44 +73,52 @@ class _DreamPartnerScreenState extends State<DreamPartnerScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              _currentIndex == 0
-                  ? 'Tell us why you\'re great!'
-                  : 'Tell us who you\'d like to meet!',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  _currentIndex == 0
+                      ? 'I\'m your dream partner because...'
+                      : 'My dream partner would be...',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
             ),
-            Text(
-              'This will be used to match you',
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey,
-              ),
-            ),
-            SizedBox(height: 20),
             Center(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+                  /*
                   Text(
                     _currentIndex == 0
                         ? 'I am your dream partner because...'
                         : 'My dream partner is...',
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
+                  ),*/
                   SizedBox(height: 10),
                   Container(
                     width: 500,
                     child: TextFormField(
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter some text';
+                        } else if (value != null &&
+                            value.isNotEmpty &&
+                            value.length < 20) {
+                          return 'Please enter at least 20 characters (${value.length})';
+                        }
+                      },
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
                       controller: _textEditingController,
                       maxLines: null,
                       keyboardType: TextInputType.multiline,
                       decoration: InputDecoration(
                         hintText: _currentIndex == 0
-                            ? 'I am kind, patient, and loving. (min. length 20)'
-                            : 'kind, loyal, and intelligent. (min. length 20)',
+                            ? 'I am kind, patient, and loving.'
+                            : 'someone kind, loyal, and intelligent. (min. length 20)',
                         border: OutlineInputBorder(),
                       ),
                       onChanged: (value) {
@@ -115,15 +131,6 @@ class _DreamPartnerScreenState extends State<DreamPartnerScreen> {
                     ),
                   ),
                   SizedBox(height: 5),
-                  Text(
-                    'Length: ${_textEditingController.text.length}',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: _textEditingController.text.length >= 20
-                          ? Colors.green
-                          : Colors.red,
-                    ),
-                  ),
                 ],
               ),
             ),

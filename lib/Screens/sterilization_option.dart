@@ -31,10 +31,7 @@ class _SterilizationStatusPageState extends State<SterilizationStatusPage> {
                   ),
                 ),
               ),
-              Text(
-                '🩺',
-                style: TextStyle(fontSize: 100.0),
-              ),
+              Image.asset('assets/stethoscope.png', height: 100),
               SizedBox(height: 20.0),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,

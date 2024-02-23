@@ -38,10 +38,7 @@ class _DrinkSmokePreferenceScreenState
                             ),
                           ),
                         ),
-                        Text(
-                          '🍺',
-                          style: TextStyle(fontSize: 100.0),
-                        ),
+                        Image.asset('assets/mug.png', height: 150),
                         SizedBox(height: 20.0),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -103,10 +100,7 @@ class _DrinkSmokePreferenceScreenState
                             ),
                           ),
                         ),
-                        Text(
-                          '🚬',
-                          style: TextStyle(fontSize: 100.0),
-                        ),
+                        Image.asset('assets/cigar.png', height: 150),
                         SizedBox(height: 20.0),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,

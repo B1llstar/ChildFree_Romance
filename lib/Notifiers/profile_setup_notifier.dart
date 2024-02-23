@@ -20,41 +20,41 @@ enum SterilizationStatus { yes, no }
 enum Gender { male, female, other }
 
 class ProfileSetupNotifier extends ChangeNotifier {
-  SmokingPreference _smokingPreference = SmokingPreference.no;
-  DrinkingPreference _drinkingPreference = DrinkingPreference.no;
-  DesiredGender _desiredGender = DesiredGender.male;
-  DateTime _dateOfBirth = DateTime.now();
-  SexualOrientation _sexualOrientation = SexualOrientation.heterosexual;
-  SterilizationStatus _sterilizationStatus = SterilizationStatus.no;
-  bool _longDistancePreference = false;
-  bool _isWillingToRelocate = false;
+  SmokingPreference? _smokingPreference;
+  DrinkingPreference? _drinkingPreference;
+  DesiredGender? _desiredGender;
+  DateTime? _dateOfBirth;
+  SexualOrientation? _sexualOrientation;
+  SterilizationStatus? _sterilizationStatus;
+  bool? _longDistancePreference;
+  bool? _isWillingToRelocate;
   int _currentPageIndex = 0;
-  bool _showRelocateQuestion = false;
-  Gender _ownGender = Gender.male;
-  String _noChildrenReason = '';
-  String _whyImYourDreamPartner = '';
-  String _myDreamPartner = '';
+  bool? _showRelocateQuestion;
+  Gender? _ownGender;
+  String? _noChildrenReason = '';
+  String? _whyImYourDreamPartner = '';
+  String? _myDreamPartner = '';
 
-  String get noChildrenReason => _noChildrenReason;
-  set noChildrenReason(String value) {
+  String? get noChildrenReason => _noChildrenReason;
+  set noChildrenReason(String? value) {
     _noChildrenReason = value;
     notifyListeners();
   }
 
-  SmokingPreference get smokingPreference => _smokingPreference;
-  DrinkingPreference get drinkingPreference => _drinkingPreference;
-  DesiredGender get desiredGender => _desiredGender;
-  DateTime get dateOfBirth => _dateOfBirth;
-  SexualOrientation get sexualOrientation => _sexualOrientation;
-  SterilizationStatus get sterilizationStatus => _sterilizationStatus;
-  bool get longDistancePreference => _longDistancePreference;
-  bool get isWillingToRelocate => _isWillingToRelocate;
+  SmokingPreference? get smokingPreference => _smokingPreference;
+  DrinkingPreference? get drinkingPreference => _drinkingPreference;
+  DesiredGender? get desiredGender => _desiredGender;
+  DateTime? get dateOfBirth => _dateOfBirth;
+  SexualOrientation? get sexualOrientation => _sexualOrientation;
+  SterilizationStatus? get sterilizationStatus => _sterilizationStatus;
+  bool? get longDistancePreference => _longDistancePreference;
+  bool? get isWillingToRelocate => _isWillingToRelocate;
   int get currentPageIndex => _currentPageIndex;
-  bool get showRelocateQuestion => _showRelocateQuestion;
-  Gender get ownGender => _ownGender;
+  bool? get showRelocateQuestion => _showRelocateQuestion;
+  Gender? get ownGender => _ownGender;
 
-  String get whyImYourDreamPartner => _whyImYourDreamPartner;
-  set whyImYourDreamPartner(String value) {
+  String? get whyImYourDreamPartner => _whyImYourDreamPartner;
+  set whyImYourDreamPartner(String? value) {
     _whyImYourDreamPartner = value;
     notifyListeners();
   }
@@ -81,6 +81,11 @@ class ProfileSetupNotifier extends ChangeNotifier {
 
   PageController get pageController => _pageController;
 
+  void setDateOfBirth(DateTime? date) {
+    _dateOfBirth = date;
+    notifyListeners();
+  }
+
   void nextPage() {
     if (_pageController.page! < buttonNames.length - 1) {
       _pageController.nextPage(
@@ -99,63 +104,63 @@ class ProfileSetupNotifier extends ChangeNotifier {
     }
   }
 
-  String get myDesiredPartner => _myDreamPartner;
-  set myDesiredPartner(String value) {
+  String? get myDesiredPartner => _myDreamPartner;
+  set myDesiredPartner(String? value) {
     _myDreamPartner = value;
     notifyListeners();
   }
 
-  set showRelocateQuestion(bool value) {
+  set showRelocateQuestion(bool? value) {
     _showRelocateQuestion = value;
     notifyListeners();
   }
 
-  set smokingPreference(SmokingPreference value) {
+  set smokingPreference(SmokingPreference? value) {
     _smokingPreference = value;
     notifyListeners();
   }
 
-  set drinkingPreference(DrinkingPreference value) {
+  set drinkingPreference(DrinkingPreference? value) {
     _drinkingPreference = value;
     notifyListeners();
   }
 
-  set desiredGender(DesiredGender value) {
+  set desiredGender(DesiredGender? value) {
     _desiredGender = value;
     notifyListeners();
   }
 
-  set dateOfBirth(DateTime value) {
+  set dateOfBirth(DateTime? value) {
     _dateOfBirth = value;
     notifyListeners();
   }
 
-  set sexualOrientation(SexualOrientation value) {
+  set sexualOrientation(SexualOrientation? value) {
     _sexualOrientation = value;
     notifyListeners();
   }
 
-  set sterilizationStatus(SterilizationStatus value) {
+  set sterilizationStatus(SterilizationStatus? value) {
     _sterilizationStatus = value;
     notifyListeners();
   }
 
-  set longDistancePreference(bool value) {
+  set longDistancePreference(bool? value) {
     _longDistancePreference = value;
     notifyListeners();
   }
 
-  set isWillingToRelocate(bool value) {
+  set isWillingToRelocate(bool? value) {
     _isWillingToRelocate = value;
     notifyListeners();
   }
 
-  void setOwnGender(Gender value) {
+  void setOwnGender(Gender? value) {
     _ownGender = value;
     notifyListeners();
   }
 
-  void setDesiredGender(DesiredGender value) {
+  void setDesiredGender(DesiredGender? value) {
     _desiredGender = value;
     notifyListeners();
   }
@@ -166,7 +171,7 @@ class ProfileSetupNotifier extends ChangeNotifier {
   }
 
   void advancePage(BuildContext context) {
-    _currentPageIndex++;
+    _currentPageIndex = _currentPageIndex + 1;
     nextPage();
     notifyListeners();
     // Additional logic for navigating to the next page can be added here
@@ -174,25 +179,35 @@ class ProfileSetupNotifier extends ChangeNotifier {
 
   void moveBackPage(BuildContext context) {
     if (_currentPageIndex > 0) {
-      _currentPageIndex--;
+      _currentPageIndex = _currentPageIndex - 1;
       notifyListeners();
       // Additional logic for navigating back to the previous page can be added here
     }
   }
 
+  bool isAtLeast18YearsOld() {
+    final DateTime now = DateTime.now();
+    final DateTime currentDob =
+        _dateOfBirth ?? DateTime.now(); // Capture the current value
+    final DateTime minimumDate = DateTime(now.year - 18, now.month, now.day);
+    return currentDob.isBefore(minimumDate) ||
+        currentDob.isAtSameMomentAs(minimumDate);
+  }
+
   void clearAllValues() {
-    _smokingPreference = SmokingPreference.no;
-    _drinkingPreference = DrinkingPreference.no;
-    _desiredGender = DesiredGender.male;
-    _dateOfBirth = DateTime.now();
-    _sexualOrientation = SexualOrientation.heterosexual;
-    _sterilizationStatus = SterilizationStatus.no;
-    _longDistancePreference = false;
-    _isWillingToRelocate = false;
+    _smokingPreference = null;
+    _drinkingPreference = null;
+    _desiredGender = null;
+    _dateOfBirth = null;
+    _sexualOrientation = null;
+    _sterilizationStatus = null;
+    _longDistancePreference = null;
+    _isWillingToRelocate = null;
     _currentPageIndex = 0;
-    _showRelocateQuestion = false;
+    _showRelocateQuestion = null;
     _whyImYourDreamPartner = '';
     _myDreamPartner = '';
+    _noChildrenReason = '';
     notifyListeners();
   }
 }

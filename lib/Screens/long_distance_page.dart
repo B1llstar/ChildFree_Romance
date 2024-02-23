@@ -3,11 +3,22 @@ import 'package:provider/provider.dart';
 
 import '../Notifiers/profile_setup_notifier.dart';
 
-class LongDistancePreferenceScreen extends StatelessWidget {
+class LongDistancePreferenceScreen extends StatefulWidget {
+  @override
+  _LongDistancePreferenceScreenState createState() =>
+      _LongDistancePreferenceScreenState();
+}
+
+class _LongDistancePreferenceScreenState
+    extends State<LongDistancePreferenceScreen> {
+  bool justLoaded = true;
   @override
   Widget build(BuildContext context) {
     return Consumer<ProfileSetupNotifier>(
       builder: (context, notifier, _) {
+        final bool? longDistancePreference = notifier.longDistancePreference;
+        final bool? showRelocateQuestion = notifier.showRelocateQuestion;
+
         return Scaffold(
           appBar: AppBar(
             title: Text('Long-Distance Preference'),
@@ -15,9 +26,9 @@ class LongDistancePreferenceScreen extends StatelessWidget {
           body: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              if (notifier.longDistancePreference == null ||
-                  notifier.showRelocateQuestion == null ||
-                  !notifier.showRelocateQuestion)
+              if (longDistancePreference == null ||
+                  showRelocateQuestion == null ||
+                  !showRelocateQuestion)
                 LongDistanceInitialCard(
                   onOptionSelected: (bool value) {
                     notifier.longDistancePreference = value;
@@ -28,12 +39,12 @@ class LongDistancePreferenceScreen extends StatelessWidget {
                     }
                   },
                 ),
-              if (notifier.showRelocateQuestion != null &&
-                  notifier.showRelocateQuestion)
+              if (showRelocateQuestion != null && showRelocateQuestion)
                 LongDistanceRelocationCard(
                   onRelocationSelected: (bool value) {
                     notifier.isWillingToRelocate = value;
                     notifier.advancePage(context);
+                    notifier.showRelocateQuestion = false;
                   },
                 ),
             ],
@@ -44,7 +55,7 @@ class LongDistancePreferenceScreen extends StatelessWidget {
   }
 }
 
-class LongDistanceInitialCard extends StatelessWidget {
+class LongDistanceInitialCard extends StatefulWidget {
   final Function(bool) onOptionSelected;
 
   const LongDistanceInitialCard({
@@ -53,7 +64,16 @@ class LongDistanceInitialCard extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  _LongDistanceInitialCardState createState() =>
+      _LongDistanceInitialCardState();
+}
+
+class _LongDistanceInitialCardState extends State<LongDistanceInitialCard> {
+  @override
   Widget build(BuildContext context) {
+    final notifier = Provider.of<ProfileSetupNotifier>(context);
+    final bool isSelected = notifier.longDistancePreference ?? false;
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -67,26 +87,23 @@ class LongDistanceInitialCard extends StatelessWidget {
             ),
           ),
         ),
-        Text(
-          '🌎',
-          style: TextStyle(fontSize: 100.0),
-        ),
+        Image.asset('assets/globe.png', height: 100),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             LongDistanceOptionCard(
               title: 'Yes',
               onPressed: () {
-                onOptionSelected(true);
+                widget.onOptionSelected(true);
               },
-              isSelected: true,
+              isSelected: isSelected,
             ),
             LongDistanceOptionCard(
               title: 'No',
               onPressed: () {
-                onOptionSelected(false);
+                widget.onOptionSelected(false);
               },
-              isSelected: false,
+              isSelected: !isSelected,
             ),
           ],
         ),
@@ -95,7 +112,7 @@ class LongDistanceInitialCard extends StatelessWidget {
   }
 }
 
-class LongDistanceRelocationCard extends StatelessWidget {
+class LongDistanceRelocationCard extends StatefulWidget {
   final Function(bool) onRelocationSelected;
 
   const LongDistanceRelocationCard({
@@ -104,7 +121,18 @@ class LongDistanceRelocationCard extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  _LongDistanceRelocationCardState createState() =>
+      _LongDistanceRelocationCardState();
+}
+
+class _LongDistanceRelocationCardState
+    extends State<LongDistanceRelocationCard> {
+  @override
   Widget build(BuildContext context) {
+    final notifier = Provider.of<ProfileSetupNotifier>(context);
+    final bool isSelected =
+        notifier.isWillingToRelocate ?? false; // Assuming a default value
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -124,16 +152,16 @@ class LongDistanceRelocationCard extends StatelessWidget {
             LongDistanceOptionCard(
               title: 'Yes',
               onPressed: () {
-                onRelocationSelected(true);
+                widget.onRelocationSelected(true);
               },
-              isSelected: true,
+              isSelected: isSelected,
             ),
             LongDistanceOptionCard(
               title: 'No',
               onPressed: () {
-                onRelocationSelected(false);
+                widget.onRelocationSelected(false);
               },
-              isSelected: false,
+              isSelected: !isSelected,
             ),
           ],
         ),

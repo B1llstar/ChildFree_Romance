@@ -30,7 +30,7 @@ class GenderPreferenceScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   GenderButton(
-                    title: 'Male',
+                    icon: Icons.male,
                     onPressed: () {
                       notifier.setOwnGender(Gender.male);
                       checkAndAdvancePage(notifier, context);
@@ -38,7 +38,7 @@ class GenderPreferenceScreen extends StatelessWidget {
                     isSelected: notifier.ownGender == Gender.male,
                   ),
                   GenderButton(
-                    title: 'Female',
+                    icon: Icons.female,
                     onPressed: () {
                       notifier.setOwnGender(Gender.female);
                       checkAndAdvancePage(notifier, context);
@@ -71,7 +71,7 @@ class GenderPreferenceScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   GenderButton(
-                    title: 'Male',
+                    icon: Icons.male,
                     onPressed: () {
                       notifier.setDesiredGender(DesiredGender.male);
                       checkAndAdvancePage(notifier, context);
@@ -79,7 +79,7 @@ class GenderPreferenceScreen extends StatelessWidget {
                     isSelected: notifier.desiredGender == DesiredGender.male,
                   ),
                   GenderButton(
-                    title: 'Female',
+                    icon: Icons.female,
                     onPressed: () {
                       notifier.setDesiredGender(DesiredGender.female);
                       checkAndAdvancePage(notifier, context);
@@ -112,12 +112,14 @@ class GenderPreferenceScreen extends StatelessWidget {
 }
 
 class GenderButton extends StatelessWidget {
-  final String title;
+  final IconData? icon;
+  final String? title;
   final VoidCallback onPressed;
   final bool isSelected;
 
   const GenderButton({
-    required this.title,
+    this.icon,
+    this.title,
     required this.onPressed,
     required this.isSelected,
     Key? key,
@@ -137,13 +139,19 @@ class GenderButton extends StatelessWidget {
           ),
         ),
       ),
-      child: Text(
-        title,
-        style: TextStyle(
-          fontSize: 18.0,
-          color: isSelected ? Colors.white : Colors.black,
-        ),
-      ),
+      child: icon != null
+          ? Icon(
+              icon,
+              color: icon == Icons.male ? Colors.blue : Colors.pink,
+              size: 30.0,
+            )
+          : Text(
+              title!,
+              style: TextStyle(
+                fontSize: 18.0,
+                color: isSelected ? Colors.white : Colors.black,
+              ),
+            ),
     );
   }
 }

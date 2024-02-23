@@ -72,14 +72,12 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _handleSuccessfulLogin() async {
-    User? currentUser = FirebaseAuth.instance.currentUser;
-    if (currentUser != null) {
-      DocumentReference userDocRef =
-          FirebaseFirestore.instance.collection('users').doc(currentUser.uid);
-      FirebaseAuth.instance.setPersistence(Persistence.LOCAL);
-      Navigator.pushReplacement(context,
-          MaterialPageRoute(builder: (context) => const ProfileSetupScreen()));
-    }
+    // Clear existing preferences
+    ProfileSetupNotifier profileSetupNotifier =
+        Provider.of<ProfileSetupNotifier>(context, listen: false);
+    profileSetupNotifier.clearAllValues();
+    Navigator.pushReplacement(context,
+        MaterialPageRoute(builder: (context) => const ProfileSetupScreen()));
   }
 
   @override

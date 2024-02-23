@@ -1,9 +1,9 @@
+import 'package:childfree_romance/Screens/childfree_declaration.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_breadcrumb/flutter_breadcrumb.dart';
 import 'package:provider/provider.dart';
 
 import '../Notifiers/profile_setup_notifier.dart';
-import '../Utils/debug_utils.dart';
 import 'choose_gender_preference.dart';
 import 'dob_selection.dart';
 import 'dream_partner_screen.dart';
@@ -27,7 +27,8 @@ class ProfileSetupScreen extends StatelessWidget {
       '🥂',
       '🙅🧒',
       '😊💑',
-      'DOB'
+      'DOB',
+      'Done'
     ];
     return Scaffold(
       body: Container(
@@ -54,6 +55,7 @@ class ProfileSetupScreen extends StatelessWidget {
                   NoChildrenReasonScreen(),
                   DreamPartnerScreen(),
                   DateOfBirthPreferenceScreen(),
+                  ChildfreeDeclarationPage()
                 ],
               ),
             ),
@@ -131,22 +133,22 @@ class ProfileSetupScreen extends StatelessWidget {
                 notifier.drinkingPreference != null) !=
             null;
       case 5:
-        DebugUtils.printDebug(
-            'Length of no children reason: ${notifier.noChildrenReason.length}');
         // Check if value is present for Interests page (if any)
-        return notifier.noChildrenReason.isNotEmpty &&
-            notifier.noChildrenReason.length >= 20;
+        return notifier.noChildrenReason != null &&
+            notifier.noChildrenReason!.isNotEmpty &&
+            notifier.noChildrenReason!.length > 20;
       // return false;
       case 6:
         // Check if value is present for DOB page (if any)
-        return ((notifier.whyImYourDreamPartner.isNotEmpty &&
-                    notifier.whyImYourDreamPartner.length >= 20) &&
-                notifier.myDesiredPartner.isNotEmpty &&
-                notifier.myDesiredPartner.length >= 20) !=
+        return ((notifier.whyImYourDreamPartner != null &&
+                    notifier.whyImYourDreamPartner!.isNotEmpty &&
+                    notifier.whyImYourDreamPartner!.length >= 20) &&
+                notifier.myDesiredPartner!.isNotEmpty &&
+                notifier.myDesiredPartner!.length >= 20) !=
             null;
       // return false;
       case 7:
-        return notifier.longDistancePreference != null;
+        return notifier.isAtLeast18YearsOld();
       case 8:
         return notifier.sterilizationStatus != null;
       default:

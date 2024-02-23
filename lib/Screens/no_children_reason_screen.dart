@@ -9,12 +9,17 @@ class NoChildrenReasonScreen extends StatefulWidget {
 }
 
 class _NoChildrenReasonScreenState extends State<NoChildrenReasonScreen> {
-  final TextEditingController _reasonController = TextEditingController();
+  late TextEditingController _reasonController;
   bool _isValid = false;
 
   @override
   void initState() {
     super.initState();
+    // Initialize the controller with the initial value from the notifier
+    _reasonController = TextEditingController(
+      text: Provider.of<ProfileSetupNotifier>(context, listen: false)
+          .noChildrenReason,
+    );
     _reasonController.addListener(_checkValidity);
   }
 
@@ -37,62 +42,60 @@ class _NoChildrenReasonScreenState extends State<NoChildrenReasonScreen> {
       appBar: AppBar(
         title: Text('No Children Reason'),
       ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            "I don't want children because...",
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          SizedBox(height: 10),
-          Text(
-            'Others will see this on your profile',
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey,
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                width: 500,
-                child: TextFormField(
-                  controller: _reasonController,
-                  maxLines: 3,
-                  keyboardType: TextInputType.multiline,
-                  decoration: InputDecoration(
-                    hintText:
-                        'They\'re expensive, time-consuming, or an all-around nuisance.',
-                    border: OutlineInputBorder(),
-                    labelText: 'Must be at least 20 characters',
-                  ),
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return 'Please enter a reason.';
-                    }
-                    if (value.length < 20) {
-                      return 'Reason must be at least 20 characters.';
-                    }
-                    return null;
-                  },
-                  onChanged: (value) {
-                    Provider.of<ProfileSetupNotifier>(context, listen: false)
-                        .noChildrenReason = value;
-                  },
-                ),
+      body: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              "I don't want children because...",
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
               ),
-            ],
-          ),
-          SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: _isValid ? () => _advancePage(context) : null,
-            child: Text('Next'),
-          ),
-        ],
+            ),
+            SizedBox(height: 10),
+            Text(
+              'Others will see this on your profile',
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.grey,
+              ),
+            ),
+            SizedBox(height: 10), // Adjusted spacing
+            Container(
+              width: 500, // Match the width from the provided code
+              child: TextFormField(
+                controller: _reasonController,
+                maxLines: 3,
+                keyboardType: TextInputType.multiline,
+                decoration: InputDecoration(
+                  hintText: 'They\'re time-consuming!',
+                  border: OutlineInputBorder(),
+                  labelText: 'Must be at least 20 characters',
+                ),
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'Please enter a reason.';
+                  }
+                  if (value.length < 20) {
+                    return 'Reason must be at least 20 characters.';
+                  }
+                  return null;
+                },
+                onChanged: (value) {
+                  Provider.of<ProfileSetupNotifier>(context, listen: false)
+                      .noChildrenReason = value;
+                },
+              ),
+            ),
+            SizedBox(height: 20), // Adjusted spacing
+            ElevatedButton(
+              onPressed: _isValid ? () => _advancePage(context) : null,
+              child: Text('Next'),
+            ),
+          ],
+        ),
       ),
     );
   }
