@@ -1,185 +1,202 @@
-import 'dart:html' as html;
+import 'dart:typed_data';
 
-import 'package:file_picker/file_picker.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:path/path.dart' as Path;
-import 'package:provider/provider.dart';
-
-import '../../Notifiers/user_notifier.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:universal_html/html.dart' as html;
 
 class ProfilePictureUpload extends StatefulWidget {
-  final VoidCallback? onNextPressed;
+  final VoidCallback onNextPressed;
 
-  const ProfilePictureUpload({Key? key, this.onNextPressed}) : super(key: key);
+  const ProfilePictureUpload({Key? key, required this.onNextPressed})
+      : super(key: key);
 
   @override
   _ProfilePictureUploadState createState() => _ProfilePictureUploadState();
 }
 
 class _ProfilePictureUploadState extends State<ProfilePictureUpload> {
-  UserDataProvider? _userDataProvider;
-  Uint8List? _imageBytes;
-  String profilePictureUrl = '';
+  Uint8List? uploadedImage;
+  String? imageUrl;
+  String? errorMessage;
+  bool nameValidated = false;
+  TextEditingController nameController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _userDataProvider = Provider.of<UserDataProvider>(context, listen: false);
-    _loadExistingPicture();
+    loadCachedImage();
   }
 
-  Future<void> _uploadPicture(Uint8List imageBytes, String fileName) async {
+  Future<void> loadCachedImage() async {
+    final prefs = await SharedPreferences.getInstance();
+    final cachedImageBase64 = prefs.getString('cachedAvatarImage');
+    if (cachedImageBase64 != null) {
+      final decodedImage = Uint8List.fromList(
+        List<int>.from(cachedImageBase64.codeUnits),
+      );
+      setState(() {
+        uploadedImage = decodedImage;
+      });
+    }
+  }
+
+  Future<void> cacheImage(Uint8List imageBytes) async {
+    final prefs = await SharedPreferences.getInstance();
+    final encodedImage = String.fromCharCodes(imageBytes);
+    prefs.setString('cachedAvatarImage', encodedImage);
+  }
+
+  Future<void> uploadAndCacheImage(String uid, Uint8List imageBytes) async {
     try {
-      User? user = FirebaseAuth.instance.currentUser;
-      if (user != null) {
-        String userId = user.uid;
-
-        Reference storageReference = FirebaseStorage.instance
-            .ref('users/$userId/profile_pictures/$fileName');
-
-        await storageReference.putData(imageBytes);
-
-        profilePictureUrl = await storageReference.getDownloadURL();
-        await _userDataProvider!
-            .setProperty('profilePicture', profilePictureUrl);
-
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Profile picture uploaded successfully!'),
-        ));
-
-        _loadExistingPicture();
-      } else {
-        print('No user signed in.');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('No user signed in!'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    } catch (e) {
+      final imageUrl = await _uploadImageToStorage(uid, imageBytes);
+      await _updateProfilePicture(uid, imageUrl);
+      setState(() {
+        this.imageUrl = imageUrl;
+      });
+      await cacheImage(imageBytes);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Failed to upload profile picture: $e'),
-          backgroundColor: Colors.red,
+          content: Text('Image uploaded successfully'),
         ),
       );
-    }
-  }
-
-  Future<void> _loadExistingPicture() async {
-    profilePictureUrl = _userDataProvider!.getProperty('profilePicture') ?? '';
-
-    if (profilePictureUrl.isNotEmpty) {
-      try {
-        Uint8List? bytes;
-
-        if (!kIsWeb) {
-          bytes = await FirebaseStorage.instance
-              .refFromURL(profilePictureUrl)
-              .getData();
-        }
-
-        setState(() {
-          _imageBytes = bytes;
-        });
-      } catch (e) {
-        print('Error loading existing profile picture: $e');
-      }
-    }
-  }
-
-  void _selectPicture() async {
-    if (kIsWeb) {
-      html.InputElement uploadInput = html.FileUploadInputElement();
-      uploadInput.click();
-
-      uploadInput.onChange.listen((e) async {
-        final files = uploadInput.files;
-        if (files?.length == 1) {
-          final file = files?[0];
-          final reader = html.FileReader();
-
-          reader.onLoadEnd.listen((e) {
-            setState(() {
-              _imageBytes = reader.result as Uint8List?;
-              print("Image loaded!");
-            });
-          });
-
-          reader.onError.listen((fileEvent) {
-            setState(() {
-              print("Error reading file");
-            });
-          });
-
-          reader.readAsArrayBuffer(file!);
-          final fileName = Path.basename(file.name);
-          await _uploadPicture(_imageBytes!, fileName);
-        }
+    } catch (error) {
+      setState(() {
+        errorMessage = "Failed to upload image";
       });
-    } else {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.image,
-        allowMultiple: false,
-      );
+    }
+  }
 
-      if (result != null) {
-        _uploadPicture(result.files.single.bytes!,
-            Path.basename(result.files.single.name!));
-      }
+  Future<String> _uploadImageToStorage(String uid, Uint8List imageBytes) async {
+    final FirebaseStorage storage = FirebaseStorage.instance;
+    final Reference imageReference = storage.ref().child(
+        'users/$uid/profile_pictures/${DateTime.now().microsecondsSinceEpoch}.png');
+
+    try {
+      // Upload the image bytes
+      await imageReference.putData(imageBytes);
+
+      // Get the download URL
+      final String imageUrl = await imageReference.getDownloadURL();
+      print('Url: $imageUrl');
+      return imageUrl;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<void> _updateProfilePicture(String uid, String imageUrl) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .set({'profilePicture': imageUrl}, SetOptions(merge: true));
+    } catch (error) {
+      rethrow;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<UserDataProvider>(
-      builder: (context, userDataProvider, child) {
-        return Scaffold(
-          appBar: AppBar(
-            title: Text('Upload Profile Picture'),
-          ),
-          body: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Card(
-                  elevation: 4.0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15.0),
+    return Container(
+      color: Colors.deepPurpleAccent,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            height: 400,
+            width: 500,
+            child: Card(
+              elevation: 2,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    'Choose a profile picture!',
+                    style: TextStyle(fontSize: 24),
                   ),
-                  child: _buildProfilePicture(),
-                ),
-                SizedBox(height: 20.0),
-                ElevatedButton(
-                  onPressed: _selectPicture,
-                  child: Text('Select Picture'),
-                ),
-              ],
+                  ElevatedButton(
+                    style: ButtonStyle(
+                        elevation: MaterialStateProperty.all(0),
+                        backgroundColor:
+                            MaterialStateProperty.all(Colors.transparent)),
+                    child: CircleAvatar(
+                      radius: 80.0,
+                      backgroundImage:
+                          imageUrl != null ? MemoryImage(uploadedImage!) : null,
+                      child: uploadedImage == null
+                          ? const Icon(
+                              Icons.image,
+                              size: 60.0,
+                            )
+                          : null,
+                    ),
+                    onPressed: () async {
+                      html.FileUploadInputElement uploadInput =
+                          html.FileUploadInputElement();
+                      uploadInput.click();
+
+                      uploadInput.onChange.listen((e) async {
+                        // Read file content as dataURL
+                        final files = uploadInput.files;
+                        if (files?.length == 1) {
+                          final file = files?[0];
+                          html.FileReader reader = html.FileReader();
+
+                          reader.onLoadEnd.listen((e) async {
+                            setState(() {
+                              uploadedImage = reader.result as Uint8List?;
+                              print("Image loaded!");
+                              // Cache the uploaded image
+                              cacheImage(uploadedImage!);
+                            });
+                            try {
+                              final user = FirebaseAuth.instance.currentUser;
+                              if (user != null) {
+                                await uploadAndCacheImage(
+                                    user.uid, uploadedImage!);
+                              } else {
+                                setState(() {
+                                  errorMessage = "User not logged in";
+                                });
+                              }
+                            } catch (error) {
+                              setState(() {
+                                errorMessage = "Failed to upload image";
+                              });
+                            }
+                          });
+
+                          reader.onError.listen((fileEvent) {
+                            setState(() {
+                              errorMessage = "Error reading file";
+                            });
+                          });
+
+                          reader.readAsArrayBuffer(file as html.Blob);
+                        }
+                      });
+                    },
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.arrow_forward),
+                    onPressed: widget.onNextPressed,
+                  ),
+                ],
+              ),
             ),
           ),
-        );
-      },
+        ],
+      ),
     );
   }
 
-  Widget _buildProfilePicture() {
-    return Container(
-      width: 200,
-      height: 200,
-      child: _imageBytes != null
-          ? Image.memory(
-              _imageBytes!,
-              fit: BoxFit.cover,
-            )
-          : Icon(
-              Icons.account_circle,
-              size: 200,
-              color: Colors.grey[300],
-            ),
-    );
+  @override
+  void dispose() {
+    nameController.dispose();
+    super.dispose();
   }
 }

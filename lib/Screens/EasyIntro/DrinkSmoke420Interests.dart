@@ -4,6 +4,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
+import '../User/upload_profile_picture.dart';
+import 'name_page.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -81,6 +84,24 @@ class _QuestionPageState extends State<QuestionPage> {
 
   List<Map<String, dynamic>> _questions = [
     {
+      'property': 'does420',
+      'title': 'Are you sterilized?',
+      'options': ['Sterilized', 'Not Sterilized', 'Will Sterilize'],
+      'assetImageUrl': 'assets/plant.png',
+    },
+    {
+      'property': 'willRelocate',
+      'title': 'Are you willing to relocate?',
+      'options': ['Yes', 'No', 'Maybe'],
+      'assetImageUrl': 'assets/globe.png',
+    },
+    {
+      'property': 'willDoLongDistance',
+      'title': 'Are you open to long-distance?',
+      'options': ['Yes', 'No'],
+      'assetImageUrl': 'assets/globe.png',
+    },
+    {
       'property': 'doesDrink',
       'title': 'Do you drink alcohol?',
       'options': ['Yes', 'No', 'Socially'],
@@ -96,12 +117,6 @@ class _QuestionPageState extends State<QuestionPage> {
       'property': 'does420',
       'title': 'Do you partake?',
       'options': ['Yes', 'No', 'Socially'],
-      'assetImageUrl': 'assets/plant.png',
-    },
-    {
-      'property': 'does420',
-      'title': 'Are you sterilized?',
-      'options': ['Sterilized', 'Not Sterilized', 'Will Sterilize'],
       'assetImageUrl': 'assets/plant.png',
     },
     {
@@ -171,8 +186,16 @@ class _QuestionPageState extends State<QuestionPage> {
           Expanded(
             child: PageView.builder(
               controller: _pageController,
-              itemCount: _questions.length,
+              itemCount: _questions.length + 2,
               itemBuilder: (context, index) {
+                if (index == 0)
+                  return NamePage(
+                    onNextPressed: (String name) {},
+                  );
+                if (index == 1)
+                  return ProfilePictureUpload(
+                    onNextPressed: () {},
+                  );
                 return _buildQuestionWidget(_questions[index]);
               },
             ),
@@ -180,7 +203,7 @@ class _QuestionPageState extends State<QuestionPage> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 ElevatedButton(
                   onPressed: previousPage,

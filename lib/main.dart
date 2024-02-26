@@ -15,7 +15,8 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   DebugUtils.printDebug('Firebase has been initialized.');
   UserDataProvider _userDataProvider = UserDataProvider();
-  await FirebaseAuth.instance.signInWithEmailAndPassword(email: "dev@gmail.com", password: "testing");
+  await FirebaseAuth.instance
+      .signInWithEmailAndPassword(email: "dev@gmail.com", password: "testing");
   runApp(
     MultiProvider(
       providers: [
@@ -75,7 +76,12 @@ class _MyHomePageState extends State<MyHomePage> {
       body: PageView(
         controller: _pageController,
         children: [
-          ProfilePictureUpload(),
+          ProfilePictureUpload(
+            onNextPressed: () {
+              _pageController.nextPage(
+                  duration: Duration(milliseconds: 300), curve: Curves.ease);
+            },
+          ),
           QuestionPage()
           // Add your QuestionPage here
           // Example:
