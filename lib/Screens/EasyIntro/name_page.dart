@@ -17,28 +17,32 @@ class NamePage extends StatelessWidget {
             width: 500,
             child: Card(
               elevation: 2,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    'What\'s your name?',
-                    style: TextStyle(fontSize: 24),
-                  ),
-                  SizedBox(height: 20),
-                  Container(
-                    width: 300,
-                    child: TextField(
-                      decoration: InputDecoration(
-                        hintText: 'Enter your name',
-                        border: OutlineInputBorder(),
-                      ),
-                      onSubmitted: (name) {
-                        onNextPressed(name);
-                      },
+              margin: EdgeInsets.all(16),
+              child: Padding(
+                padding: EdgeInsets.all(16),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      'What\'s your name?',
+                      style: TextStyle(fontSize: 24),
                     ),
-                  ),
-                ],
+                    SizedBox(height: 20),
+                    Container(
+                      width: 300,
+                      child: TextField(
+                        decoration: InputDecoration(
+                          hintText: 'Enter your name',
+                          border: OutlineInputBorder(),
+                        ),
+                        onSubmitted: (name) {
+                          onNextPressed(name);
+                        },
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

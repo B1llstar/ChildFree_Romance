@@ -10,7 +10,8 @@ import 'name_page.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-
+  await FirebaseAuth.instance
+      .signInWithEmailAndPassword(email: "dev@gmail.com", password: "testing");
   runApp(MyApp());
 }
 
@@ -99,6 +100,12 @@ class _QuestionPageState extends State<QuestionPage> {
       'property': 'willDoLongDistance',
       'title': 'Are you open to long-distance?',
       'options': ['Yes', 'No'],
+      'assetImageUrl': 'assets/globe.png',
+    },
+    {
+      'property': 'willDoLongDistance',
+      'title': 'Are you willing to relocate?',
+      'options': ['Yes', 'No', 'Maybe '],
       'assetImageUrl': 'assets/globe.png',
     },
     {

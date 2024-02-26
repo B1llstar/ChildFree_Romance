@@ -1,8 +1,11 @@
+import 'dart:io' show File;
 import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:universal_html/html.dart' as html;
@@ -98,6 +101,78 @@ class _ProfilePictureUploadState extends State<ProfilePictureUpload> {
     }
   }
 
+  Future<void> pickAndUploadImage() async {
+    try {
+      if (kIsWeb) {
+        final html.FileUploadInputElement uploadInput =
+            html.FileUploadInputElement();
+        uploadInput.click();
+
+        uploadInput.onChange.listen((e) async {
+          // Read file content as dataURL
+          final files = uploadInput.files;
+          if (files?.length == 1) {
+            final file = files?[0];
+            final reader = html.FileReader();
+
+            reader.onLoadEnd.listen((e) async {
+              setState(() {
+                uploadedImage = reader.result as Uint8List?;
+                print("Image loaded!");
+                // Cache the uploaded image
+                cacheImage(uploadedImage!);
+              });
+              try {
+                final user = FirebaseAuth.instance.currentUser;
+                if (user != null) {
+                  await uploadAndCacheImage(user.uid, uploadedImage!);
+                } else {
+                  setState(() {
+                    errorMessage = "User not logged in";
+                  });
+                }
+              } catch (error) {
+                setState(() {
+                  errorMessage = "Failed to upload image";
+                });
+              }
+            });
+
+            reader.onError.listen((fileEvent) {
+              setState(() {
+                errorMessage = "Error reading file";
+              });
+            });
+
+            reader.readAsArrayBuffer(file as html.Blob);
+          }
+        });
+      } else {
+        final result =
+            await FilePicker.platform.pickFiles(type: FileType.image);
+        if (result != null) {
+          final filePath = result.files.single.path!;
+          final imageBytes = await File(filePath).readAsBytes();
+          setState(() {
+            uploadedImage = Uint8List.fromList(imageBytes);
+          });
+          final user = FirebaseAuth.instance.currentUser;
+          if (user != null) {
+            await uploadAndCacheImage(user.uid, uploadedImage!);
+          } else {
+            setState(() {
+              errorMessage = "User not logged in";
+            });
+          }
+        }
+      }
+    } catch (error) {
+      setState(() {
+        errorMessage = "Failed to pick or upload image";
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -110,82 +185,44 @@ class _ProfilePictureUploadState extends State<ProfilePictureUpload> {
             width: 500,
             child: Card(
               elevation: 2,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    'Choose a profile picture!',
-                    style: TextStyle(fontSize: 24),
-                  ),
-                  ElevatedButton(
-                    style: ButtonStyle(
-                        elevation: MaterialStateProperty.all(0),
-                        backgroundColor:
-                            MaterialStateProperty.all(Colors.transparent)),
-                    child: CircleAvatar(
-                      radius: 80.0,
-                      backgroundImage:
-                          imageUrl != null ? MemoryImage(uploadedImage!) : null,
-                      child: uploadedImage == null
-                          ? const Icon(
-                              Icons.image,
-                              size: 60.0,
-                            )
-                          : null,
+              margin: EdgeInsets.all(16),
+              child: Padding(
+                padding: EdgeInsets.all(16),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Choose a profile picture!',
+                      style: TextStyle(fontSize: 24),
                     ),
-                    onPressed: () async {
-                      html.FileUploadInputElement uploadInput =
-                          html.FileUploadInputElement();
-                      uploadInput.click();
-
-                      uploadInput.onChange.listen((e) async {
-                        // Read file content as dataURL
-                        final files = uploadInput.files;
-                        if (files?.length == 1) {
-                          final file = files?[0];
-                          html.FileReader reader = html.FileReader();
-
-                          reader.onLoadEnd.listen((e) async {
-                            setState(() {
-                              uploadedImage = reader.result as Uint8List?;
-                              print("Image loaded!");
-                              // Cache the uploaded image
-                              cacheImage(uploadedImage!);
-                            });
-                            try {
-                              final user = FirebaseAuth.instance.currentUser;
-                              if (user != null) {
-                                await uploadAndCacheImage(
-                                    user.uid, uploadedImage!);
-                              } else {
-                                setState(() {
-                                  errorMessage = "User not logged in";
-                                });
-                              }
-                            } catch (error) {
-                              setState(() {
-                                errorMessage = "Failed to upload image";
-                              });
-                            }
-                          });
-
-                          reader.onError.listen((fileEvent) {
-                            setState(() {
-                              errorMessage = "Error reading file";
-                            });
-                          });
-
-                          reader.readAsArrayBuffer(file as html.Blob);
-                        }
-                      });
-                    },
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.arrow_forward),
-                    onPressed: widget.onNextPressed,
-                  ),
-                ],
+                    ElevatedButton(
+                      style: ButtonStyle(
+                          elevation: MaterialStateProperty.all(0),
+                          backgroundColor:
+                              MaterialStateProperty.all(Colors.transparent)),
+                      child: CircleAvatar(
+                        radius: 80.0,
+                        backgroundImage: imageUrl != null
+                            ? MemoryImage(uploadedImage!)
+                            : null,
+                        child: uploadedImage == null
+                            ? const Icon(
+                                Icons.image,
+                                size: 60.0,
+                              )
+                            : null,
+                      ),
+                      onPressed: () async {
+                        pickAndUploadImage();
+                      },
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.arrow_forward),
+                      onPressed: widget.onNextPressed,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
