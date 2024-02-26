@@ -3,8 +3,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_breadcrumb/flutter_breadcrumb.dart';
 
 import '../User/upload_profile_picture.dart';
+import 'message_page_only.dart';
 import 'name_page.dart';
 
 void main() async {
@@ -45,6 +47,17 @@ class _QuestionPageState extends State<QuestionPage> {
     super.dispose();
   }
 
+  void goToPage(int index) {
+    _pageController!.animateToPage(
+      index,
+      duration: Duration(milliseconds: 300),
+      curve: Curves.ease,
+    );
+    setState(() {
+      currentPageIndex = index;
+    });
+  }
+
   void nextPage() {
     if (currentPageIndex < _questions.length - 1) {
       _pageController!
@@ -83,18 +96,37 @@ class _QuestionPageState extends State<QuestionPage> {
     }
   }
 
+  final List<String> breadcrumbItemNames = [
+    'Basics',
+    'Vices',
+    'Preferences',
+    'Interests'
+  ];
+
   List<Map<String, dynamic>> _questions = [
     {
       'property': 'does420',
-      'title': 'Are you sterilized?',
-      'options': ['Sterilized', 'Not Sterilized', 'Will Sterilize'],
-      'assetImageUrl': 'assets/plant.png',
+      'title': 'Placeholder',
+      'options': [],
+      'assetImageUrl': 'assets/magnifying_glass.png',
     },
     {
-      'property': 'willRelocate',
-      'title': 'Are you willing to relocate?',
-      'options': ['Yes', 'No', 'Maybe'],
-      'assetImageUrl': 'assets/globe.png',
+      'property': 'does420',
+      'title': 'Placeholder',
+      'options': [],
+      'assetImageUrl': 'assets/magnifying_glass.png',
+    },
+    {
+      'property': 'does420',
+      'title': 'What are you looking for?',
+      'options': ['Romance', 'Friendship', 'Anything'],
+      'assetImageUrl': 'assets/magnifying_glass.png',
+    },
+    {
+      'property': 'does420',
+      'title': 'Are you sterilized?',
+      'options': ['Yes', 'No', 'Eventually'],
+      'assetImageUrl': 'assets/stethoscope.png',
     },
     {
       'property': 'willDoLongDistance',
@@ -183,6 +215,13 @@ class _QuestionPageState extends State<QuestionPage> {
 
   @override
   Widget build(BuildContext context) {
+    final List<String> pageTitles = [
+      'Basics',
+      'Vices',
+      'Preferences',
+      'Interests'
+    ];
+
     return Scaffold(
       backgroundColor: Colors.deepPurpleAccent,
       appBar: AppBar(
@@ -190,16 +229,34 @@ class _QuestionPageState extends State<QuestionPage> {
       ),
       body: Column(
         children: [
+          BreadCrumb(
+            items: pageTitles.asMap().entries.map((entry) {
+              final index = entry.key;
+              final title = entry.value;
+              return BreadCrumbItem(
+                content: Text(title),
+                onTap: () {
+                  // Navigate to the corresponding page based on the index
+                  navigateToPage(context, index);
+                },
+              );
+            }).toList(),
+            divider: Icon(Icons.chevron_right),
+          ),
           Expanded(
             child: PageView.builder(
               controller: _pageController,
-              itemCount: _questions.length + 2,
+              itemCount: _questions.length + 3,
               itemBuilder: (context, index) {
                 if (index == 0)
+                  return MessagePage(
+                    title: 'Let\'s start with the basics',
+                  );
+                if (index == 1)
                   return NamePage(
                     onNextPressed: (String name) {},
                   );
-                if (index == 1)
+                else if (index == 2)
                   return ProfilePictureUpload(
                     onNextPressed: () {},
                   );
@@ -226,6 +283,32 @@ class _QuestionPageState extends State<QuestionPage> {
         ],
       ),
     );
+  }
+
+  void navigateToPage(BuildContext context, int index) {
+    switch (index) {
+      case 0:
+        // Navigate to Home Page
+        print('Navigating to Home Page');
+        break;
+      case 1:
+        goToPage(3);
+
+        // Navigate to Settings Page
+        print('Setting States to Page 3');
+        break;
+      case 2:
+        // Navigate to Profile Page
+        print('Navigating to Profile Page');
+        break;
+      case 3:
+        // Navigate to Messages Page
+        print('Navigating to Messages Page');
+        break;
+      // Add more cases for additional pages
+      default:
+        break;
+    }
   }
 
   Widget _buildQuestionWidget(Map<String, dynamic> question) {

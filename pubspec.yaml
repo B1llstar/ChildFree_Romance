@@ -81,6 +81,7 @@ flutter:
     - assets/plant.png
     - assets/user.png
     - assets/age.png
+    - assets/magnifying_glass.png
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 
