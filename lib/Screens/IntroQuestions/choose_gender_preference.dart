@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../Notifiers/profile_setup_notifier.dart';
+import '../../Notifiers/profile_setup_notifier.dart';
 
 class GenderPreferenceScreen extends StatelessWidget {
   @override
@@ -30,28 +30,26 @@ class GenderPreferenceScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   GenderButton(
-                    icon: Icons.male,
-                    onPressed: () {
-                      notifier.setOwnGender(Gender.male);
-                      checkAndAdvancePage(notifier, context);
-                    },
-                    isSelected: notifier.ownGender == Gender.male,
-                  ),
+                      icon: Icons.male,
+                      onPressed: () {
+                        notifier.setOwnGender('Male');
+                        checkAndAdvancePage(notifier, context);
+                      },
+                      isSelected: notifier.ownGender == 'Male'),
                   GenderButton(
-                    icon: Icons.female,
-                    onPressed: () {
-                      notifier.setOwnGender(Gender.female);
-                      checkAndAdvancePage(notifier, context);
-                    },
-                    isSelected: notifier.ownGender == Gender.female,
-                  ),
+                      icon: Icons.female,
+                      onPressed: () {
+                        notifier.setOwnGender('Female');
+                        checkAndAdvancePage(notifier, context);
+                      },
+                      isSelected: notifier.ownGender == 'Female'),
                   GenderButton(
                     title: 'Other',
                     onPressed: () {
-                      notifier.setOwnGender(Gender.other);
+                      notifier.ownGender = 'Other';
                       checkAndAdvancePage(notifier, context);
                     },
-                    isSelected: notifier.ownGender == Gender.other,
+                    isSelected: notifier.ownGender == 'Other',
                   ),
                 ],
               ),
@@ -73,26 +71,26 @@ class GenderPreferenceScreen extends StatelessWidget {
                   GenderButton(
                     icon: Icons.male,
                     onPressed: () {
-                      notifier.setDesiredGender(DesiredGender.male);
+                      notifier.desiredGender = 'Male';
                       checkAndAdvancePage(notifier, context);
                     },
-                    isSelected: notifier.desiredGender == DesiredGender.male,
+                    isSelected: notifier.desiredGender == 'Male',
                   ),
                   GenderButton(
                     icon: Icons.female,
                     onPressed: () {
-                      notifier.setDesiredGender(DesiredGender.female);
+                      notifier.desiredGender = 'Female';
                       checkAndAdvancePage(notifier, context);
                     },
-                    isSelected: notifier.desiredGender == DesiredGender.female,
+                    isSelected: notifier.desiredGender == 'Female',
                   ),
                   GenderButton(
                     title: 'Any',
                     onPressed: () {
-                      notifier.setDesiredGender(DesiredGender.any);
+                      notifier.desiredGender = 'Any';
                       checkAndAdvancePage(notifier, context);
                     },
-                    isSelected: notifier.desiredGender == DesiredGender.any,
+                    isSelected: notifier.desiredGender == 'Any',
                   ),
                 ],
               ),

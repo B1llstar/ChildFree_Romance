@@ -75,7 +75,7 @@ class _LoginPageState extends State<LoginPage> {
     // Clear existing preferences
     ProfileSetupNotifier profileSetupNotifier =
         Provider.of<ProfileSetupNotifier>(context, listen: false);
-    profileSetupNotifier.clearAllValues();
+
     Navigator.pushReplacement(context,
         MaterialPageRoute(builder: (context) => const ProfileSetupScreen()));
   }

@@ -1,10 +1,12 @@
+import 'package:childfree_romance/Screens/User/upload_profile_picture.dart';
 import 'package:childfree_romance/firebase_options.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'Auth/login.dart';
-import 'Notifiers/profile_setup_notifier.dart';
+import 'Notifiers/user_notifier.dart';
+import 'Screens/EasyIntro/DrinkSmoke420Interests.dart';
 import 'Utils/debug_utils.dart';
 
 void main() async {
@@ -12,13 +14,14 @@ void main() async {
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   DebugUtils.printDebug('Firebase has been initialized.');
-  ProfileSetupNotifier _profileSetupNotifier = ProfileSetupNotifier();
+  UserDataProvider _userDataProvider = UserDataProvider();
+  await FirebaseAuth.instance.signInWithEmailAndPassword(email: "dev@gmail.com", password: "testing");
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(
             create: (_) =>
-                _profileSetupNotifier), // Add more providers for other notifiers
+                _userDataProvider), // Add more providers for other notifiers
         // Add more ChangeNotifierProviders for other notifiers if needed
       ],
       child: const MyApp(),
@@ -52,11 +55,32 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  late PageController _pageController;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: LoginPage(),
+      body: PageView(
+        controller: _pageController,
+        children: [
+          ProfilePictureUpload(),
+          QuestionPage()
+          // Add your QuestionPage here
+          // Example:
+          // QuestionPage(),
+        ],
       ),
     );
   }

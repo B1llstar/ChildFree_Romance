@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../Notifiers/profile_setup_notifier.dart';
+import '../Utils/debug_utils.dart';
 
 class ChildfreeDeclarationPage extends StatefulWidget {
   @override
@@ -7,7 +11,15 @@ class ChildfreeDeclarationPage extends StatefulWidget {
 }
 
 class _ChildfreeDeclarationPageState extends State<ChildfreeDeclarationPage> {
-  bool _isChecked = false;
+  ProfileSetupNotifier? _profileSetupNotifier;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _profileSetupNotifier =
+        Provider.of<ProfileSetupNotifier>(context, listen: false);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,22 +37,36 @@ class _ChildfreeDeclarationPageState extends State<ChildfreeDeclarationPage> {
                 "I solemnly swear that I do not have children, and am certain that I will never, EVER want them. Ever. Seriously, my mind is made up.",
                 style: TextStyle(fontSize: 16.0),
               ),
-              value: _isChecked,
+              value: _profileSetupNotifier!.hasSolemnlySwore,
               onChanged: (value) {
                 setState(() {
-                  _isChecked = value!;
+                  _profileSetupNotifier!.hasSolemnlySwore =
+                      !_profileSetupNotifier!.hasSolemnlySwore;
                 });
               },
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                _profileSetupNotifier!.uploadUser();
+              },
+              child: Text('Done'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                DebugUtils.printDebug('Generating User Profile');
+                String profile = await _profileSetupNotifier!
+                    .generateAITextForProperty(
+                        'My dream partner would be', 500);
+                DebugUtils.printDebug(
+                    'Now accessible in the childfree declaration page: ' +
+                        profile);
+              },
+              child: Text('Done'),
             ),
           ],
         ),
       ),
     );
   }
-}
-
-void main() {
-  runApp(MaterialApp(
-    home: ChildfreeDeclarationPage(),
-  ));
 }

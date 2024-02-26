@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../Notifiers/profile_setup_notifier.dart';
+import '../../Notifiers/profile_setup_notifier.dart';
 
 class DateOfBirthPreferenceScreen extends StatefulWidget {
   @override

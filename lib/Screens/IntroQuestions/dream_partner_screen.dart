@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../Notifiers/profile_setup_notifier.dart';
+import '../../Notifiers/profile_setup_notifier.dart';
 
 class DreamPartnerScreen extends StatefulWidget {
   DreamPartnerScreen({Key? key}) : super(key: key);
@@ -62,6 +62,23 @@ class _DreamPartnerScreenState extends State<DreamPartnerScreen> {
     }
   }
 
+  Future<void> generateTypewriterEffect(String input) async {
+    for (int i = 0; i < input.length; i++) {
+      String displayedText = input.substring(0, i + 1);
+      _textEditingController.text = displayedText;
+      await Future.delayed(const Duration(milliseconds: 15));
+    }
+    await Future.delayed(const Duration(milliseconds: 3000));
+  }
+
+  void autoGenerateText() async {
+    String property = _currentIndex == 0
+        ? 'I am your dream partner because'
+        : 'My dream partner would be';
+    String profile = await _notifier.generateAITextForProperty(property, 500);
+    generateTypewriterEffect(profile);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -91,13 +108,6 @@ class _DreamPartnerScreenState extends State<DreamPartnerScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  /*
-                  Text(
-                    _currentIndex == 0
-                        ? 'I am your dream partner because...'
-                        : 'My dream partner is...',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),*/
                   SizedBox(height: 10),
                   Container(
                     width: 500,
@@ -146,6 +156,11 @@ class _DreamPartnerScreenState extends State<DreamPartnerScreen> {
                 ElevatedButton(
                   onPressed: isNextButtonEnabled() ? goToNext : null,
                   child: Text('Next'),
+                ),
+                SizedBox(width: 20),
+                ElevatedButton(
+                  onPressed: autoGenerateText,
+                  child: Text('Auto Generate'),
                 ),
               ],
             ),

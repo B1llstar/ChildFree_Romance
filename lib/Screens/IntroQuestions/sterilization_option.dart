@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../Notifiers/profile_setup_notifier.dart';
+import '../../Notifiers/profile_setup_notifier.dart';
 
 class SterilizationStatusPage extends StatefulWidget {
   @override
@@ -39,20 +39,18 @@ class _SterilizationStatusPageState extends State<SterilizationStatusPage> {
                   SterilizationOptionCard(
                     title: 'Yes',
                     onPressed: () {
-                      notifier.sterilizationStatus = SterilizationStatus.yes;
+                      notifier.sterilizationStatus = 'Yes';
                       notifier.advancePage(context);
                     },
-                    isSelected:
-                        notifier.sterilizationStatus == SterilizationStatus.yes,
+                    isSelected: notifier.sterilizationStatus == 'Yes',
                   ),
                   SterilizationOptionCard(
                     title: 'No',
                     onPressed: () {
-                      notifier.sterilizationStatus = SterilizationStatus.no;
+                      notifier.sterilizationStatus = 'No';
                       notifier.advancePage(context);
                     },
-                    isSelected:
-                        notifier.sterilizationStatus == SterilizationStatus.no,
+                    isSelected: notifier.sterilizationStatus == 'No',
                   ),
                 ],
               ),

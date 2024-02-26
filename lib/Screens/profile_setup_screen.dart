@@ -1,16 +1,19 @@
+import 'package:childfree_romance/Screens/User/name_selection_page.dart';
+import 'package:childfree_romance/Screens/User/profile_page.dart';
+import 'package:childfree_romance/Screens/User/upload_profile_picture.dart';
 import 'package:childfree_romance/Screens/childfree_declaration.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_breadcrumb/flutter_breadcrumb.dart';
 import 'package:provider/provider.dart';
 
 import '../Notifiers/profile_setup_notifier.dart';
-import 'choose_gender_preference.dart';
-import 'dob_selection.dart';
-import 'dream_partner_screen.dart';
-import 'drink_smoke_preference_screen.dart';
-import 'long_distance_page.dart';
+import 'IntroQuestions/choose_gender_preference.dart';
+import 'IntroQuestions/dob_selection.dart';
+import 'IntroQuestions/dream_partner_screen.dart';
+import 'IntroQuestions/drink_smoke_preference_screen.dart';
+import 'IntroQuestions/long_distance_page.dart';
+import 'IntroQuestions/sterilization_option.dart';
 import 'no_children_reason_screen.dart';
-import 'sterilization_option.dart';
 import 'welcome_page.dart';
 
 class ProfileSetupScreen extends StatelessWidget {
@@ -28,7 +31,10 @@ class ProfileSetupScreen extends StatelessWidget {
       '🙅🧒',
       '😊💑',
       'DOB',
-      'Done'
+      'Done',
+      'Profile',
+      'Pic',
+      'Name'
     ];
     return Scaffold(
       body: Container(
@@ -55,7 +61,10 @@ class ProfileSetupScreen extends StatelessWidget {
                   NoChildrenReasonScreen(),
                   DreamPartnerScreen(),
                   DateOfBirthPreferenceScreen(),
-                  ChildfreeDeclarationPage()
+                  ChildfreeDeclarationPage(),
+                  UserProfilePage(),
+                  ProfilePictureUpload(),
+                  NameInputPage()
                 ],
               ),
             ),
@@ -195,6 +204,7 @@ class _BreadCrumbButtonItemState extends State<BreadCrumbButtonItem> {
       child: Text(
         widget.buttonText,
         style: TextStyle(
+          fontSize: 20,
           color: widget.hasValue
               ? Colors.white
               : (widget.isSelected ? Colors.white : Colors.black),

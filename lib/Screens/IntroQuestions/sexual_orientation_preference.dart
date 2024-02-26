@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../Notifiers/profile_setup_notifier.dart';
+import '../../Notifiers/profile_setup_notifier.dart';
 
 class SexualOrientationPreferenceScreen extends StatelessWidget {
   @override
@@ -29,19 +29,16 @@ class SexualOrientationPreferenceScreen extends StatelessWidget {
                   SexualOrientationOptionCard(
                     title: 'Heterosexual',
                     onPressed: () {
-                      notifier.sexualOrientation =
-                          SexualOrientation.heterosexual;
+                      notifier.sexualOrientation = 'Heterosexual';
                     },
-                    isSelected: notifier.sexualOrientation ==
-                        SexualOrientation.heterosexual,
+                    isSelected: notifier.sexualOrientation == 'Heterosexual',
                   ),
                   SexualOrientationOptionCard(
                     title: 'Homosexual',
                     onPressed: () {
-                      notifier.sexualOrientation = SexualOrientation.homosexual;
+                      notifier.sexualOrientation = 'Homosexual';
                     },
-                    isSelected: notifier.sexualOrientation ==
-                        SexualOrientation.homosexual,
+                    isSelected: notifier.sexualOrientation == 'Homosexual',
                   ),
                 ],
               ),
@@ -51,18 +48,16 @@ class SexualOrientationPreferenceScreen extends StatelessWidget {
                   SexualOrientationOptionCard(
                     title: 'Bisexual',
                     onPressed: () {
-                      notifier.sexualOrientation = SexualOrientation.bisexual;
+                      notifier.sexualOrientation = 'Bisexual';
                     },
-                    isSelected: notifier.sexualOrientation ==
-                        SexualOrientation.bisexual,
+                    isSelected: notifier.sexualOrientation == 'Bisexual',
                   ),
                   SexualOrientationOptionCard(
                     title: 'Pansexual',
                     onPressed: () {
-                      notifier.sexualOrientation = SexualOrientation.pansexual;
+                      notifier.sexualOrientation = 'Pansexual';
                     },
-                    isSelected: notifier.sexualOrientation ==
-                        SexualOrientation.pansexual,
+                    isSelected: notifier.sexualOrientation == 'Pansexual',
                   ),
                 ],
               ),
@@ -72,18 +67,16 @@ class SexualOrientationPreferenceScreen extends StatelessWidget {
                   SexualOrientationOptionCard(
                     title: 'Asexual',
                     onPressed: () {
-                      notifier.sexualOrientation = SexualOrientation.asexual;
+                      notifier.sexualOrientation = 'Asexual';
                     },
-                    isSelected:
-                        notifier.sexualOrientation == SexualOrientation.asexual,
+                    isSelected: notifier.sexualOrientation == 'Asexual',
                   ),
                   SexualOrientationOptionCard(
                     title: 'Other',
                     onPressed: () {
-                      notifier.sexualOrientation = SexualOrientation.other;
+                      notifier.sexualOrientation = 'Other';
                     },
-                    isSelected:
-                        notifier.sexualOrientation == SexualOrientation.other,
+                    isSelected: notifier.sexualOrientation == 'Other',
                   ),
                 ],
               ),

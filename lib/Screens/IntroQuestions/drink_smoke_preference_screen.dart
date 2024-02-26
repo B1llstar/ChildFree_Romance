@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../Notifiers/profile_setup_notifier.dart';
+import '../../Notifiers/profile_setup_notifier.dart';
 
 class DrinkSmokePreferenceScreen extends StatefulWidget {
   @override
@@ -46,26 +46,24 @@ class _DrinkSmokePreferenceScreenState
                             DrinkSmokeOptionCard(
                               title: 'Yes',
                               onPressed: () {
-                                notifier.drinkingPreference =
-                                    DrinkingPreference.yes;
+                                notifier.drinkingPreference = 'Yes';
+
                                 setState(() {
                                   hasTappedDrinkButton = true;
                                 });
                               },
-                              isSelected: notifier.drinkingPreference ==
-                                  DrinkingPreference.yes,
+                              isSelected: notifier.drinkingPreference == 'Yes',
                             ),
                             DrinkSmokeOptionCard(
                               title: 'No',
                               onPressed: () {
-                                notifier.drinkingPreference =
-                                    DrinkingPreference.no;
+                                notifier.drinkingPreference = 'No';
+
                                 setState(() {
                                   hasTappedDrinkButton = true;
                                 });
                               },
-                              isSelected: notifier.drinkingPreference ==
-                                  DrinkingPreference.no,
+                              isSelected: notifier.drinkingPreference == 'No',
                             ),
                           ],
                         ),
@@ -75,14 +73,13 @@ class _DrinkSmokePreferenceScreenState
                             DrinkSmokeOptionCard(
                               title: 'Socially',
                               onPressed: () {
-                                notifier.drinkingPreference =
-                                    DrinkingPreference.socially;
+                                notifier.drinkingPreference = 'Socially';
                                 setState(() {
                                   hasTappedDrinkButton = true;
                                 });
                               },
-                              isSelected: notifier.drinkingPreference ==
-                                  DrinkingPreference.socially,
+                              isSelected:
+                                  notifier.drinkingPreference == 'Socially',
                             ),
                           ],
                         ),
@@ -108,8 +105,7 @@ class _DrinkSmokePreferenceScreenState
                             DrinkSmokeOptionCard(
                               title: 'Yes',
                               onPressed: () {
-                                notifier.smokingPreference =
-                                    SmokingPreference.yes;
+                                notifier.smokingPreference = 'Yes';
                                 setState(() {
                                   hasTappedSmokeButton = true;
                                 });
@@ -117,14 +113,13 @@ class _DrinkSmokePreferenceScreenState
                                   notifier.advancePage(context);
                                 }
                               },
-                              isSelected: notifier.smokingPreference ==
-                                  SmokingPreference.yes,
+                              isSelected: notifier.smokingPreference == 'Yes',
                             ),
                             DrinkSmokeOptionCard(
                               title: 'No',
                               onPressed: () {
-                                notifier.smokingPreference =
-                                    SmokingPreference.no;
+                                notifier.smokingPreference = 'No';
+
                                 setState(() {
                                   hasTappedSmokeButton = true;
                                 });
@@ -132,8 +127,7 @@ class _DrinkSmokePreferenceScreenState
                                   notifier.advancePage(context);
                                 }
                               },
-                              isSelected: notifier.smokingPreference ==
-                                  SmokingPreference.no,
+                              isSelected: notifier.smokingPreference == 'No',
                             ),
                           ],
                         ),
@@ -143,8 +137,7 @@ class _DrinkSmokePreferenceScreenState
                             DrinkSmokeOptionCard(
                               title: 'Socially',
                               onPressed: () {
-                                notifier.smokingPreference =
-                                    SmokingPreference.socially;
+                                notifier.smokingPreference = 'Socially';
                                 setState(() {
                                   hasTappedSmokeButton = true;
                                 });
@@ -152,8 +145,8 @@ class _DrinkSmokePreferenceScreenState
                                   notifier.advancePage(context);
                                 }
                               },
-                              isSelected: notifier.smokingPreference ==
-                                  SmokingPreference.socially,
+                              isSelected:
+                                  notifier.smokingPreference == 'Socially',
                             ),
                           ],
                         ),
