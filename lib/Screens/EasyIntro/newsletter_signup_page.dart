@@ -92,6 +92,10 @@ class _NewsletterPageState extends State<NewsletterPage> {
                               _userDataNotifier!.signedUpForNewsletter = false;
                             });
                             widget.onNewsletterButtonPressed();
+                            _unsubscribeToNewsletter(
+                                context,
+                                Provider.of<UserDataProvider>(context,
+                                    listen: false));
                           },
                           // Apply green color if not signed up, no styling otherwise
                           style: _userDataNotifier!.signedUpForNewsletter !=
@@ -117,6 +121,47 @@ class _NewsletterPageState extends State<NewsletterPage> {
         ],
       ),
     );
+  }
+
+  Future<void> _unsubscribeToNewsletter(
+      BuildContext context, UserDataProvider userDataNotifier) async {
+    try {
+      // Get the current user
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        String userId = user.uid;
+
+        // Reference to Firestore collection
+        CollectionReference newsletterSignups =
+            FirebaseFirestore.instance.collection('newsletter_signups');
+
+        // Check if the user already exists in the collection
+        DocumentSnapshot userDoc = await newsletterSignups.doc(userId).get();
+        if (userDoc.exists) {
+          // Add the user to the collection if they don't exist
+          await newsletterSignups.doc(userId).delete();
+          // Update signedUpForNewsletter to true
+          userDataNotifier.signedUpForNewsletter = false;
+          setState(() {
+            _userDataNotifier!.signedUpForNewsletter = false;
+          });
+          // Show a confirmation snackbar
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Unsubscribed from newsletter!')),
+          );
+        } else {
+          // Show a message that the user is already subscribed
+        }
+      } else {
+        // Handle if user is not authenticated
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('You need to sign in first!')),
+        );
+      }
+    } catch (error) {
+      print('Error: $error');
+      // Handle error
+    }
   }
 
   Future<void> _subscribeToNewsletter(
