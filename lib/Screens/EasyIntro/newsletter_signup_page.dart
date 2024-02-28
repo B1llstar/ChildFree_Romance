@@ -7,6 +7,7 @@ import '../../Notifiers/user_notifier.dart';
 
 class NewsletterPage extends StatefulWidget {
   final void Function() onNewsletterButtonPressed;
+
   const NewsletterPage({
     Key? key,
     required this.onNewsletterButtonPressed,

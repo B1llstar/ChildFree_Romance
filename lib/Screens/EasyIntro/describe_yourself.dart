@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 
 class DescribeYourselfPage extends StatefulWidget {
   final TextEditingController controller;
+  final void Function(String) onChanged;
 
-  const DescribeYourselfPage({Key? key, required this.controller})
+  const DescribeYourselfPage(
+      {Key? key, required this.controller, required this.onChanged})
       : super(key: key);
 
   @override
@@ -61,7 +63,9 @@ class _DescribeYourselfPageState extends State<DescribeYourselfPage> {
                           hintText: 'I\'m loving, faithful, and adventurous',
                           border: OutlineInputBorder(),
                         ),
-                        onChanged: (value) {},
+                        onChanged: (value) {
+                          widget.onChanged(value);
+                        },
                       ),
                     ),
                   ],

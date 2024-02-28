@@ -41,7 +41,14 @@ class UserDataProvider extends ChangeNotifier {
     -1,
     -1
   ];
+  List<int> visitedPages = [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+// Setter for any index within visitedPages
+  void setVisitedPageAtIndex(int index, int value) {
+    visitedPages[index] = value;
+  }
 
+  // Getter
+  List<int> get getVisitedPages => visitedPages;
   // Getters and Setters for Choices
 
   List<int> get getChoices => choices;
@@ -56,10 +63,20 @@ class UserDataProvider extends ChangeNotifier {
     this.profilePictureUrl = profilePictureUrl;
   }
 
+  bool shouldShowNameNextButton = false;
+  // Getters and setters
+
+  bool get getShouldShowNameNextButton => shouldShowNameNextButton;
+  set setShouldShowNameNextButton(bool shouldShowNameNextButton) {
+    this.shouldShowNameNextButton = shouldShowNameNextButton;
+    notifyListeners();
+  }
+
   // Getters and setters for name
   String get getName => name;
   set setName(String name) {
     this.name = name;
+    notifyListeners();
   }
 
   UserDataProvider() {
@@ -133,12 +150,14 @@ class UserDataProvider extends ChangeNotifier {
 
     DebugUtils.printDebug('Added interest: $interest');
     DebugUtils.printDebug('Current list: $selectedInterests');
+    notifyListeners();
   }
 
   void removeFromSelectedInterestList(String interest) {
     selectedInterests?.remove(interest);
     DebugUtils.printDebug('Removed interest: $interest');
     DebugUtils.printDebug('Current list: $selectedInterests');
+    notifyListeners();
   }
 
   Future<void> updateSelectedInterestsInFirestore() async {

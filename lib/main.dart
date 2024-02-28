@@ -38,6 +38,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      title: 'Childfree Connection',
       home: LoginPage(),
     );
   }
@@ -57,6 +58,11 @@ class _QuestionPageState extends State<QuestionPage> {
   TextEditingController _feedbackController = TextEditingController();
   int currentPageIndex = 0;
   UserDataProvider? _userDataNotifier;
+  bool shouldShowNameNextButton = false;
+  bool shouldShowDreamPartnerNextButton = false;
+  bool shouldShowNewsletterNextButton = false;
+  bool shouldShowInterestsNextButton = false;
+  bool shouldShowDescribeYourselfNextButton = false;
 
   @override
   void initState() {
@@ -83,12 +89,13 @@ class _QuestionPageState extends State<QuestionPage> {
 
   void nextPage() {
     print('Going to next page');
-    if (currentPageIndex < _questions.length) {
+    if (currentPageIndex < 20) {
       print('trying to go to next page');
       _pageController!
           .nextPage(duration: Duration(milliseconds: 300), curve: Curves.ease);
       setState(() {
         currentPageIndex++;
+        _userDataNotifier!.setVisitedPageAtIndex(currentPageIndex, 1);
       });
     }
   }
@@ -287,6 +294,7 @@ class _QuestionPageState extends State<QuestionPage> {
   Widget build(BuildContext context) {
     if (_userDataNotifier == null)
       _userDataNotifier = Provider.of<UserDataProvider>(context, listen: false);
+
     final List<String> pageTitles = [
       'Basics',
       'Vices',
@@ -315,7 +323,7 @@ class _QuestionPageState extends State<QuestionPage> {
           Expanded(
             child: PageView.builder(
               controller: _pageController,
-              itemCount: _questions.length + 7, // Corrected item count
+              itemCount: _questions.length, // Corrected item count
               itemBuilder: (context, index) {
                 if (index == 15) {
                   // Adjusted index
@@ -354,12 +362,25 @@ class _QuestionPageState extends State<QuestionPage> {
                           SizedBox(width: 4),
                           ElevatedButton(
                             onPressed: () {
-                              goToPage(index + 1);
                               UserDataProvider userDataProvider =
                                   Provider.of<UserDataProvider>(context,
                                       listen: false);
+                              if (userDataProvider.selectedInterests!.length ==
+                                  0) {
+                                print('No interests detected');
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content:
+                                          Text('Pick at least one interest')),
+                                );
+                                return;
+                              }
                               userDataProvider
                                   .updateSelectedInterestsInFirestore();
+                              print('Selected itnerests' +
+                                  userDataProvider.selectedInterests
+                                      .toString());
+                              goToPage(index + 1);
                             },
                             child: Icon(Icons.keyboard_arrow_right),
                           ),
@@ -372,7 +393,18 @@ class _QuestionPageState extends State<QuestionPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       DreamPartnerPage(
-                          controller: _myDreamPartnerTextEditingController),
+                          controller: _myDreamPartnerTextEditingController,
+                          onChanged: (value) {
+                            if (value != null && value.isNotEmpty) {
+                              setState(() {
+                                shouldShowDreamPartnerNextButton = true;
+                              });
+                            } else {
+                              setState(() {
+                                shouldShowDreamPartnerNextButton = false;
+                              });
+                            }
+                          }),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Row(
@@ -386,23 +418,28 @@ class _QuestionPageState extends State<QuestionPage> {
                             ),
                             SizedBox(width: 4),
                             ElevatedButton(
-                              onPressed: () {
-                                if (_myDreamPartnerTextEditingController.text !=
-                                        null &&
-                                    _myDreamPartnerTextEditingController
-                                        .text.isNotEmpty) {
-                                  print('Length of controller text: ' +
-                                      _myDreamPartnerTextEditingController
-                                          .text.length
-                                          .toString());
-                                  updatePropertyInFirestore(
-                                      'dreamPartner',
-                                      _myDreamPartnerTextEditingController
-                                          .text);
-                                }
-                                print('Going right');
-                                goToPage(index + 1);
-                              },
+                              onPressed: _myDreamPartnerTextEditingController
+                                          .text.length >
+                                      0
+                                  ? () {
+                                      if (_myDreamPartnerTextEditingController
+                                                  .text !=
+                                              null &&
+                                          _myDreamPartnerTextEditingController
+                                              .text.isNotEmpty) {
+                                        print('Length of controller text: ' +
+                                            _myDreamPartnerTextEditingController
+                                                .text.length
+                                                .toString());
+                                        updatePropertyInFirestore(
+                                            'dreamPartner',
+                                            _myDreamPartnerTextEditingController
+                                                .text);
+                                      }
+                                      print('Going right');
+                                      goToPage(index + 1);
+                                    }
+                                  : null,
                               child: Icon(Icons.keyboard_arrow_right),
                             ),
                           ],
@@ -414,8 +451,12 @@ class _QuestionPageState extends State<QuestionPage> {
                   return Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      NewsletterPage(
-                          onNewsletterButtonPressed: onNewsletterButtonPressed),
+                      NewsletterPage(onNewsletterButtonPressed: () {
+                        setState(() {
+                          print('Pressed a button');
+                          shouldShowNewsletterNextButton = true;
+                        });
+                      }),
                       SizedBox(width: 4),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -427,9 +468,11 @@ class _QuestionPageState extends State<QuestionPage> {
                             child: Icon(Icons.keyboard_arrow_left),
                           ),
                           ElevatedButton(
-                            onPressed: () {
-                              goToPage(index + 1);
-                            },
+                            onPressed: shouldShowNewsletterNextButton
+                                ? () {
+                                    goToPage(index + 1);
+                                  }
+                                : null,
                             child: Icon(Icons.keyboard_arrow_right),
                           ),
                         ],
@@ -478,6 +521,17 @@ class _QuestionPageState extends State<QuestionPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       DescribeYourselfPage(
+                          onChanged: (value) {
+                            if (value.length == 0) {
+                              setState(() {
+                                shouldShowDescribeYourselfNextButton = false;
+                              });
+                            } else {
+                              setState(() {
+                                shouldShowDescribeYourselfNextButton = true;
+                              });
+                            }
+                          },
                           controller: _aboutMeTextEditingController),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
@@ -492,20 +546,23 @@ class _QuestionPageState extends State<QuestionPage> {
                             ),
                             SizedBox(width: 4),
                             ElevatedButton(
-                              onPressed: () {
-                                if (_aboutMeTextEditingController.text !=
-                                        null &&
-                                    _aboutMeTextEditingController
-                                        .text.isNotEmpty) {
-                                  print('Length of controller text: ' +
-                                      _aboutMeTextEditingController.text.length
-                                          .toString());
-                                  updatePropertyInFirestore('aboutMe',
-                                      _aboutMeTextEditingController.text);
-                                }
-                                print('Going right');
-                                goToPage(index + 1);
-                              },
+                              onPressed: shouldShowDescribeYourselfNextButton
+                                  ? () {
+                                      if (_aboutMeTextEditingController.text !=
+                                              null &&
+                                          _aboutMeTextEditingController
+                                              .text.isNotEmpty) {
+                                        print('Length of controller text: ' +
+                                            _aboutMeTextEditingController
+                                                .text.length
+                                                .toString());
+                                        updatePropertyInFirestore('aboutMe',
+                                            _aboutMeTextEditingController.text);
+                                      }
+                                      print('Going right');
+                                      goToPage(index + 1);
+                                    }
+                                  : null,
                               child: Icon(Icons.keyboard_arrow_right),
                             ),
                           ],
@@ -519,7 +576,20 @@ class _QuestionPageState extends State<QuestionPage> {
                     children: [
                       NamePage(
                           controller: _textEditingController,
-                          userDataNotifier: _userDataNotifier!),
+                          userDataNotifier: _userDataNotifier!,
+                          onChanged: (value) {
+                            if (value.length == 0) {
+                              print('Changed to 0');
+                              setState(() {
+                                shouldShowNameNextButton = false;
+                              });
+                            } else {
+                              print('Changed to length > 0');
+                              setState(() {
+                                shouldShowNameNextButton = true;
+                              });
+                            }
+                          }),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Row(
@@ -533,18 +603,21 @@ class _QuestionPageState extends State<QuestionPage> {
                             ),
                             SizedBox(width: 4),
                             ElevatedButton(
-                              onPressed: () {
-                                if (_textEditingController.text != null &&
-                                    _textEditingController.text.isNotEmpty) {
-                                  print('Length of controller text: ' +
-                                      _textEditingController.text.length
-                                          .toString());
-                                  updatePropertyInFirestore(
-                                      'name', _textEditingController.text);
-                                }
-                                print('Going right');
-                                goToPage(index + 1);
-                              },
+                              onPressed: shouldShowNameNextButton
+                                  ? () {
+                                      if (_textEditingController.text != null &&
+                                          _textEditingController
+                                              .text.isNotEmpty) {
+                                        print('Length of controller text: ' +
+                                            _textEditingController.text.length
+                                                .toString());
+                                        updatePropertyInFirestore('name',
+                                            _textEditingController.text);
+                                      }
+                                      print('Going right');
+                                      goToPage(index + 1);
+                                    }
+                                  : null,
                               child: Icon(Icons.keyboard_arrow_right),
                             ),
                           ],
@@ -599,10 +672,6 @@ class _QuestionPageState extends State<QuestionPage> {
                               child: Icon(Icons.keyboard_arrow_left),
                             ),
                             SizedBox(width: 4),
-                            ElevatedButton(
-                              onPressed: nextPage,
-                              child: Icon(Icons.keyboard_arrow_right),
-                            ),
                           ],
                         ),
                       ),
@@ -643,8 +712,18 @@ class _QuestionPageState extends State<QuestionPage> {
     }
   }
 
+  void checkIfItemsListIsEmpty(List<String> items) {
+    print('Checking list of items: ' + items.toString());
+    if (items.isEmpty) {
+      shouldShowInterestsNextButton = false;
+    } else {
+      shouldShowInterestsNextButton = true;
+    }
+  }
+
   Widget _buildQuestionWidget(Map<String, dynamic> question, int index) {
     return QuestionWidget(
+      onItemsSelected: checkIfItemsListIsEmpty,
       property: question['property'],
       title: question['title'],
       assetImageUrl: question['assetImageUrl'],

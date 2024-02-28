@@ -5,8 +5,12 @@ import '../../Notifiers/user_notifier.dart';
 class NamePage extends StatefulWidget {
   final TextEditingController controller;
   final UserDataProvider userDataNotifier;
+  final void Function(String) onChanged;
   const NamePage(
-      {Key? key, required this.controller, required this.userDataNotifier})
+      {Key? key,
+      required this.controller,
+      required this.userDataNotifier,
+      required this.onChanged})
       : super(key: key);
 
   @override
@@ -59,6 +63,14 @@ class _NamePageState extends State<NamePage> {
                         ),
                         onChanged: (value) {
                           widget.userDataNotifier.name = value;
+                          if (value.isEmpty) {
+                            widget.userDataNotifier.shouldShowNameNextButton =
+                                false;
+                          } else {
+                            widget.userDataNotifier.shouldShowNameNextButton =
+                                true;
+                          }
+                          widget.onChanged(value);
                         },
                       ),
                     ),

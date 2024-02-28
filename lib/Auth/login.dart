@@ -1,7 +1,7 @@
-import 'package:childfree_romance/Screens/profile_setup_screen.dart';
 import 'package:childfree_romance/main.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_login/flutter_login.dart';
 
@@ -57,7 +57,7 @@ class _LoginPageState extends State<LoginPage> {
       // Navigate to profile setup screen
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const ProfileSetupScreen()),
+        MaterialPageRoute(builder: (context) => QuestionPage()),
       );
     } catch (error) {
       DebugUtils.printDebug('Sign-up failed: $error');
@@ -82,7 +82,9 @@ class _LoginPageState extends State<LoginPage> {
             Container(
               child: Expanded(
                 child: FlutterLogin(
-                  title: 'Childfree Connection',
+                  title: kIsWeb
+                      ? '  Childfree\nConnection'
+                      : '  Childfree\nConnection',
                   headerWidget: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [

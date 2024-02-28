@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 
 class DreamPartnerPage extends StatefulWidget {
   final TextEditingController controller;
+  final void Function(String) onChanged;
 
-  const DreamPartnerPage({Key? key, required this.controller})
+  const DreamPartnerPage(
+      {Key? key, required this.controller, required this.onChanged})
       : super(key: key);
 
   @override
@@ -53,7 +55,9 @@ class _DreamPartnerPageState extends State<DreamPartnerPage> {
                           hintText: 'Friendly, with a good sense of humor!',
                           border: OutlineInputBorder(),
                         ),
-                        onChanged: (value) {},
+                        onChanged: (value) {
+                          widget.onChanged(value);
+                        },
                       ),
                     ),
                   ],

@@ -11,16 +11,18 @@ class QuestionWidget extends StatefulWidget {
   final List<String> options;
   final void Function(String, String) onButtonPressed;
   final int index;
+  final Function(List<String>) onItemsSelected;
 
-  const QuestionWidget({
-    Key? key,
-    required this.property,
-    required this.title,
-    required this.assetImageUrl,
-    required this.options,
-    required this.onButtonPressed,
-    required this.index,
-  }) : super(key: key);
+  const QuestionWidget(
+      {Key? key,
+      required this.property,
+      required this.title,
+      required this.assetImageUrl,
+      required this.options,
+      required this.onButtonPressed,
+      required this.index,
+      required this.onItemsSelected})
+      : super(key: key);
 
   @override
   _QuestionWidgetState createState() => _QuestionWidgetState();
@@ -32,6 +34,10 @@ class _QuestionWidgetState extends State<QuestionWidget> {
   @override
   void initState() {
     super.initState();
+  }
+
+  void onItemsSelected(List<String> items) {
+    widget.onItemsSelected(items);
   }
 
   @override
@@ -58,7 +64,11 @@ class _QuestionWidgetState extends State<QuestionWidget> {
                   ),
                   SizedBox(height: 20),
                   if (widget.property == 'interests')
-                    _buildInterestsQuestionCard()
+                    _buildInterestsQuestionCard(
+                      (interests) {
+                        widget.onItemsSelected(interests);
+                      },
+                    )
                   else
                     _buildNormalQuestionCard(),
                 ],
@@ -110,11 +120,13 @@ class _QuestionWidgetState extends State<QuestionWidget> {
     }).toList();
   }
 
-  Widget _buildInterestsQuestionCard() {
+  Widget _buildInterestsQuestionCard(
+      void Function(List<String>) onItemsSelected) {
     return InterestsQuestionCard(
       options: widget.options,
       onInterestsSelected: (selectedInterests) {
         widget.onButtonPressed(widget.property, selectedInterests.join(', '));
+        widget.onItemsSelected(selectedInterests);
       },
     );
   }
