@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 
 class MessagePage extends StatelessWidget {
   final String title;
-  const MessagePage({Key? key, required this.title}) : super(key: key);
+  final String description;
+  const MessagePage({Key? key, required this.title, required this.description})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -23,10 +25,25 @@ class MessagePage extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Text(
-                      title,
-                      style: TextStyle(fontSize: 24),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          title,
+                          style: TextStyle(fontSize: 24),
+                        ),
+                      ],
                     ),
+                    if (description.isNotEmpty)
+                      Column(
+                        children: [
+                          SizedBox(height: 20),
+                          Text(
+                            description,
+                            style: TextStyle(fontSize: 18),
+                          ),
+                        ],
+                      )
                   ],
                 ),
               ),

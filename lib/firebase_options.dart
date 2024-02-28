@@ -44,38 +44,38 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyBfePxA5I9jXe162QppdNZdg6UeJfhzGY8',
-    appId: '1:617355588383:web:83a4ae648c1ed9b0a9762a',
-    messagingSenderId: '617355588383',
-    projectId: 'cf-romance',
-    authDomain: 'cf-romance.firebaseapp.com',
-    storageBucket: 'cf-romance.appspot.com',
-    measurementId: 'G-1H6QP39FW3',
+    apiKey: 'AIzaSyBEbC0AP3_2TfARQuWs5EbFfOzUxMHjQvE',
+    appId: '1:1020911922465:web:5012ae03df58f8e7ef2260',
+    messagingSenderId: '1020911922465',
+    projectId: 'childfree-connection',
+    authDomain: 'childfree-connection.firebaseapp.com',
+    storageBucket: 'childfree-connection.appspot.com',
+    measurementId: 'G-QHJQSS0M85',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDrAUQ7-5K0xQ_KiYOkc1pgdXGTesJbhuU',
-    appId: '1:617355588383:android:a5ff94b4b534b174a9762a',
-    messagingSenderId: '617355588383',
-    projectId: 'cf-romance',
-    storageBucket: 'cf-romance.appspot.com',
+    apiKey: 'AIzaSyC-vye-yfIthjJ91iu8HkXJGFkLbIeY0oA',
+    appId: '1:1020911922465:android:dadd488cd1c30e03ef2260',
+    messagingSenderId: '1020911922465',
+    projectId: 'childfree-connection',
+    storageBucket: 'childfree-connection.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyDhfFktz43kLmbgHIEAfAE81iBew9qckGY',
-    appId: '1:617355588383:ios:5a825293df6fbf9ba9762a',
-    messagingSenderId: '617355588383',
-    projectId: 'cf-romance',
-    storageBucket: 'cf-romance.appspot.com',
+    apiKey: 'AIzaSyC3R1yErjihKYTCA8QQODpJGXp5FKlmoYE',
+    appId: '1:1020911922465:ios:2a7446d04771702fef2260',
+    messagingSenderId: '1020911922465',
+    projectId: 'childfree-connection',
+    storageBucket: 'childfree-connection.appspot.com',
     iosBundleId: 'com.example.childfreeRomance',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyDhfFktz43kLmbgHIEAfAE81iBew9qckGY',
-    appId: '1:617355588383:ios:a817ae2a622e4628a9762a',
-    messagingSenderId: '617355588383',
-    projectId: 'cf-romance',
-    storageBucket: 'cf-romance.appspot.com',
+    apiKey: 'AIzaSyC3R1yErjihKYTCA8QQODpJGXp5FKlmoYE',
+    appId: '1:1020911922465:ios:e74661633cdc65beef2260',
+    messagingSenderId: '1020911922465',
+    projectId: 'childfree-connection',
+    storageBucket: 'childfree-connection.appspot.com',
     iosBundleId: 'com.example.childfreeRomance.RunnerTests',
   );
 }

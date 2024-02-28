@@ -1,11 +1,10 @@
 import 'package:childfree_romance/Screens/profile_setup_screen.dart';
+import 'package:childfree_romance/main.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_login/flutter_login.dart';
-import 'package:provider/provider.dart';
 
-import '../Notifiers/profile_setup_notifier.dart';
 import '../Utils/debug_utils.dart';
 
 class LoginPage extends StatefulWidget {
@@ -52,11 +51,6 @@ class _LoginPageState extends State<LoginPage> {
         password: data.password!,
       );
 
-      // Clear existing preferences
-      ProfileSetupNotifier profileSetupNotifier =
-          Provider.of<ProfileSetupNotifier>(context, listen: false);
-      profileSetupNotifier.clearAllValues();
-
       // Create user in Firestore
       _createUserInFirestore(data);
 
@@ -73,11 +67,9 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> _handleSuccessfulLogin() async {
     // Clear existing preferences
-    ProfileSetupNotifier profileSetupNotifier =
-        Provider.of<ProfileSetupNotifier>(context, listen: false);
 
-    Navigator.pushReplacement(context,
-        MaterialPageRoute(builder: (context) => const ProfileSetupScreen()));
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (context) => QuestionPage()));
   }
 
   @override
@@ -90,10 +82,13 @@ class _LoginPageState extends State<LoginPage> {
             Container(
               child: Expanded(
                 child: FlutterLogin(
-                  title: 'Child-Free\nRomance',
+                  title: 'Childfree Connection',
+                  headerWidget: Padding(
+                      padding: EdgeInsets.only(bottom: 10),
+                      child: Text('Sign up and get early access!')),
                   theme: LoginTheme(
+                      cardTheme: CardTheme(),
                       cardInitialHeight: 150,
-                      pageColorDark: Colors.purple,
                       titleStyle: TextStyle(color: Colors.white)),
                   onLogin: (loginData) async {
                     String? loginError = await _authUser(loginData);

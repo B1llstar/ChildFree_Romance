@@ -1,9 +1,24 @@
 import 'package:flutter/material.dart';
 
-class NamePage extends StatelessWidget {
-  final void Function(String name) onNextPressed;
+class NamePage extends StatefulWidget {
+  final TextEditingController controller;
 
-  const NamePage({Key? key, required this.onNextPressed}) : super(key: key);
+  const NamePage({Key? key, required this.controller}) : super(key: key);
+
+  @override
+  _NamePageState createState() => _NamePageState();
+}
+
+class _NamePageState extends State<NamePage> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,13 +47,12 @@ class NamePage extends StatelessWidget {
                     Container(
                       width: 300,
                       child: TextField(
+                        controller: widget.controller,
                         decoration: InputDecoration(
                           hintText: 'Enter your name',
                           border: OutlineInputBorder(),
                         ),
-                        onSubmitted: (name) {
-                          onNextPressed(name);
-                        },
+                        onChanged: (value) {},
                       ),
                     ),
                   ],

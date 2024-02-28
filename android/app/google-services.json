@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "617355588383",
-    "project_id": "cf-romance",
-    "storage_bucket": "cf-romance.appspot.com"
+    "project_number": "1020911922465",
+    "project_id": "childfree-connection",
+    "storage_bucket": "childfree-connection.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:617355588383:android:a5ff94b4b534b174a9762a",
+        "mobilesdk_app_id": "1:1020911922465:android:dadd488cd1c30e03ef2260",
         "android_client_info": {
           "package_name": "com.example.childfree_romance"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDrAUQ7-5K0xQ_KiYOkc1pgdXGTesJbhuU"
+          "current_key": "AIzaSyC-vye-yfIthjJ91iu8HkXJGFkLbIeY0oA"
         }
       ],
       "services": {

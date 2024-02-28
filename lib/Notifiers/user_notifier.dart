@@ -9,7 +9,7 @@ class UserDataProvider extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   User? _user;
   Map<String, dynamic>? _userData;
-
+  List<String> _selectedInterests = [];
   UserDataProvider() {
     _init();
   }
@@ -71,6 +71,33 @@ class UserDataProvider extends ChangeNotifier {
       });
     } catch (error) {
       print('Error setting property $property: $error');
+    }
+  }
+
+  List<String>? get selectedInterests => _selectedInterests;
+
+  void addToSelectedInterestList(String interest) {
+    selectedInterests?.add(interest);
+
+    DebugUtils.printDebug('Added interest: $interest');
+    DebugUtils.printDebug('Current list: $selectedInterests');
+  }
+
+  void removeFromSelectedInterestList(String interest) {
+    selectedInterests?.remove(interest);
+    DebugUtils.printDebug('Removed interest: $interest');
+    DebugUtils.printDebug('Current list: $selectedInterests');
+  }
+
+  Future<void> updateSelectedInterestsInFirestore() async {
+    print('Trying to update interests');
+    print('Interests: $selectedInterests');
+    try {
+      await _firestore.collection('users').doc(_user!.uid).set({
+        'selectedInterests': selectedInterests,
+      }, SetOptions(merge: true));
+    } catch (error) {
+      print('Error updating selected interests in Firestore: $error');
     }
   }
 }

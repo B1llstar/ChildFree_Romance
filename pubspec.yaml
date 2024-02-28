@@ -49,6 +49,7 @@ dependencies:
   adaptive_dialog: ^2.1.0
   universal_html: ^2.2.4
   shared_preferences: ^2.2.2
+  confetti: ^0.6.0
 
 dev_dependencies:
   flutter_test:
@@ -82,6 +83,9 @@ flutter:
     - assets/user.png
     - assets/age.png
     - assets/magnifying_glass.png
+    - assets/newspaper.png
+    - assets/confetti.gif
+    - assets/confetti-lg.gif
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 

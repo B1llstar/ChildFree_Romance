@@ -30,7 +30,6 @@ class _ProfilePictureUploadState extends State<ProfilePictureUpload> {
   @override
   void initState() {
     super.initState();
-    loadCachedImage();
   }
 
   Future<void> loadCachedImage() async {
@@ -216,10 +215,6 @@ class _ProfilePictureUploadState extends State<ProfilePictureUpload> {
                       onPressed: () async {
                         pickAndUploadImage();
                       },
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.arrow_forward),
-                      onPressed: widget.onNextPressed,
                     ),
                   ],
                 ),

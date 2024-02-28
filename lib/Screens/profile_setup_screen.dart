@@ -63,7 +63,9 @@ class ProfileSetupScreen extends StatelessWidget {
                   DateOfBirthPreferenceScreen(),
                   ChildfreeDeclarationPage(),
                   UserProfilePage(),
-                  ProfilePictureUpload(),
+                  ProfilePictureUpload(
+                    onNextPressed: () {},
+                  ),
                   NameInputPage()
                 ],
               ),
