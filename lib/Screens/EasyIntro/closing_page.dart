@@ -47,36 +47,66 @@ class _ClosingPageState extends State<ClosingPage> {
       appBar: AppBar(
         title: Text('Confetti Example'),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ConfettiWidget(
-              confettiController: _controller!,
-              blastDirectionality: BlastDirectionality.explosive,
-              shouldLoop: false,
-              emissionFrequency: 0.20,
-              numberOfParticles: 20,
-              blastDirection: -3.14 / 2,
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            height: 400,
+            width: 500,
+            child: Card(
+              elevation: 2,
+              child: ConfettiWidget(
+                child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.asset('assets/confetti_emoji.png',
+                              height: 100, width: 100),
+                        ],
+                      ),
+                      Text(
+                        "You're all set!",
+                        style: TextStyle(
+                            fontSize: 24, fontWeight: FontWeight.bold),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: 300,
+                            child: Text(
+                              "Join our official Discord Server for the latest updates!",
+                              style: TextStyle(fontSize: 20),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Image.asset(
+                        'assets/discord.png',
+                        height: 75,
+                        width: 75,
+                      )
+                    ]),
+                confettiController: _controller!,
+                blastDirectionality: BlastDirectionality.explosive,
+                shouldLoop: false,
+                emissionFrequency: 0.20,
+                numberOfParticles: 20,
+                blastDirection: -3.14 / 2,
+              ),
             ),
-            SizedBox(height: 20),
-            Text(
-              "You're all set!",
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            Text(
-              "Join our official Discord Server for the latest updates!",
-              style: TextStyle(fontSize: 22),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                shootConfetti();
-              },
-              child: Text('Shoot Confetti'),
-            ),
-          ],
-        ),
+          ),
+          SizedBox(height: 20),
+          SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: () {
+              shootConfetti();
+            },
+            child: Text('Shoot Confetti'),
+          ),
+        ],
       ),
       backgroundColor: Colors.white,
     );
