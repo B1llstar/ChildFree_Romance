@@ -41,7 +41,8 @@ class _InterestsQuestionCardState extends State<InterestsQuestionCard> {
                 for (var interest in widget.options)
                   ChoiceChip(
                     label: Text(interest),
-                    selected: selectedInterests.contains(interest),
+                    selected:
+                        userDataProvider!.selectedInterests!.contains(interest),
                     onSelected: (selected) {
                       setState(() {
                         if (selected) {
@@ -60,18 +61,6 @@ class _InterestsQuestionCardState extends State<InterestsQuestionCard> {
               ],
             ),
           ),
-        ),
-        SizedBox(height: 20),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ElevatedButton(
-              onPressed: () {
-                widget.onInterestsSelected(selectedInterests);
-              },
-              child: Text('Submit'),
-            ),
-          ],
         ),
       ],
     );

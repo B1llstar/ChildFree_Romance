@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_breadcrumb/flutter_breadcrumb.dart';
 import 'package:provider/provider.dart';
 
+import 'Auth/login.dart';
 import 'Notifiers/user_notifier.dart';
 import 'Screens/EasyIntro/closing_page.dart';
 import 'Screens/EasyIntro/dream_partner.dart';
@@ -37,7 +38,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: QuestionPage(),
+      home: LoginPage(),
     );
   }
 }
@@ -55,6 +56,7 @@ class _QuestionPageState extends State<QuestionPage> {
       TextEditingController();
   TextEditingController _feedbackController = TextEditingController();
   int currentPageIndex = 0;
+  UserDataProvider? _userDataNotifier;
 
   @override
   void initState() {
@@ -81,7 +83,7 @@ class _QuestionPageState extends State<QuestionPage> {
 
   void nextPage() {
     print('Going to next page');
-    if (currentPageIndex < _questions.length + 3) {
+    if (currentPageIndex < _questions.length) {
       print('trying to go to next page');
       _pageController!
           .nextPage(duration: Duration(milliseconds: 300), curve: Curves.ease);
@@ -104,6 +106,10 @@ class _QuestionPageState extends State<QuestionPage> {
   void onButtonPressed(String property, String value) {
     print('$value pressed for property: $property');
     updatePropertyInFirestore(property, value);
+    nextPage();
+  }
+
+  void onNewsletterButtonPressed() {
     nextPage();
   }
 
@@ -279,6 +285,8 @@ class _QuestionPageState extends State<QuestionPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (_userDataNotifier == null)
+      _userDataNotifier = Provider.of<UserDataProvider>(context, listen: false);
     final List<String> pageTitles = [
       'Basics',
       'Vices',
@@ -317,7 +325,7 @@ class _QuestionPageState extends State<QuestionPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       MessagePage(
-                        title: 'Childfree Connection!',
+                        title: 'Childfree Connection',
                         description: 'Ready to build your profile?',
                       ),
                       SizedBox(width: 4),
@@ -333,7 +341,7 @@ class _QuestionPageState extends State<QuestionPage> {
                   return Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      _buildQuestionWidget(_questions[2]),
+                      _buildQuestionWidget(_questions[2], index),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -406,7 +414,8 @@ class _QuestionPageState extends State<QuestionPage> {
                   return Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      NewsletterPage(),
+                      NewsletterPage(
+                          onNewsletterButtonPressed: onNewsletterButtonPressed),
                       SizedBox(width: 4),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -508,7 +517,9 @@ class _QuestionPageState extends State<QuestionPage> {
                   return Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      NamePage(controller: _textEditingController),
+                      NamePage(
+                          controller: _textEditingController,
+                          userDataNotifier: _userDataNotifier!),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Row(
@@ -577,7 +588,7 @@ class _QuestionPageState extends State<QuestionPage> {
                   return Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      _buildQuestionWidget(_questions[index]),
+                      _buildQuestionWidget(_questions[index], index),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Row(
@@ -632,13 +643,14 @@ class _QuestionPageState extends State<QuestionPage> {
     }
   }
 
-  Widget _buildQuestionWidget(Map<String, dynamic> question) {
+  Widget _buildQuestionWidget(Map<String, dynamic> question, int index) {
     return QuestionWidget(
       property: question['property'],
       title: question['title'],
       assetImageUrl: question['assetImageUrl'],
       options: question['options'],
       onButtonPressed: onButtonPressed,
+      index: index,
     );
   }
 }

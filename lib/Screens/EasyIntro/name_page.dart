@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 
+import '../../Notifiers/user_notifier.dart';
+
 class NamePage extends StatefulWidget {
   final TextEditingController controller;
-
-  const NamePage({Key? key, required this.controller}) : super(key: key);
+  final UserDataProvider userDataNotifier;
+  const NamePage(
+      {Key? key, required this.controller, required this.userDataNotifier})
+      : super(key: key);
 
   @override
   _NamePageState createState() => _NamePageState();
@@ -13,6 +17,7 @@ class _NamePageState extends State<NamePage> {
   @override
   void initState() {
     super.initState();
+    widget.controller.text = widget.userDataNotifier.name;
   }
 
   @override
@@ -52,7 +57,9 @@ class _NamePageState extends State<NamePage> {
                           hintText: 'Enter your name',
                           border: OutlineInputBorder(),
                         ),
-                        onChanged: (value) {},
+                        onChanged: (value) {
+                          widget.userDataNotifier.name = value;
+                        },
                       ),
                     ),
                   ],

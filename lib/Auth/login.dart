@@ -83,9 +83,14 @@ class _LoginPageState extends State<LoginPage> {
               child: Expanded(
                 child: FlutterLogin(
                   title: 'Childfree Connection',
-                  headerWidget: Padding(
-                      padding: EdgeInsets.only(bottom: 10),
-                      child: Text('Sign up and get early access!')),
+                  headerWidget: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Padding(
+                          padding: EdgeInsets.only(bottom: 10),
+                          child: Text('Sign up and get early access!')),
+                    ],
+                  ),
                   theme: LoginTheme(
                       cardTheme: CardTheme(),
                       cardInitialHeight: 150,

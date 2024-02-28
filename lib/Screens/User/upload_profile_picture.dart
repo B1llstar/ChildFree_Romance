@@ -1,14 +1,18 @@
 import 'dart:io' show File;
 import 'dart:typed_data';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:universal_html/html.dart' as html;
+
+import '../../Notifiers/user_notifier.dart';
 
 class ProfilePictureUpload extends StatefulWidget {
   final VoidCallback onNextPressed;
@@ -26,23 +30,11 @@ class _ProfilePictureUploadState extends State<ProfilePictureUpload> {
   String? errorMessage;
   bool nameValidated = false;
   TextEditingController nameController = TextEditingController();
+  UserDataProvider? _userDataNotifier;
 
   @override
   void initState() {
     super.initState();
-  }
-
-  Future<void> loadCachedImage() async {
-    final prefs = await SharedPreferences.getInstance();
-    final cachedImageBase64 = prefs.getString('cachedAvatarImage');
-    if (cachedImageBase64 != null) {
-      final decodedImage = Uint8List.fromList(
-        List<int>.from(cachedImageBase64.codeUnits),
-      );
-      setState(() {
-        uploadedImage = decodedImage;
-      });
-    }
   }
 
   Future<void> cacheImage(Uint8List imageBytes) async {
@@ -58,7 +50,7 @@ class _ProfilePictureUploadState extends State<ProfilePictureUpload> {
       setState(() {
         this.imageUrl = imageUrl;
       });
-      await cacheImage(imageBytes);
+      // await cacheImage(imageBytes);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Image uploaded successfully'),
@@ -82,11 +74,16 @@ class _ProfilePictureUploadState extends State<ProfilePictureUpload> {
 
       // Get the download URL
       final String imageUrl = await imageReference.getDownloadURL();
+      setProfilePictureUrl(imageUrl); // Update the notifier
       print('Url: $imageUrl');
       return imageUrl;
     } catch (error) {
       rethrow;
     }
+  }
+
+  void setProfilePictureUrl(String imageUrl) {
+    _userDataNotifier!.profilePictureUrl = imageUrl!;
   }
 
   Future<void> _updateProfilePicture(String uid, String imageUrl) async {
@@ -174,6 +171,8 @@ class _ProfilePictureUploadState extends State<ProfilePictureUpload> {
 
   @override
   Widget build(BuildContext context) {
+    if (_userDataNotifier == null)
+      _userDataNotifier = Provider.of<UserDataProvider>(context);
     return Container(
       color: Colors.deepPurpleAccent,
       child: Column(
@@ -204,8 +203,13 @@ class _ProfilePictureUploadState extends State<ProfilePictureUpload> {
                         radius: 80.0,
                         backgroundImage: imageUrl != null
                             ? MemoryImage(uploadedImage!)
-                            : null,
-                        child: uploadedImage == null
+                            : _userDataNotifier!.profilePictureUrl.isNotEmpty
+                                ? CachedNetworkImageProvider(
+                                        _userDataNotifier!.profilePictureUrl)
+                                    as ImageProvider<Object>?
+                                : null,
+                        child: uploadedImage == null &&
+                                _userDataNotifier!.profilePictureUrl.isEmpty
                             ? const Icon(
                                 Icons.image,
                                 size: 60.0,

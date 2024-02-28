@@ -35,7 +35,7 @@ class WelcomePage extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          'Childfree Connection!',
+                          'Childfree Connection',
                           style: TextStyle(fontSize: 24),
                         ),
                       ],

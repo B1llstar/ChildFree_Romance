@@ -10,6 +10,58 @@ class UserDataProvider extends ChangeNotifier {
   User? _user;
   Map<String, dynamic>? _userData;
   List<String> _selectedInterests = [];
+  String name = '';
+  String profilePictureUrl = '';
+  bool? signedUpForNewsletter;
+  // Getters and Setters
+
+  // Getters and setters for signedUpForNewsletter
+  bool? get getSignedUpForNewsletter => signedUpForNewsletter;
+  set setSignedUpForNewsletter(bool signedUpForNewsletter) {
+    this.signedUpForNewsletter = signedUpForNewsletter;
+  }
+
+  // Bools
+  bool? isSterilized;
+  List<int> choices = [
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1
+  ];
+
+  // Getters and Setters for Choices
+
+  List<int> get getChoices => choices;
+  // Change value of index within choices
+  void setChoiceAtIndex(int index, int value) {
+    choices[index] = value;
+  }
+
+  // Getters and setters for profilePictureUrl
+  String get getProfilePictureUrl => profilePictureUrl;
+  set setProfilePictureUrl(String profilePictureUrl) {
+    this.profilePictureUrl = profilePictureUrl;
+  }
+
+  // Getters and setters for name
+  String get getName => name;
+  set setName(String name) {
+    this.name = name;
+  }
+
   UserDataProvider() {
     _init();
   }

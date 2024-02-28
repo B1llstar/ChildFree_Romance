@@ -30,7 +30,7 @@ class MessagePage extends StatelessWidget {
                       children: [
                         Text(
                           title,
-                          style: TextStyle(fontSize: 24),
+                          style: TextStyle(fontSize: 26),
                         ),
                       ],
                     ),
