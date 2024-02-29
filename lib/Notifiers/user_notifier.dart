@@ -67,10 +67,12 @@ class UserDataProvider extends ChangeNotifier {
     -1,
     -1,
     -1,
+    -1,
     -1
   ];
   List<int> visitedPages = [
     1,
+    0,
     0,
     0,
     0,

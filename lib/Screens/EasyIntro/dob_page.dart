@@ -1,13 +1,15 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../Notifiers/user_notifier.dart';
+import '../../Utils/debug_utils.dart';
 
 class DOBPage extends StatelessWidget {
-  final String title;
-  final String description;
-  const DOBPage({Key? key, required this.title, required this.description})
-      : super(key: key);
+  const DOBPage({
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -29,6 +31,9 @@ class DOBPage extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
+                      Text('What\'s your Date of Birth?',
+                          style: TextStyle(fontSize: 24)),
+                      SizedBox(height: 16),
                       GestureDetector(
                         onTap: () => _selectDate(context, notifier),
                         child: Container(
@@ -43,17 +48,15 @@ class DOBPage extends StatelessWidget {
                             children: [
                               Icon(
                                 Icons.date_range,
-                                size: 24.0,
+                                size: 22.0,
                                 color: Theme.of(context).primaryColor,
                               ),
-                              SizedBox(width: 8.0),
                               Text(
                                 notifier.dateOfBirth != null
                                     ? '${notifier.dateOfBirth!.day}/${notifier.dateOfBirth!.month}/${notifier.dateOfBirth!.year}'
-                                    : 'Select Date of Birth',
+                                    : 'Select DOB',
                                 style: TextStyle(
-                                  fontSize: 20.0,
-                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18.0,
                                 ),
                               ),
                             ],
@@ -75,7 +78,7 @@ class DOBPage extends StatelessWidget {
       BuildContext context, UserDataProvider notifier) async {
     final DateTime? pickedDate = await showDatePicker(
       context: context,
-      initialDate: notifier.dateOfBirth ?? DateTime.now(),
+      initialDate: notifier.dateOfBirth ?? DateTime(1990),
       firstDate: DateTime(1900),
       lastDate: DateTime.now(),
       locale: const Locale('en', 'US'),
@@ -104,6 +107,23 @@ class DOBPage extends StatelessWidget {
       } else {
         // Update the date of birth in the notifier
         notifier.setDateOfBirth(pickedDate);
+
+        // Get current user's UID
+        final user = FirebaseAuth.instance.currentUser;
+        if (user != null) {
+          final uid = user.uid;
+          // Upload DOB to Firestore
+          final userDoc =
+              FirebaseFirestore.instance.collection('users').doc(uid);
+          await userDoc.set(
+            {'DOB': pickedDate},
+            SetOptions(merge: true),
+          );
+          DebugUtils.printDebug('DOB added to firestore!');
+        } else {
+          print('User not logged in');
+        }
+
         // Handle the selected date here
         print('Selected Date: $pickedDate');
       }

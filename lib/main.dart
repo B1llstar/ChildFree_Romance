@@ -1,5 +1,5 @@
-import 'package:childfree_romance/Auth/login.dart';
 import 'package:childfree_romance/Screens/EasyIntro/describe_yourself.dart';
+import 'package:childfree_romance/Screens/EasyIntro/dob_page.dart';
 import 'package:childfree_romance/Screens/EasyIntro/feedback_page.dart';
 import 'package:childfree_romance/Screens/EasyIntro/newsletter_signup_page.dart';
 import 'package:childfree_romance/Screens/EasyIntro/question.dart';
@@ -40,7 +40,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Childfree Connection',
-      home: LoginPage(),
+      home: QuestionPage(),
     );
   }
 }
@@ -155,6 +155,12 @@ class _QuestionPageState extends State<QuestionPage> {
     },
     {
       'property': 'NAME',
+      'title': 'Placeholder',
+      'options': [],
+      'assetImageUrl': 'assets/magnifying_glass.png',
+    },
+    {
+      'property': 'DOB',
       'title': 'Placeholder',
       'options': [],
       'assetImageUrl': 'assets/magnifying_glass.png',
@@ -322,300 +328,44 @@ class _QuestionPageState extends State<QuestionPage> {
       'Interests'
     ];
 
-    return Scaffold(
-      backgroundColor: Colors.deepPurpleAccent,
-      body: Column(
-        children: [
-          Expanded(
-            child: PageView.builder(
-              controller: _pageController,
-              itemCount: _questions.length, // Corrected item count
-              itemBuilder: (context, index) {
-                if (index == 18) {
-                  // Adjusted index
-                  return ClosingPage();
-                } else if (index == 0)
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      MessagePage(
-                        title: 'Childfree Connection',
-                        description: 'Ready to build your profile?',
-                      ),
-                      SizedBox(width: 4),
-                      ElevatedButton(
-                        onPressed: () {
-                          goToPage(index + 1);
-                        },
-                        child: Icon(Icons.keyboard_arrow_right),
-                      ),
-                    ],
-                  );
-                // Interests
-                else if (index == 3)
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _buildQuestionWidget(_questions[3], index),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          ElevatedButton(
-                            onPressed: () {
-                              goToPage(index - 1);
-                            },
-                            child: Icon(Icons.keyboard_arrow_left),
-                          ),
-                          SizedBox(width: 4),
-                          ElevatedButton(
-                            onPressed: () {
-                              UserDataProvider userDataProvider =
-                                  Provider.of<UserDataProvider>(context,
-                                      listen: false);
-                              if (userDataProvider.selectedInterests!.length ==
-                                  0) {
-                                print('No interests detected');
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                      content:
-                                          Text('Pick at least one interest')),
-                                );
-                                return;
-                              }
-                              userDataProvider
-                                  .updateSelectedInterestsInFirestore();
-                              print('Selected itnerests' +
-                                  userDataProvider.selectedInterests
-                                      .toString());
-                              goToPage(index + 1);
-                            },
-                            child: Icon(Icons.keyboard_arrow_right),
-                          ),
-                        ],
-                      ),
-                    ],
-                  );
-                else if (index == 13)
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      DreamPartnerPage(
-                          controller: _myDreamPartnerTextEditingController,
-                          onChanged: (value) {
-                            if (value != null && value.isNotEmpty) {
-                              setState(() {
-                                shouldShowDreamPartnerNextButton = true;
-                              });
-                            } else {
-                              setState(() {
-                                shouldShowDreamPartnerNextButton = false;
-                              });
-                            }
-                          }),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            ElevatedButton(
-                              onPressed: () {
-                                goToPage(index - 1);
-                              },
-                              child: Icon(Icons.keyboard_arrow_left),
-                            ),
-                            SizedBox(width: 4),
-                            ElevatedButton(
-                              onPressed: _myDreamPartnerTextEditingController
-                                          .text.length >
-                                      0
-                                  ? () {
-                                      if (_myDreamPartnerTextEditingController
-                                                  .text !=
-                                              null &&
-                                          _myDreamPartnerTextEditingController
-                                              .text.isNotEmpty) {
-                                        print('Length of controller text: ' +
-                                            _myDreamPartnerTextEditingController
-                                                .text.length
-                                                .toString());
-                                        updatePropertyInFirestore(
-                                            'dreamPartner',
-                                            _myDreamPartnerTextEditingController
-                                                .text);
-                                      }
-                                      print('Going right');
-                                      goToPage(index + 1);
-                                    }
-                                  : null,
-                              child: Icon(Icons.keyboard_arrow_right),
-                            ),
-                          ],
+    return Consumer(
+        builder: (context, UserDataProvider userDataProvider, child) {
+      return Scaffold(
+        backgroundColor: Colors.deepPurpleAccent,
+        body: Column(
+          children: [
+            Expanded(
+              child: PageView.builder(
+                controller: _pageController,
+                itemCount: _questions.length, // Corrected item count
+                itemBuilder: (context, index) {
+                  if (index == 19) {
+                    // Adjusted index
+                    return ClosingPage();
+                  } else if (index == 0)
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        MessagePage(
+                          title: 'Childfree Connection',
+                          description: 'Ready to build your profile?',
                         ),
-                      ),
-                    ],
-                  );
-                else if (index == 15)
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      NewsletterPage(onNewsletterButtonPressed: () {
-                        setState(() {
-                          print('Pressed a button');
-                          shouldShowNewsletterNextButton = true;
-                        });
-                      }),
-                      SizedBox(width: 4),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          ElevatedButton(
-                            onPressed: () {
-                              goToPage(index - 1);
-                            },
-                            child: Icon(Icons.keyboard_arrow_left),
-                          ),
-                          ElevatedButton(
-                            onPressed: shouldShowNewsletterNextButton
-                                ? () {
-                                    goToPage(index + 1);
-                                  }
-                                : null,
-                            child: Icon(Icons.keyboard_arrow_right),
-                          ),
-                        ],
-                      ),
-                    ],
-                  );
-                else if (index == 2)
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      CountryPickerPage(onCountryPicked: (value) {
-                        setState(() {
-                          shouldShowCountryPickerButton = true;
-                        });
-                        updatePropertyInFirestore('country', value);
-                        // Update Firestore Here
-                      }),
-                      SizedBox(width: 4),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          ElevatedButton(
-                            onPressed: () {
-                              goToPage(index - 1);
-                            },
-                            child: Icon(Icons.keyboard_arrow_left),
-                          ),
-                          ElevatedButton(
-                            onPressed: shouldShowCountryPickerButton
-                                ? () {
-                                    goToPage(index + 1);
-                                  }
-                                : null,
-                            child: Icon(Icons.keyboard_arrow_right),
-                          ),
-                        ],
-                      ),
-                    ],
-                  );
-                else if (index == 17)
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SolemnlySwearPage(onChecked: (value) {
-                        if (value) {
-                          setState(() {
-                            shouldShowSolemnlySwornNextButton = true;
-                          });
-                        } else {
-                          setState(() {
-                            shouldShowSolemnlySwornNextButton = false;
-                          });
-                        }
-                      }),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            ElevatedButton(
-                              onPressed: () {
-                                goToPage(index - 1);
-                              },
-                              child: Icon(Icons.keyboard_arrow_left),
-                            ),
-                            SizedBox(width: 4),
-                            ElevatedButton(
-                              onPressed: !shouldShowSolemnlySwornNextButton
-                                  ? null
-                                  : () {
-                                      goToPage(index + 1);
-                                    },
-                              child: Icon(Icons.keyboard_arrow_right),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  );
-                else if (index == 16)
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      FeedbackPage(controller: _feedbackController),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            ElevatedButton(
-                              onPressed: () {
-                                goToPage(index - 1);
-                              },
-                              child: Icon(Icons.keyboard_arrow_left),
-                            ),
-                            SizedBox(width: 4),
-                            ElevatedButton(
-                              onPressed: () {
-                                if (_feedbackController.text != null &&
-                                    _feedbackController.text.isNotEmpty) {
-                                  print('Length of controller text: ' +
-                                      _feedbackController.text.length
-                                          .toString());
-                                  updatePropertyInFirestore(
-                                      'feedback', _feedbackController.text);
-                                }
-                                print('Going right');
-                                goToPage(index + 1);
-                              },
-                              child: Icon(Icons.keyboard_arrow_right),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  );
-                else if (index == 14)
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      DescribeYourselfPage(
-                          onChanged: (value) {
-                            if (value.length == 0) {
-                              setState(() {
-                                shouldShowDescribeYourselfNextButton = false;
-                              });
-                            } else {
-                              setState(() {
-                                shouldShowDescribeYourselfNextButton = true;
-                              });
-                            }
+                        SizedBox(width: 4),
+                        ElevatedButton(
+                          onPressed: () {
+                            goToPage(index + 1);
                           },
-                          controller: _aboutMeTextEditingController),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
+                          child: Icon(Icons.keyboard_arrow_right),
+                        ),
+                      ],
+                    );
+                  else if (index == 2)
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        DOBPage(),
+                        SizedBox(width: 4),
+                        Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             ElevatedButton(
@@ -624,22 +374,9 @@ class _QuestionPageState extends State<QuestionPage> {
                               },
                               child: Icon(Icons.keyboard_arrow_left),
                             ),
-                            SizedBox(width: 4),
                             ElevatedButton(
-                              onPressed: shouldShowDescribeYourselfNextButton
+                              onPressed: userDataProvider.dateOfBirth != null
                                   ? () {
-                                      if (_aboutMeTextEditingController.text !=
-                                              null &&
-                                          _aboutMeTextEditingController
-                                              .text.isNotEmpty) {
-                                        print('Length of controller text: ' +
-                                            _aboutMeTextEditingController
-                                                .text.length
-                                                .toString());
-                                        updatePropertyInFirestore('aboutMe',
-                                            _aboutMeTextEditingController.text);
-                                      }
-                                      print('Going right');
                                       goToPage(index + 1);
                                     }
                                   : null,
@@ -647,74 +384,15 @@ class _QuestionPageState extends State<QuestionPage> {
                             ),
                           ],
                         ),
-                      ),
-                    ],
-                  );
-                else if (index == 1) {
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      NamePage(
-                          controller: _textEditingController,
-                          userDataNotifier: _userDataNotifier!,
-                          onChanged: (value) {
-                            if (value.length == 0) {
-                              print('Changed to 0');
-                              setState(() {
-                                shouldShowNameNextButton = false;
-                              });
-                            } else {
-                              print('Changed to length > 0');
-                              setState(() {
-                                shouldShowNameNextButton = true;
-                              });
-                            }
-                          }),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            ElevatedButton(
-                              onPressed: () {
-                                goToPage(index - 1);
-                              },
-                              child: Icon(Icons.keyboard_arrow_left),
-                            ),
-                            SizedBox(width: 4),
-                            ElevatedButton(
-                              onPressed: shouldShowNameNextButton
-                                  ? () {
-                                      if (_textEditingController.text != null &&
-                                          _textEditingController
-                                              .text.isNotEmpty) {
-                                        print('Length of controller text: ' +
-                                            _textEditingController.text.length
-                                                .toString());
-                                        updatePropertyInFirestore('name',
-                                            _textEditingController.text);
-                                      }
-                                      print('Going right');
-                                      goToPage(index + 1);
-                                    }
-                                  : null,
-                              child: Icon(Icons.keyboard_arrow_right),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  );
-                } else if (index == 4)
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      ProfilePictureUpload(
-                        onNextPressed: () {},
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
+                      ],
+                    );
+                  // Interests
+                  else if (index == 4)
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _buildQuestionWidget(_questions[4], index),
+                        Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             ElevatedButton(
@@ -726,43 +404,406 @@ class _QuestionPageState extends State<QuestionPage> {
                             SizedBox(width: 4),
                             ElevatedButton(
                               onPressed: () {
+                                UserDataProvider userDataProvider =
+                                    Provider.of<UserDataProvider>(context,
+                                        listen: false);
+                                if (userDataProvider
+                                        .selectedInterests!.length ==
+                                    0) {
+                                  print('No interests detected');
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content:
+                                            Text('Pick at least one interest')),
+                                  );
+                                  return;
+                                }
+                                userDataProvider
+                                    .updateSelectedInterestsInFirestore();
+                                print('Selected itnerests' +
+                                    userDataProvider.selectedInterests
+                                        .toString());
                                 goToPage(index + 1);
                               },
                               child: Icon(Icons.keyboard_arrow_right),
                             ),
                           ],
                         ),
-                      ),
-                    ],
-                  );
-
-                // At index 5, return _question item at index
-                else
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _buildQuestionWidget(_questions[index], index),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
+                      ],
+                    );
+                  else if (index == 14)
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        DreamPartnerPage(
+                            controller: _myDreamPartnerTextEditingController,
+                            onChanged: (value) {
+                              if (value != null && value.isNotEmpty) {
+                                setState(() {
+                                  shouldShowDreamPartnerNextButton = true;
+                                });
+                              } else {
+                                setState(() {
+                                  shouldShowDreamPartnerNextButton = false;
+                                });
+                              }
+                            }),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              ElevatedButton(
+                                onPressed: () {
+                                  goToPage(index - 1);
+                                },
+                                child: Icon(Icons.keyboard_arrow_left),
+                              ),
+                              SizedBox(width: 4),
+                              ElevatedButton(
+                                onPressed: _myDreamPartnerTextEditingController
+                                            .text.length >
+                                        0
+                                    ? () {
+                                        if (_myDreamPartnerTextEditingController
+                                                    .text !=
+                                                null &&
+                                            _myDreamPartnerTextEditingController
+                                                .text.isNotEmpty) {
+                                          print('Length of controller text: ' +
+                                              _myDreamPartnerTextEditingController
+                                                  .text.length
+                                                  .toString());
+                                          updatePropertyInFirestore(
+                                              'dreamPartner',
+                                              _myDreamPartnerTextEditingController
+                                                  .text);
+                                        }
+                                        print('Going right');
+                                        goToPage(index + 1);
+                                      }
+                                    : null,
+                                child: Icon(Icons.keyboard_arrow_right),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    );
+                  else if (index == 16)
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        NewsletterPage(onNewsletterButtonPressed: () {
+                          setState(() {
+                            print('Pressed a button');
+                            shouldShowNewsletterNextButton = true;
+                          });
+                        }),
+                        SizedBox(width: 4),
+                        Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             ElevatedButton(
-                              onPressed: previousPage,
+                              onPressed: () {
+                                goToPage(index - 1);
+                              },
                               child: Icon(Icons.keyboard_arrow_left),
                             ),
-                            SizedBox(width: 4),
+                            ElevatedButton(
+                              onPressed: shouldShowNewsletterNextButton
+                                  ? () {
+                                      goToPage(index + 1);
+                                    }
+                                  : null,
+                              child: Icon(Icons.keyboard_arrow_right),
+                            ),
                           ],
                         ),
-                      ),
-                    ],
-                  );
-              },
+                      ],
+                    );
+                  else if (index == 3)
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CountryPickerPage(onCountryPicked: (value) {
+                          setState(() {
+                            shouldShowCountryPickerButton = true;
+                          });
+                          updatePropertyInFirestore('country', value);
+                          // Update Firestore Here
+                        }),
+                        SizedBox(width: 4),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ElevatedButton(
+                              onPressed: () {
+                                goToPage(index - 1);
+                              },
+                              child: Icon(Icons.keyboard_arrow_left),
+                            ),
+                            ElevatedButton(
+                              onPressed: shouldShowCountryPickerButton
+                                  ? () {
+                                      goToPage(index + 1);
+                                    }
+                                  : null,
+                              child: Icon(Icons.keyboard_arrow_right),
+                            ),
+                          ],
+                        ),
+                      ],
+                    );
+                  else if (index == 18)
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SolemnlySwearPage(onChecked: (value) {
+                          if (value) {
+                            setState(() {
+                              shouldShowSolemnlySwornNextButton = true;
+                            });
+                          } else {
+                            setState(() {
+                              shouldShowSolemnlySwornNextButton = false;
+                            });
+                          }
+                        }),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              ElevatedButton(
+                                onPressed: () {
+                                  goToPage(index - 1);
+                                },
+                                child: Icon(Icons.keyboard_arrow_left),
+                              ),
+                              SizedBox(width: 4),
+                              ElevatedButton(
+                                onPressed: !shouldShowSolemnlySwornNextButton
+                                    ? null
+                                    : () {
+                                        goToPage(index + 1);
+                                      },
+                                child: Icon(Icons.keyboard_arrow_right),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    );
+                  else if (index == 17)
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        FeedbackPage(controller: _feedbackController),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              ElevatedButton(
+                                onPressed: () {
+                                  goToPage(index - 1);
+                                },
+                                child: Icon(Icons.keyboard_arrow_left),
+                              ),
+                              SizedBox(width: 4),
+                              ElevatedButton(
+                                onPressed: () {
+                                  if (_feedbackController.text != null &&
+                                      _feedbackController.text.isNotEmpty) {
+                                    print('Length of controller text: ' +
+                                        _feedbackController.text.length
+                                            .toString());
+                                    updatePropertyInFirestore(
+                                        'feedback', _feedbackController.text);
+                                  }
+                                  print('Going right');
+                                  goToPage(index + 1);
+                                },
+                                child: Icon(Icons.keyboard_arrow_right),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    );
+                  else if (index == 15)
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        DescribeYourselfPage(
+                            onChanged: (value) {
+                              if (value.length == 0) {
+                                setState(() {
+                                  shouldShowDescribeYourselfNextButton = false;
+                                });
+                              } else {
+                                setState(() {
+                                  shouldShowDescribeYourselfNextButton = true;
+                                });
+                              }
+                            },
+                            controller: _aboutMeTextEditingController),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              ElevatedButton(
+                                onPressed: () {
+                                  goToPage(index - 1);
+                                },
+                                child: Icon(Icons.keyboard_arrow_left),
+                              ),
+                              SizedBox(width: 4),
+                              ElevatedButton(
+                                onPressed: shouldShowDescribeYourselfNextButton
+                                    ? () {
+                                        if (_aboutMeTextEditingController
+                                                    .text !=
+                                                null &&
+                                            _aboutMeTextEditingController
+                                                .text.isNotEmpty) {
+                                          print('Length of controller text: ' +
+                                              _aboutMeTextEditingController
+                                                  .text.length
+                                                  .toString());
+                                          updatePropertyInFirestore(
+                                              'aboutMe',
+                                              _aboutMeTextEditingController
+                                                  .text);
+                                        }
+                                        print('Going right');
+                                        goToPage(index + 1);
+                                      }
+                                    : null,
+                                child: Icon(Icons.keyboard_arrow_right),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    );
+                  else if (index == 1) {
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        NamePage(
+                            controller: _textEditingController,
+                            userDataNotifier: _userDataNotifier!,
+                            onChanged: (value) {
+                              if (value.length == 0) {
+                                print('Changed to 0');
+                                setState(() {
+                                  shouldShowNameNextButton = false;
+                                });
+                              } else {
+                                print('Changed to length > 0');
+                                setState(() {
+                                  shouldShowNameNextButton = true;
+                                });
+                              }
+                            }),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              ElevatedButton(
+                                onPressed: () {
+                                  goToPage(index - 1);
+                                },
+                                child: Icon(Icons.keyboard_arrow_left),
+                              ),
+                              SizedBox(width: 4),
+                              ElevatedButton(
+                                onPressed: shouldShowNameNextButton
+                                    ? () {
+                                        if (_textEditingController.text !=
+                                                null &&
+                                            _textEditingController
+                                                .text.isNotEmpty) {
+                                          print('Length of controller text: ' +
+                                              _textEditingController.text.length
+                                                  .toString());
+                                          updatePropertyInFirestore('name',
+                                              _textEditingController.text);
+                                        }
+                                        print('Going right');
+                                        goToPage(index + 1);
+                                      }
+                                    : null,
+                                child: Icon(Icons.keyboard_arrow_right),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    );
+                  } else if (index == 5)
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ProfilePictureUpload(
+                          onNextPressed: () {},
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              ElevatedButton(
+                                onPressed: () {
+                                  goToPage(index - 1);
+                                },
+                                child: Icon(Icons.keyboard_arrow_left),
+                              ),
+                              SizedBox(width: 4),
+                              ElevatedButton(
+                                onPressed: () {
+                                  goToPage(index + 1);
+                                },
+                                child: Icon(Icons.keyboard_arrow_right),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    );
+
+                  // At index 5, return _question item at index
+                  else
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _buildQuestionWidget(_questions[index], index),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              ElevatedButton(
+                                onPressed: previousPage,
+                                child: Icon(Icons.keyboard_arrow_left),
+                              ),
+                              SizedBox(width: 4),
+                            ],
+                          ),
+                        ),
+                      ],
+                    );
+                },
+              ),
             ),
-          ),
-        ],
-      ),
-    );
+          ],
+        ),
+      );
+    });
   }
 
   void navigateToPage(BuildContext context, int index) {
