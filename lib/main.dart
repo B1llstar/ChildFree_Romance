@@ -1,18 +1,19 @@
+import 'package:childfree_romance/Auth/login.dart';
 import 'package:childfree_romance/Screens/EasyIntro/describe_yourself.dart';
 import 'package:childfree_romance/Screens/EasyIntro/feedback_page.dart';
 import 'package:childfree_romance/Screens/EasyIntro/newsletter_signup_page.dart';
 import 'package:childfree_romance/Screens/EasyIntro/question.dart';
+import 'package:childfree_romance/Screens/EasyIntro/solemnly_swear_page.dart';
 import 'package:childfree_romance/firebase_options.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_breadcrumb/flutter_breadcrumb.dart';
 import 'package:provider/provider.dart';
 
-import 'Auth/login.dart';
 import 'Notifiers/user_notifier.dart';
 import 'Screens/EasyIntro/closing_page.dart';
+import 'Screens/EasyIntro/country_picker_page.dart';
 import 'Screens/EasyIntro/dream_partner.dart';
 import 'Screens/EasyIntro/message_page_only.dart';
 import 'Screens/EasyIntro/name_page.dart';
@@ -63,7 +64,8 @@ class _QuestionPageState extends State<QuestionPage> {
   bool shouldShowNewsletterNextButton = false;
   bool shouldShowInterestsNextButton = false;
   bool shouldShowDescribeYourselfNextButton = false;
-
+  bool shouldShowCountryPickerButton = false;
+  bool shouldShowSolemnlySwornNextButton = false;
   @override
   void initState() {
     super.initState();
@@ -89,7 +91,7 @@ class _QuestionPageState extends State<QuestionPage> {
 
   void nextPage() {
     print('Going to next page');
-    if (currentPageIndex < 20) {
+    if (currentPageIndex < _questions.length) {
       print('trying to go to next page');
       _pageController!
           .nextPage(duration: Duration(milliseconds: 300), curve: Curves.ease);
@@ -153,6 +155,12 @@ class _QuestionPageState extends State<QuestionPage> {
     },
     {
       'property': 'NAME',
+      'title': 'Placeholder',
+      'options': [],
+      'assetImageUrl': 'assets/magnifying_glass.png',
+    },
+    {
+      'property': 'COUNTRY',
       'title': 'Placeholder',
       'options': [],
       'assetImageUrl': 'assets/magnifying_glass.png',
@@ -229,6 +237,12 @@ class _QuestionPageState extends State<QuestionPage> {
       'assetImageUrl': 'assets/magnifying_glass.png',
     },
     {
+      'property': 'genderToShow',
+      'title': 'Which would you like to see?',
+      'options': ['Male', 'Female', 'Any'],
+      'assetImageUrl': 'assets/magnifying_glass.png',
+    },
+    {
       'property': 'willDoLongDistance',
       'title': 'Are you open to long-distance?',
       'options': ['Yes', 'No'],
@@ -283,6 +297,12 @@ class _QuestionPageState extends State<QuestionPage> {
       'assetImageUrl': 'assets/magnifying_glass.png',
     },
     {
+      'property': 'SOLEMNLY SWEAR',
+      'title': 'Placeholder',
+      'options': [],
+      'assetImageUrl': 'assets/magnifying_glass.png',
+    },
+    {
       'property': 'CLOSING',
       'title': 'Placeholder',
       'options': [],
@@ -306,26 +326,12 @@ class _QuestionPageState extends State<QuestionPage> {
       backgroundColor: Colors.deepPurpleAccent,
       body: Column(
         children: [
-          BreadCrumb(
-            items: pageTitles.asMap().entries.map((entry) {
-              final index = entry.key;
-              final title = entry.value;
-              return BreadCrumbItem(
-                content: Text(title),
-                onTap: () {
-                  // Navigate to the corresponding page based on the index
-                  navigateToPage(context, index);
-                },
-              );
-            }).toList(),
-            divider: Icon(Icons.chevron_right),
-          ),
           Expanded(
             child: PageView.builder(
               controller: _pageController,
               itemCount: _questions.length, // Corrected item count
               itemBuilder: (context, index) {
-                if (index == 15) {
+                if (index == 18) {
                   // Adjusted index
                   return ClosingPage();
                 } else if (index == 0)
@@ -345,11 +351,12 @@ class _QuestionPageState extends State<QuestionPage> {
                       ),
                     ],
                   );
-                else if (index == 2)
+                // Interests
+                else if (index == 3)
                   return Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      _buildQuestionWidget(_questions[2], index),
+                      _buildQuestionWidget(_questions[3], index),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -388,7 +395,7 @@ class _QuestionPageState extends State<QuestionPage> {
                       ),
                     ],
                   );
-                else if (index == 11)
+                else if (index == 13)
                   return Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -447,7 +454,7 @@ class _QuestionPageState extends State<QuestionPage> {
                       ),
                     ],
                   );
-                else if (index == 13)
+                else if (index == 15)
                   return Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -479,7 +486,80 @@ class _QuestionPageState extends State<QuestionPage> {
                       ),
                     ],
                   );
-                else if (index == 14)
+                else if (index == 2)
+                  return Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      CountryPickerPage(onCountryPicked: (value) {
+                        setState(() {
+                          shouldShowCountryPickerButton = true;
+                        });
+                        updatePropertyInFirestore('country', value);
+                        // Update Firestore Here
+                      }),
+                      SizedBox(width: 4),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ElevatedButton(
+                            onPressed: () {
+                              goToPage(index - 1);
+                            },
+                            child: Icon(Icons.keyboard_arrow_left),
+                          ),
+                          ElevatedButton(
+                            onPressed: shouldShowCountryPickerButton
+                                ? () {
+                                    goToPage(index + 1);
+                                  }
+                                : null,
+                            child: Icon(Icons.keyboard_arrow_right),
+                          ),
+                        ],
+                      ),
+                    ],
+                  );
+                else if (index == 17)
+                  return Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SolemnlySwearPage(onChecked: (value) {
+                        if (value) {
+                          setState(() {
+                            shouldShowSolemnlySwornNextButton = true;
+                          });
+                        } else {
+                          setState(() {
+                            shouldShowSolemnlySwornNextButton = false;
+                          });
+                        }
+                      }),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ElevatedButton(
+                              onPressed: () {
+                                goToPage(index - 1);
+                              },
+                              child: Icon(Icons.keyboard_arrow_left),
+                            ),
+                            SizedBox(width: 4),
+                            ElevatedButton(
+                              onPressed: !shouldShowSolemnlySwornNextButton
+                                  ? null
+                                  : () {
+                                      goToPage(index + 1);
+                                    },
+                              child: Icon(Icons.keyboard_arrow_right),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  );
+                else if (index == 16)
                   return Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -516,7 +596,7 @@ class _QuestionPageState extends State<QuestionPage> {
                       ),
                     ],
                   );
-                else if (index == 12)
+                else if (index == 14)
                   return Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -625,7 +705,7 @@ class _QuestionPageState extends State<QuestionPage> {
                       ),
                     ],
                   );
-                } else if (index == 3)
+                } else if (index == 4)
                   return Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [

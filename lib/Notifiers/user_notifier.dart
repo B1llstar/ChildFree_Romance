@@ -7,18 +7,43 @@ import '../Utils/debug_utils.dart';
 class UserDataProvider extends ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  String countryPicked = '';
+  // Getters and setters for countryPicked
+  String get getCountryPicked => countryPicked;
+  set setCountryPicked(String countryPicked) {
+    this.countryPicked = countryPicked;
+    notifyListeners();
+    DebugUtils.printDebug(
+        'Notifier country picked value updated to: $countryPicked');
+  }
+
   User? _user;
   Map<String, dynamic>? _userData;
   List<String> _selectedInterests = [];
   String name = '';
   String profilePictureUrl = '';
   bool? signedUpForNewsletter;
+  bool hasSolemnlySworn = false;
+  // Getters and setters for hasSolemnly Sworn
+  bool get getHasSolemnlySworn => hasSolemnlySworn;
+  set setHasSolemnlySworn(bool hasSolemnlySworn) {
+    this.hasSolemnlySworn = hasSolemnlySworn;
+    notifyListeners();
+    DebugUtils.printDebug('Updated solemnly sworn to: $hasSolemnlySworn');
+  }
   // Getters and Setters
 
   // Getters and setters for signedUpForNewsletter
   bool? get getSignedUpForNewsletter => signedUpForNewsletter;
   set setSignedUpForNewsletter(bool signedUpForNewsletter) {
     this.signedUpForNewsletter = signedUpForNewsletter;
+  }
+
+  DateTime? _dateOfBirth;
+  DateTime? get dateOfBirth => _dateOfBirth;
+  void setDateOfBirth(DateTime? date) {
+    _dateOfBirth = date;
+    notifyListeners();
   }
 
   // Bools
@@ -39,9 +64,32 @@ class UserDataProvider extends ChangeNotifier {
     -1,
     -1,
     -1,
+    -1,
+    -1,
+    -1,
     -1
   ];
-  List<int> visitedPages = [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+  List<int> visitedPages = [
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ];
 // Setter for any index within visitedPages
   void setVisitedPageAtIndex(int index, int value) {
     visitedPages[index] = value;
