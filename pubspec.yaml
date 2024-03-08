@@ -53,7 +53,12 @@ dependencies:
   url_launcher: ^6.2.5
   cached_network_image: ^3.2.3
   country_picker: ^2.0.25
-
+  flutter_card_swiper: ^7.0.0
+  location: ^5.0.3
+  geocoding: ^2.2.0
+  persistent_bottom_nav_bar: ^5.0.2
+  flutter_snake_navigationbar: ^0.6.1
+  reorderable_grid: ^1.0.10
 dev_dependencies:
   flutter_test:
     sdk: flutter

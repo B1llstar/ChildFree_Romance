@@ -1,3 +1,4 @@
+import 'package:childfree_romance/Auth/login.dart';
 import 'package:childfree_romance/Screens/EasyIntro/describe_yourself.dart';
 import 'package:childfree_romance/Screens/EasyIntro/dob_page.dart';
 import 'package:childfree_romance/Screens/EasyIntro/feedback_page.dart';
@@ -11,6 +12,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'Notifiers/all_users_notifier.dart';
 import 'Notifiers/user_notifier.dart';
 import 'Screens/EasyIntro/closing_page.dart';
 import 'Screens/EasyIntro/country_picker_page.dart';
@@ -22,12 +24,14 @@ import 'Screens/User/upload_profile_picture.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  await FirebaseAuth.instance
-      .signInWithEmailAndPassword(email: "dev@gmail.com", password: "testing");
+
+  final AllUsersNotifier allUsersNotifier = AllUsersNotifier();
+  allUsersNotifier.fetchProfiles();
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => UserDataProvider()),
+        ChangeNotifierProvider(create: (_) => allUsersNotifier),
         // Add more providers if needed
       ],
       child: MyApp(),
@@ -40,7 +44,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Childfree Connection',
-      home: QuestionPage(),
+      home: LoginPage(),
     );
   }
 }
