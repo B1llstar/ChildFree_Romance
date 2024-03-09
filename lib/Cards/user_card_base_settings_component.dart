@@ -44,7 +44,7 @@ class _ProfileCardBaseSettingsComponentState
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              Text('Opposite side')
+              Text('')
             ],
           ),
           SizedBox(height: 4.0),
@@ -59,18 +59,41 @@ class _ProfileCardBaseSettingsComponentState
                   fontSize: 18.0,
                 ),
               ),
+            ],
+          ),
+          SizedBox(height: 4),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
               Text(
-                allUsersNotifier
-                        .convertIsLookingForToCardString(widget.profile) ??
-                    'Crigne',
+                widget.profile['locale']['country'] == 'United States'
+                    ? widget.profile['locale']['city'] != null
+                        ? '${widget.profile['locale']['city']}, ${widget.profile['locale']['state']}'
+                        : widget.profile['locale']['state']
+                    : widget.profile['locale']['city'] != null
+                        ? '${widget.profile['locale']['city']}, ${widget.profile['locale']['country']}'
+                        : widget.profile['locale']['country'],
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 16.0,
+                  fontSize: 18.0,
                 ),
               ),
             ],
           ),
-          SizedBox(height: 8.0),
+          SizedBox(height: 4),
+          Row(
+            children: [
+              Text(
+                  allUsersNotifier
+                          .convertIsLookingForToCardString(widget.profile) ??
+                      'Romance',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18.0,
+                  )),
+            ],
+          ),
+          SizedBox(height: 4.0),
         ],
       ),
     );

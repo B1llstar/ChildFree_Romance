@@ -15,21 +15,26 @@ class ReverseGeocodeService {
   String country = '';
   String countryCode = '';
   String? uid;
+  ReverseGeocodeResponse? reverseGeocodeResponse;
   // Constructor that takes uid
   ReverseGeocodeService(String uid) {
     this.uid = uid;
+    getLocationAndSetFirestore();
   }
 
   getLocationAndSetFirestore() async {
     // Grab coordinates using Location
+    print('Getting location...');
     await getCoordinates();
     if (kIsWeb) {
+      print('Web detected');
       // Reverse Geocode using CFC API
-      ReverseGeocodeResponse response = await fetchReverseGeocode(lat, long);
+      reverseGeocodeResponse = await fetchReverseGeocode(lat, long);
 
       // Assign coordinates to locale
-      assignCoordinatesToLocaleFromResponse(response);
+      assignCoordinatesToLocaleFromResponse(reverseGeocodeResponse!);
     } else {
+      print('Web not detected');
       // Reverse Geocode using mobile geocoding library
       await getLocaleMobile();
     }
@@ -73,6 +78,7 @@ class ReverseGeocodeService {
   Future<ReverseGeocodeResponse> fetchReverseGeocode(
       double latitude, double longitude) async {
     final url = Uri.parse('https://aianyone.net/cfc/reverse_geocode');
+    print('Getting response');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
@@ -106,8 +112,32 @@ class ReverseGeocodeService {
       lat = locationData.latitude!;
 
       long = locationData.longitude!;
+      print('Got coordinates');
     } catch (e) {
       print('Error getting location: $e');
+    }
+  }
+
+  String getAddressString() {
+    print('Response is not null');
+    print(reverseGeocodeResponse != null);
+    // Extract city, state, and country with fallback to 'N\\A' if null
+    String city = reverseGeocodeResponse!.city ?? 'N\\A';
+    String state = reverseGeocodeResponse!.state ?? 'N\\A';
+    String country = reverseGeocodeResponse!.country ?? 'N\\A';
+
+    // If the country is 'United States', omit the country from the address
+    if (country == 'United States') {
+      // If the city is not available, use only the state in the address
+      if (city == 'N\\A') {
+        return state;
+      } else {
+        // Include both city and state in the address
+        return '$city, $state';
+      }
+    } else {
+      // For countries other than the United States, include city and country in the address
+      return '${city == 'N\\A' ? '' : '$city, '}$country';
     }
   }
 

@@ -17,9 +17,18 @@ class AllUsersNotifier extends ChangeNotifier {
     await fetchCurrentUser(userId);
     await fetchHardcodedProfiles();
     await loadProfilePictures();
+    print('Init called...');
     uid = userId;
     _reverseGeocodeService = ReverseGeocodeService(uid);
-    _reverseGeocodeService!.getLocationAndSetFirestore();
+  }
+
+  String getAddressStringFromGeocodingService() {
+    print('Service is null ? ${_reverseGeocodeService == null}');
+    if (_reverseGeocodeService != null) {
+      return _reverseGeocodeService!.getAddressString();
+    } else {
+      return ' ';
+    }
   }
 
   fetchCurrentUser(String userId) async {
@@ -90,7 +99,13 @@ class AllUsersNotifier extends ChangeNotifier {
         'profilePictures': [
           'https://media.discordapp.net/attachments/1213940158169096213/1213940631018274967/Screenshot_20230711_121308_Gallery.jpg?ex=65f74d50&is=65e4d850&hm=a4a67e504c13fac45825e27bb285795b3c2fa43083ee4194b25a7e381ca3cdca&=&format=webp&width=304&height=537'
         ],
-        'selectedInterests': ['Video Games', 'Cooking']
+        'selectedInterests': ['Video Games', 'Cooking'],
+        'locale': {
+          'city': 'New York',
+          'state': 'New York',
+          'country': 'United States',
+          'countryCode': 'US'
+        }
       },
       {
         'name': 'Bacon',

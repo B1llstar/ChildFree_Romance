@@ -65,7 +65,7 @@ void main() async {
       .signInWithEmailAndPassword(email: "dev@gmail.com", password: "testing");
   // Create the notifier and fetch profiles
   final allUsersNotifier = AllUsersNotifier();
-  allUsersNotifier.fetchHardcodedProfiles();
+  allUsersNotifier.init(FirebaseAuth.instance.currentUser!.uid);
   // Run the app
   runApp(MaterialApp(
     home: ChangeNotifierProvider(
