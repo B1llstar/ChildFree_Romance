@@ -1,6 +1,7 @@
 import 'package:childfree_romance/Screens/Settings/Sections/essentials_section.dart';
 import 'package:childfree_romance/Screens/Settings/Sections/misc_section.dart';
 import 'package:childfree_romance/Screens/Settings/Sections/personal_beliefs.dart';
+import 'package:childfree_romance/Screens/Settings/Sections/photo_manager_section.dart';
 import 'package:childfree_romance/firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -52,6 +53,7 @@ class SettingsView extends StatelessWidget {
             settingsListBackground: Colors.deepPurpleAccent,
           ),
           sections: [
+            CustomSettingsSection(child: PhotoManagerSection()),
             CustomSettingsSection(child: EssentialsSettingsSection()),
             CustomSettingsSection(
                 child: matching.MatchPreferencesSettingsSection()),
