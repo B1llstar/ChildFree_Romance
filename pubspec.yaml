@@ -60,6 +60,7 @@ dependencies:
   flutter_snake_navigationbar: ^0.6.1
   reorderable_grid: ^1.0.10
   font_awesome_flutter: ^10.7.0
+  salomon_bottom_bar: ^3.3.2
 dev_dependencies:
   flutter_test:
     sdk: flutter

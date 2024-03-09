@@ -77,6 +77,14 @@ class _EssentialsSettingsSectionState extends State<EssentialsSettingsSection> {
         CustomSettingsTile(
           child: CustomSettingsTileSingleAnswer(
               leadingIcon: FontAwesomeIcons.solidUser,
+              firestorePropertyName: 'Gender',
+              options: ['Male', 'Female', 'Non-binary', 'Other'],
+              title: 'Gender',
+              myContext: context),
+        ),
+        CustomSettingsTile(
+          child: CustomSettingsTileSingleAnswer(
+              leadingIcon: FontAwesomeIcons.solidUser,
               firestorePropertyName: 'Pronouns',
               options: [
                 'He/Him',

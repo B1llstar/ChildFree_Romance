@@ -93,6 +93,7 @@ class AllUsersNotifier extends ChangeNotifier {
     _profiles = [
       {
         'name': 'Bill',
+        'userId': '123',
         'age': 27,
         'isLookingFor': 'Both',
         'aboutMe': 'Fun & adventurous',
@@ -109,21 +110,35 @@ class AllUsersNotifier extends ChangeNotifier {
       },
       {
         'name': 'Bacon',
+        'userId': '1234',
         'age': 22,
         'aboutMe': 'Crigne',
         'profilePictures': [
           'https://media.istockphoto.com/id/508755080/photo/cooked-bacon-rashers-close-up-isolated-on-a-white-background.jpg?s=612x612&w=0&k=20&c=XLmDH3d2J50Q1y7rufm9VE6Q_o8p7-0MY_e2NFTa6lA='
         ],
-        'selectedInterests': ['Video Games', 'Cooking']
+        'selectedInterests': ['Video Games', 'Cooking'],
+        'locale': {
+          'city': 'New York',
+          'state': 'New York',
+          'country': 'United States',
+          'countryCode': 'US'
+        }
       },
       {
         'name': 'Cyanide',
+        'userId': '12345',
         'age': 28,
         'aboutMe': 'Brother of crigne',
         'profilePictures': [
           'https://media.istockphoto.com/id/108224580/photo/frenchman-with-french-baguettes.jpg?s=612x612&w=0&k=20&c=8YDn27Q1d7xaVayJfWXGymjbbbMDGgKaLq0XAmNqNSI='
         ],
-        'selectedInterests': ['Video Games', 'Cooking']
+        'selectedInterests': ['Video Games', 'Cooking'],
+        'locale': {
+          'city': 'New York',
+          'state': 'New York',
+          'country': 'United States',
+          'countryCode': 'US'
+        }
       }
     ];
 

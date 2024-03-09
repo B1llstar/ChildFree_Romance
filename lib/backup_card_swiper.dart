@@ -158,7 +158,7 @@ class _CardViewState extends State<CardView> {
       body: Column(
         children: [
           SizedBox(
-            height: MediaQuery.of(context).size.height * 1,
+            height: MediaQuery.of(context).size.height * .8,
             width: 1500,
             child: AppinioSwiper(
                 loop: true,
