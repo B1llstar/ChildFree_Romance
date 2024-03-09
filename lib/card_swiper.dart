@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'Cards/user_card.dart';
 import 'Notifiers/all_users_notifier.dart';
 import 'firebase_options.dart';
 
@@ -18,144 +19,15 @@ class _CardViewState extends State<CardView> {
   @override
   Widget build(BuildContext context) {
     final allUsersNotifier = Provider.of<AllUsersNotifier>(context);
-
+    print(allUsersNotifier.profiles.length);
     List<Widget> cards = allUsersNotifier.profiles
-        .where((profile) => profile['profilePicture'] != null)
+        .where((profile) => profile['profilePictures'] != null)
         .map((profile) {
       return GestureDetector(
-        onTap: () => print('Tapped'),
-        child: Container(
-          constraints: BoxConstraints(
-            maxWidth: MediaQuery.of(context).size.width < 600
-                ? MediaQuery.of(context).size.width
-                : 600,
-          ),
-          child: Card(
-            color: Colors.deepPurpleAccent,
-            elevation: 0,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  height: MediaQuery.of(context).size.height * 0.5,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16.0),
-                    color: Colors.transparent,
-                    image: DecorationImage(
-                      image:
-                          NetworkImage(profile['profilePicture'] ?? 'Crigne'),
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Container(
-                        padding: EdgeInsets.all(16.0),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.6),
-                          borderRadius: BorderRadius.only(
-                            bottomLeft: Radius.circular(16.0),
-                            bottomRight: Radius.circular(16.0),
-                          ),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Text(
-                              profile['name'] as String,
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 24.0,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            SizedBox(height: 4.0),
-                            Text(
-                              '${profile['age'].toString()} years old' ??
-                                  '18 years old',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 18.0,
-                              ),
-                            ),
-                            SizedBox(height: 8.0),
-                            Text(
-                              profile['aboutMe'] ?? 'Crigne',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16.0,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 8),
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16.0),
-                  ),
-                  child: Column(
-                    children: [
-                      Card(
-                        color: Colors.white,
-                        child: Column(
-                          children: [
-                            Text(
-                              'Interests',
-                              style: TextStyle(fontSize: 22),
-                            ),
-                            SizedBox(height: 8),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: (profile['selectedInterests']
-                                      as List<dynamic>)
-                                  .map((interest) => Padding(
-                                        padding: const EdgeInsets.all(4.0),
-                                        child: Chip(label: Text(interest)),
-                                      ))
-                                  .toList(),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Card(
-                        color: Colors.white,
-                        child: Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  'I am the perfect match because...',
-                                  style: TextStyle(fontSize: 22),
-                                ),
-                              ],
-                            ),
-                            profile['aboutMe'] != null &&
-                                    profile['aboutMe'].isNotEmpty
-                                ? Text(
-                                    profile['aboutMe'],
-                                    style: TextStyle(fontSize: 20),
-                                  )
-                                : Text('Nothing yet...')
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 8),
-              ],
-            ),
-          ),
-        ),
-      );
+          onTap: () => print('Tapped'),
+          child: ProfileCard(
+            profile: profile,
+          ));
     }).toList();
 
     return Scaffold(

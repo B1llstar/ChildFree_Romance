@@ -1,3 +1,4 @@
+import 'package:childfree_romance/Services/reverse_geocode_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
@@ -10,12 +11,15 @@ class AllUsersNotifier extends ChangeNotifier {
   Map<String, dynamic> get currentUser => _currentUser;
   List<String> get profilePictures => _profilePictures;
   String uid = '';
+  ReverseGeocodeService? _reverseGeocodeService;
 
   void init(String userId) async {
     await fetchCurrentUser(userId);
-    await fetchProfilesExcludingUser(userId);
+    await fetchHardcodedProfiles();
     await loadProfilePictures();
     uid = userId;
+    _reverseGeocodeService = ReverseGeocodeService(uid);
+    _reverseGeocodeService!.getLocationAndSetFirestore();
   }
 
   fetchCurrentUser(String userId) async {
@@ -61,7 +65,19 @@ class AllUsersNotifier extends ChangeNotifier {
     print('User: ' + _currentUser.toString());
   }
 
-  void fetchHardcodedProfiles() {
+  convertIsLookingForToCardString(Map<String, dynamic> profile) {
+    if (profile['isLookingFor'] == 'Romance') {
+      return 'Romance';
+    } else if (profile['isLookingFor'] == 'Friendship') {
+      return 'Friendship';
+    } else if (profile['isLookingFor'] == 'Both') {
+      return 'Romance & Friendship';
+    } else {
+      return 'N\\A';
+    }
+  }
+
+  fetchHardcodedProfiles() {
     // Simulating fetching hardcoded profiles
     print('Fetching hardcoded profiles...');
     // Replace this with your actual hardcoded profiles
@@ -69,25 +85,29 @@ class AllUsersNotifier extends ChangeNotifier {
       {
         'name': 'Bill',
         'age': 27,
+        'isLookingFor': 'Both',
         'aboutMe': 'Fun & adventurous',
-        'profilePicture':
-            'https://media.discordapp.net/attachments/1213940158169096213/1213940631018274967/Screenshot_20230711_121308_Gallery.jpg?ex=65f74d50&is=65e4d850&hm=a4a67e504c13fac45825e27bb285795b3c2fa43083ee4194b25a7e381ca3cdca&=&format=webp&width=304&height=537',
+        'profilePictures': [
+          'https://media.discordapp.net/attachments/1213940158169096213/1213940631018274967/Screenshot_20230711_121308_Gallery.jpg?ex=65f74d50&is=65e4d850&hm=a4a67e504c13fac45825e27bb285795b3c2fa43083ee4194b25a7e381ca3cdca&=&format=webp&width=304&height=537'
+        ],
         'selectedInterests': ['Video Games', 'Cooking']
       },
       {
         'name': 'Bacon',
         'age': 22,
         'aboutMe': 'Crigne',
-        'profilePicture':
-            'https://media.istockphoto.com/id/508755080/photo/cooked-bacon-rashers-close-up-isolated-on-a-white-background.jpg?s=612x612&w=0&k=20&c=XLmDH3d2J50Q1y7rufm9VE6Q_o8p7-0MY_e2NFTa6lA=',
+        'profilePictures': [
+          'https://media.istockphoto.com/id/508755080/photo/cooked-bacon-rashers-close-up-isolated-on-a-white-background.jpg?s=612x612&w=0&k=20&c=XLmDH3d2J50Q1y7rufm9VE6Q_o8p7-0MY_e2NFTa6lA='
+        ],
         'selectedInterests': ['Video Games', 'Cooking']
       },
       {
         'name': 'Cyanide',
         'age': 28,
         'aboutMe': 'Brother of crigne',
-        'profilePicture':
-            'https://media.istockphoto.com/id/108224580/photo/frenchman-with-french-baguettes.jpg?s=612x612&w=0&k=20&c=8YDn27Q1d7xaVayJfWXGymjbbbMDGgKaLq0XAmNqNSI=',
+        'profilePictures': [
+          'https://media.istockphoto.com/id/108224580/photo/frenchman-with-french-baguettes.jpg?s=612x612&w=0&k=20&c=8YDn27Q1d7xaVayJfWXGymjbbbMDGgKaLq0XAmNqNSI='
+        ],
         'selectedInterests': ['Video Games', 'Cooking']
       }
     ];

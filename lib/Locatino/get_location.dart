@@ -76,7 +76,12 @@ class _LocationPageState extends State<LocationPage> {
 
     try {
       locationData = await location.getLocation();
-      print(locationData.longitude);
+      double lat = locationData.latitude!;
+      print(lat);
+
+      double long = locationData.longitude!;
+      _latitude = lat;
+      print(long);
       List<Placemark> placemarks = await placemarkFromCoordinates(
           locationData.latitude!, locationData.longitude!);
 
@@ -88,7 +93,7 @@ class _LocationPageState extends State<LocationPage> {
       } else {
         setState(() {
           _city = 'Unknown';
-          _latitude = 0.0;
+          _latitude = lat;
           _longitude = 0.0;
         });
       }
