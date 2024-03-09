@@ -59,6 +59,7 @@ dependencies:
   persistent_bottom_nav_bar: ^5.0.2
   flutter_snake_navigationbar: ^0.6.1
   reorderable_grid: ^1.0.10
+  font_awesome_flutter: ^10.7.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

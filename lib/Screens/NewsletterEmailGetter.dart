@@ -67,7 +67,7 @@ class _FirestoreDemoPageState extends State<FirestoreDemoPage> {
       ),
       body: Center(
         child: ElevatedButton(
-          onPressed: getFeedback,
+          onPressed: _fetchData,
           child: Text('Fetch Data'),
         ),
       ),

@@ -1,3 +1,6 @@
+import 'package:childfree_romance/Screens/Settings/Sections/essentials_section.dart';
+import 'package:childfree_romance/Screens/Settings/Sections/misc_section.dart';
+import 'package:childfree_romance/Screens/Settings/Sections/personal_beliefs.dart';
 import 'package:childfree_romance/firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -6,6 +9,8 @@ import 'package:flutter_settings_ui/flutter_settings_ui.dart';
 import 'package:provider/provider.dart';
 
 import '../../Notifiers/user_notifier.dart';
+import './Sections/match_preferences_section.dart' as matching;
+import 'Sections/lifestyle_section.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -47,47 +52,12 @@ class SettingsView extends StatelessWidget {
             settingsListBackground: Colors.deepPurpleAccent,
           ),
           sections: [
-            SettingsSection(
-              title: Text('General'),
-              tiles: [
-                buildSettingsTile(context, 'Name', 'assets/user.png', 'name'),
-                buildSettingsTile(context, 'Age', 'assets/age.png', 'age'),
-                buildSettingsTile(context, 'Sterilization Status',
-                    'assets/stethoscope.png', 'sterilizationStatus'),
-                buildJobSettingsTile(context),
-              ],
-            ),
-            SettingsSection(
-              title: Text('Match Preferences'),
-              tiles: [
-                buildSettingsTile(context, 'I want to match with...',
-                    'assets/globe.png', 'matchWithGender'),
-                buildSettingsTile(context, 'Open to Long-Distance?',
-                    'assets/globe.png', 'canLongDistanceMatch'),
-                buildSettingsTile(context, 'Relationship Type',
-                    'assets/heart.png', 'relationshipType'),
-                buildSettingsTile(context, 'Pets', 'assets/pet.png', 'pets'),
-              ],
-            ),
-            SettingsSection(
-              title: Text('Vices'),
-              tiles: [
-                buildSettingsTile(
-                    context, 'Do you drink?', 'assets/mug.png', 'doesDrink'),
-                buildSettingsTile(
-                    context, 'Do you smoke?', 'assets/cigar.png', 'doesSmoke'),
-                buildSettingsTile(
-                    context, 'Do you partake?', 'assets/plant.png', 'does420'),
-              ],
-            ),
-            SettingsSection(
-              title: Text('Personal Beliefs'),
-              tiles: [
-                buildEducationSettingsTile(context),
-                buildReligionSettingsTile(context),
-                buildPoliticsSettingsTile(context),
-              ],
-            ),
+            CustomSettingsSection(child: EssentialsSettingsSection()),
+            CustomSettingsSection(
+                child: matching.MatchPreferencesSettingsSection()),
+            CustomSettingsSection(child: LifestyleSettingsSection()),
+            CustomSettingsSection(child: PersonalBeliefsSettingsSection()),
+            CustomSettingsSection(child: MiscSettingsSection())
           ],
         ),
       ),
@@ -99,13 +69,7 @@ class SettingsView extends StatelessWidget {
     return SettingsTile(
       backgroundColor: Colors.white,
       title: Text(title),
-
-      /*
-      leading: Container(
-        height: 50,
-        width: 40,
-        child: Image.asset(leadingAsset),
-      ),*/
+      leading: Icon(Icons.add),
       description: Text(
         Provider.of<UserDataProvider>(context).getProperty(property) ?? '',
       ),
@@ -181,42 +145,6 @@ class SettingsView extends StatelessWidget {
       onPressed: (BuildContext context) {
         _showConfirmationDialog(context, 'Education', 'education',
             ['High School', 'Bachelor\'s', 'Master\'s', 'Some Degree']);
-      },
-    );
-  }
-
-  SettingsTile buildReligionSettingsTile(BuildContext context) {
-    return SettingsTile(
-      title: Text('Religion'),
-      leading: Container(
-        height: 50,
-        width: 50,
-        child: Image.asset('assets/religion.png'),
-      ),
-      description: Text(
-        Provider.of<UserDataProvider>(context).getProperty('religion') ?? '',
-      ),
-      onPressed: (BuildContext context) {
-        _showConfirmationDialog(context, 'Religion', 'religion',
-            ['Christian', 'Muslim', 'Atheist', 'Jewish', 'Agnostic']);
-      },
-    );
-  }
-
-  SettingsTile buildPoliticsSettingsTile(BuildContext context) {
-    return SettingsTile(
-      title: Text('Politics'),
-      leading: Container(
-        height: 50,
-        width: 50,
-        child: Image.asset('assets/politics.png'),
-      ),
-      description: Text(
-        Provider.of<UserDataProvider>(context).getProperty('politics') ?? '',
-      ),
-      onPressed: (BuildContext context) {
-        _showConfirmationDialog(context, 'Politics', 'politics',
-            ['Liberal', 'Moderate', 'Conservative', 'Libertarian']);
       },
     );
   }

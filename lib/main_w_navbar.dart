@@ -64,7 +64,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       backgroundColor: Colors.deepPurpleAccent,
       appBar: AppBar(
-        title: Text('Snake Navigation Bar Example'),
+        title: Text('Your Photos'),
       ),
       body: _pages[_selectedItemPosition],
       bottomNavigationBar: SnakeNavigationBar.color(
@@ -83,9 +83,8 @@ class _MyHomePageState extends State<MyHomePage> {
         onTap: (index) => setState(() => _selectedItemPosition = index),
         items: [
           BottomNavigationBarItem(
-              icon: Icon(Icons.settings), label: 'Settings'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.location_on), label: 'Location'),
+              icon: Icon(Icons.compass_calibration), label: 'Discover'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Location'),
         ],
       ),
     );
