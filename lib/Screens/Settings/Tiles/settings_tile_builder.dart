@@ -36,6 +36,7 @@ class _CustomSettingsTileSingleAnswerState
             .getProperty(widget.firestorePropertyName) ??
         '';
     return SettingsTile(
+      backgroundColor: Colors.white,
       title: Text(widget.title),
       description: Text(description),
       leading: Icon(widget.leadingIcon, size: 32),

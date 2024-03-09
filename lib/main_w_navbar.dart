@@ -4,13 +4,14 @@ import 'package:childfree_romance/UserSettings/profile_picture_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_snake_navigationbar/flutter_snake_navigationbar.dart';
 import 'package:provider/provider.dart';
+import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 
 import 'Screens/Settings/settings_view.dart';
 import 'firebase_options.dart';
 
 AllUsersNotifier? _allUsersNotifier;
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -51,12 +52,6 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _selectedItemPosition = 0;
 
-  SnakeShape snakeShape = SnakeShape.circle;
-  SnakeBarBehaviour snakeBarStyle = SnakeBarBehaviour.pinned;
-  ShapeBorder bottomBarShape =
-      RoundedRectangleBorder(borderRadius: BorderRadius.circular(25));
-  EdgeInsets padding = EdgeInsets.all(12);
-
   List<Widget> _pages = [SettingsView(), ProfilePicturesPage()];
 
   @override
@@ -66,25 +61,39 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text('Your Photos'),
       ),
-      body: _pages[_selectedItemPosition],
-      bottomNavigationBar: SnakeNavigationBar.color(
-        behaviour: snakeBarStyle,
-        snakeShape: snakeShape,
-        shape: bottomBarShape,
-        padding: padding,
-        snakeViewColor:
-            Colors.black, // Change this color according to your preference
-        selectedItemColor:
-            snakeShape == SnakeShape.indicator ? Colors.black : null,
-        unselectedItemColor: Colors.blueGrey,
-        showUnselectedLabels: true,
-        showSelectedLabels: true,
-        currentIndex: _selectedItemPosition,
-        onTap: (index) => setState(() => _selectedItemPosition = index),
-        items: [
-          BottomNavigationBarItem(
-              icon: Icon(Icons.compass_calibration), label: 'Discover'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Location'),
+      body: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: _pages[_selectedItemPosition],
+            ),
+          ),
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            child: Container(
+              width: 800, // Limiting the width to a maximum of 800
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: SalomonBottomBar(
+                currentIndex: _selectedItemPosition,
+                onTap: (i) => setState(() => _selectedItemPosition = i),
+                items: [
+                  SalomonBottomBarItem(
+                    icon: Icon(Icons.compass_calibration),
+                    title: Text('Discover'),
+                  ),
+                  SalomonBottomBarItem(
+                    icon: Icon(Icons.person),
+                    title: Text('Location'),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );
