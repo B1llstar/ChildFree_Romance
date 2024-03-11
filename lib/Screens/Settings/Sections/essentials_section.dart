@@ -45,7 +45,7 @@ class _EssentialsSettingsSectionState extends State<EssentialsSettingsSection> {
         ),
         CustomSettingsTile(
           child: CustomSettingsTileSingleAnswer(
-              firestorePropertyName: 'Sexuality',
+              firestorePropertyName: 'sexuality',
               options: [
                 'Straight',
                 'Gay',
@@ -77,7 +77,7 @@ class _EssentialsSettingsSectionState extends State<EssentialsSettingsSection> {
         CustomSettingsTile(
           child: CustomSettingsTileSingleAnswer(
               leadingIcon: FontAwesomeIcons.solidUser,
-              firestorePropertyName: 'Gender',
+              firestorePropertyName: 'gender',
               options: ['Male', 'Female', 'Non-binary', 'Other'],
               title: 'Gender',
               myContext: context),
@@ -85,7 +85,7 @@ class _EssentialsSettingsSectionState extends State<EssentialsSettingsSection> {
         CustomSettingsTile(
           child: CustomSettingsTileSingleAnswer(
               leadingIcon: FontAwesomeIcons.solidUser,
-              firestorePropertyName: 'Pronouns',
+              firestorePropertyName: 'pronouns',
               options: [
                 'He/Him',
                 'She/Her',

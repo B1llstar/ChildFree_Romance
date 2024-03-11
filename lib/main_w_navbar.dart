@@ -20,7 +20,7 @@ void main() async {
       .signInWithEmailAndPassword(email: "dev@gmail.com", password: "testing");
   final uid = FirebaseAuth.instance.currentUser!.uid;
   _allUsersNotifier = AllUsersNotifier();
-  _allUsersNotifier!.init(uid);
+  await _allUsersNotifier!.init(uid);
   print(uid);
   runApp(MaterialApp(
     home: MultiProvider(

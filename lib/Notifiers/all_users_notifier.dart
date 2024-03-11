@@ -13,7 +13,7 @@ class AllUsersNotifier extends ChangeNotifier {
   String uid = '';
   ReverseGeocodeService? _reverseGeocodeService;
 
-  void init(String userId) async {
+  init(String userId) async {
     await fetchCurrentUser(userId);
     await fetchHardcodedProfiles();
     await loadProfilePictures();
@@ -109,8 +109,11 @@ class AllUsersNotifier extends ChangeNotifier {
         }
       },
       {
+        'isLookingFor': 'Romance',
+        'desiredGenderRomance': 'Male',
         'name': 'Bacon',
         'userId': '1234',
+        'gender': 'Female',
         'age': 22,
         'aboutMe': 'Crigne',
         'profilePictures': [
@@ -118,14 +121,17 @@ class AllUsersNotifier extends ChangeNotifier {
         ],
         'selectedInterests': ['Video Games', 'Cooking'],
         'locale': {
-          'city': 'New York',
-          'state': 'New York',
+          'city': 'Quebec',
+          'state': 'Canada',
           'country': 'United States',
           'countryCode': 'US'
         }
       },
       {
-        'name': 'Cyanide',
+        'isLookingFor': 'Romance',
+        'name': 'Jeremy',
+        'desiredGenderRomance': 'Male',
+        'gender': 'Female',
         'userId': '12345',
         'age': 28,
         'aboutMe': 'Brother of crigne',

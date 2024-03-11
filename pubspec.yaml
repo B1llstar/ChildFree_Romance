@@ -61,6 +61,8 @@ dependencies:
   reorderable_grid: ^1.0.10
   font_awesome_flutter: ^10.7.0
   salomon_bottom_bar: ^3.3.2
+  flip_card: ^0.7.0
+  flutter_flip_card: ^0.0.5
 dev_dependencies:
   flutter_test:
     sdk: flutter

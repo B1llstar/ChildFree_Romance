@@ -26,7 +26,7 @@ class _MatchPreferencesSettingsSectionState
         CustomSettingsTile(
           child: CustomSettingsTileSingleAnswer(
               leadingIcon: FontAwesomeIcons.solidHeart,
-              firestorePropertyName: 'matchWithGender',
+              firestorePropertyName: 'desiredGenderRomance',
               options: [
                 'Male',
                 'Female',
@@ -38,7 +38,7 @@ class _MatchPreferencesSettingsSectionState
         CustomSettingsTile(
           child: CustomSettingsTileSingleAnswer(
               leadingIcon: FontAwesomeIcons.userFriends,
-              firestorePropertyName: 'matchWithGenderFriendship',
+              firestorePropertyName: 'desiredGenderFriendship',
               options: [
                 'Male',
                 'Female',
