@@ -1,6 +1,6 @@
 import 'package:childfree_romance/Notifiers/all_users_notifier.dart';
 import 'package:childfree_romance/Notifiers/user_notifier.dart';
-import 'package:childfree_romance/UserSettings/profile_picture_page.dart';
+import 'package:childfree_romance/Screens/Menu/swiped_items_grid.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 
 import 'Screens/Settings/settings_view.dart';
+import 'Services/matchmaking_service.dart';
 import 'card_swiper.dart';
 import 'firebase_options.dart';
 
@@ -20,13 +21,24 @@ void main() async {
       .signInWithEmailAndPassword(email: "dev@gmail.com", password: "testing");
   final uid = FirebaseAuth.instance.currentUser!.uid;
   _allUsersNotifier = AllUsersNotifier();
+  // Get the initial pool
+  // Get the current user
   await _allUsersNotifier!.init(uid);
+
+  // Start the matchmaking service
+  MatchmakingNotifier matchmakingNotifier =
+      MatchmakingNotifier(uid, _allUsersNotifier!);
+
+  // Define Romance & Friendship Matches, as well as pool containing the two
+  matchmakingNotifier.init();
+
   print(uid);
   runApp(MaterialApp(
     home: MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => UserDataProvider()),
         ChangeNotifierProvider(create: (_) => _allUsersNotifier),
+        ChangeNotifierProvider(create: (_) => matchmakingNotifier),
         // Add more providers if needed
       ],
       child: MyHomePage(),
@@ -63,11 +75,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _selectedItemPosition = 0;
 
-  List<Widget> _pages = [
-    CardView(),
-    SettingsView(),
-    ProfilePicturesPage(),
-  ];
+  List<Widget> _pages = [CardView(), SettingsView(), SwipedItemsGrid()];
 
   @override
   Widget build(BuildContext context) {

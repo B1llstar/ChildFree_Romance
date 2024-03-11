@@ -1,16 +1,12 @@
 import 'package:appinio_swiper/appinio_swiper.dart';
 import 'package:childfree_romance/Cards/user_card.dart';
 import 'package:childfree_romance/Services/matchmaking_service.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_flip_card/flutter_flip_card.dart';
 import 'package:provider/provider.dart';
 
-import 'Notifiers/all_users_notifier.dart';
 import 'Services/swipe_service.dart';
-import 'firebase_options.dart';
 
 class CardView extends StatefulWidget {
   const CardView({Key? key}) : super(key: key);
@@ -21,29 +17,16 @@ class CardView extends StatefulWidget {
 
 class _CardViewState extends State<CardView> {
   final SwipeService _swipeService = SwipeService();
-  late MatchmakingService _matchmakingService;
-  late Future<List<Map<String, dynamic>>> _filteredProfilesFuture;
-  late List<FlipCardController> _flipCardControllers = [];
+  late MatchmakingNotifier _matchmakingService;
+  late FlipCardController _flipCardController;
   AppinioSwiperController _swiperController = AppinioSwiperController();
+
   @override
   void initState() {
     super.initState();
-    _matchmakingService = MatchmakingService(
-      FirebaseAuth.instance.currentUser!.uid,
-      Provider.of<AllUsersNotifier>(context, listen: false),
-    );
-    _initializeFilteredProfilesFuture();
-  }
-
-  Future<void> _initializeFilteredProfilesFuture() async {
-    await _matchmakingService.init();
-    setState(() {
-      _filteredProfilesFuture = Future.value(_matchmakingService.matches);
-      _flipCardControllers = List.generate(
-        _matchmakingService.matches.length,
-        (index) => FlipCardController(),
-      );
-    });
+    _matchmakingService =
+        Provider.of<MatchmakingNotifier>(context, listen: false);
+    _flipCardController = FlipCardController();
   }
 
   @override
@@ -55,108 +38,96 @@ class _CardViewState extends State<CardView> {
       width = MediaQuery.of(context).size.width < 500
           ? MediaQuery.of(context).size.width
           : 600;
-    return FutureBuilder<List<Map<String, dynamic>>>(
-      future: _filteredProfilesFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator();
-        } else if (snapshot.hasError) {
-          return Text('Error: ${snapshot.error}');
-        } else {
-          List<Map<String, dynamic>> filteredProfiles = snapshot.data!;
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.8,
-                    width: width,
-                    child: AppinioSwiper(
-                      controller: _swiperController,
-                      loop: true,
-                      onCardPositionChanged: (SwiperPosition position) {},
-                      cardBuilder: (context, index) {
-                        return ProfileCard(
-                          profile: filteredProfiles[index],
-                          flipCardController: _flipCardControllers[index],
-                        );
-                      },
-                      cardCount: filteredProfiles.length,
-                      swipeOptions: SwipeOptions.only(
-                        up: false,
-                        down: false,
-                        left: true,
-                        right: true,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              Container(
-                width: MediaQuery.of(context).size.width < 500
-                    ? MediaQuery.of(context).size.width
-                    : 500,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    FloatingActionButton(
-                      onPressed: () {
-                        _swiperController.swipeLeft();
-                        // Functionality for red button
-                        print('Red button clicked');
-                      },
-                      backgroundColor: Colors.red,
-                      child: Icon(Icons.close, color: Colors.white),
-                    ),
-                    FloatingActionButton(
-                      onPressed: () {
-                        // Functionality for info button
-                        print('Info button clicked');
-                        // Flip the card
-                        _flipCardControllers.forEach((controller) {
-                          controller.flipcard();
-                        });
-                      },
-                      backgroundColor: Colors.blue,
-                      child: Icon(Icons.info, color: Colors.white),
-                    ),
-                    FloatingActionButton(
-                      onPressed: () {
-                        _swiperController.swipeRight();
-                        // Functionality for green button
-                        print('Green button clicked');
-                      },
-                      backgroundColor: Colors.green,
-                      child: Icon(Icons.check, color: Colors.white),
-                    ),
-                  ],
+
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.8,
+              width: width,
+              child: AppinioSwiper(
+                controller: _swiperController,
+                loop: false,
+                onEnd: () {
+                  print('We\'re all out of cards!');
+                },
+                onSwipeEnd:
+                    (int index, int direction, SwiperActivity activity) {
+                  if (activity.end!.dx > 0.0) {
+                    print('Swiped right');
+                    String swipedUserId =
+                        _matchmakingService.allMatches[index]['userId'];
+                    _swipeService.makeSwipe(
+                        swipedUserId: swipedUserId, swipeType: 'standardYes');
+                    _matchmakingService.addToPreviousSwipesList(
+                        _matchmakingService.allMatches[index]);
+                  } else {
+                    print('Swiped left');
+                    String swipedUserId =
+                        _matchmakingService.allMatches[index]['userId'];
+                    _swipeService.makeSwipe(
+                        swipedUserId: swipedUserId, swipeType: 'nope');
+                    _matchmakingService.addToPreviousSwipesList(
+                        _matchmakingService.allMatches[index]);
+                  }
+                },
+                onCardPositionChanged: (SwiperPosition position) {},
+                cardBuilder: (context, index) {
+                  return ProfileCard(
+                    profile: _matchmakingService.allMatches[index],
+                    flipCardController: _flipCardController,
+                  );
+                },
+                cardCount: _matchmakingService.allMatches.length,
+                swipeOptions: SwipeOptions.only(
+                  up: false,
+                  down: false,
+                  left: true,
+                  right: true,
                 ),
               ),
-              SizedBox(height: 10),
+            ),
+          ],
+        ),
+        Container(
+          width: MediaQuery.of(context).size.width < 500
+              ? MediaQuery.of(context).size.width
+              : 500,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              FloatingActionButton(
+                onPressed: () {
+                  _swiperController.swipeLeft();
+                  print('Red button clicked');
+                },
+                backgroundColor: Colors.red,
+                child: Icon(Icons.close, color: Colors.white),
+              ),
+              FloatingActionButton(
+                onPressed: () {
+                  print('Info button clicked');
+                  _flipCardController.flipcard();
+                },
+                backgroundColor: Colors.blue,
+                child: Icon(Icons.info, color: Colors.white),
+              ),
+              FloatingActionButton(
+                onPressed: () {
+                  _swiperController.swipeRight();
+                  print('Green button clicked');
+                },
+                backgroundColor: Colors.green,
+                child: Icon(Icons.check, color: Colors.white),
+              ),
             ],
-          );
-        }
-      },
+          ),
+        ),
+        SizedBox(height: 10),
+      ],
     );
   }
-}
-
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  await FirebaseAuth.instance
-      .signInWithEmailAndPassword(email: "dev@gmail.com", password: "testing");
-
-  final allUsersNotifier = AllUsersNotifier();
-  allUsersNotifier.init(FirebaseAuth.instance.currentUser!.uid);
-
-  runApp(MaterialApp(
-    home: ChangeNotifierProvider(
-      create: (context) => allUsersNotifier,
-      child: CardView(),
-    ),
-    debugShowCheckedModeBanner: false,
-  ));
 }
