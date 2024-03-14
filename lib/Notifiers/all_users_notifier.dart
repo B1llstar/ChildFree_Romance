@@ -50,6 +50,15 @@ class AllUsersNotifier extends ChangeNotifier {
     });
   }
 
+  String getProfilePictureForUserId(String userId) {
+    for (var profile in _profiles) {
+      if (profile['userId'] == userId) {
+        print('Found the user');
+      }
+    }
+    return 'placeholder';
+  }
+
   fetchProfilesExcludingUser(String userId, bool testing) async {
     String collectionPath = testing ? 'test_users' : 'users';
     print('Fetching profiles...');

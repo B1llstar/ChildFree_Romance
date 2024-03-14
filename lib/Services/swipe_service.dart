@@ -62,6 +62,13 @@ class SwipeService {
   Future<void> makeMatch(String userIdSwipedFirst) async {
     try {
       String currentUserId = FirebaseAuth.instance.currentUser!.uid;
+      // Check if the current user ID is equal to both userIdSwipedFirst and currentUserId
+      if (userIdSwipedFirst == currentUserId) {
+        print(
+            'Error creating match: Current user cannot match with themselves.');
+        return;
+      }
+
       String matchId = Uuid().v4();
       List<String> userIds = [userIdSwipedFirst, currentUserId];
       userIds.sort(); // Sort the user IDs alphabetically
