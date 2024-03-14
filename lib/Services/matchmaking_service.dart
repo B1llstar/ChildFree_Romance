@@ -1,5 +1,4 @@
-import 'dart:js_util';
-
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
@@ -31,9 +30,7 @@ class MatchmakingNotifier extends ChangeNotifier {
   Map<String, dynamic>? _currentUser;
 
   // The all users notifier is responsible for grabbing the user and the pool of everyone
-  MatchmakingNotifier(this.uid, this.allUsersNotifier) {
-    init();
-  }
+  MatchmakingNotifier(this.uid, this.allUsersNotifier) {}
 
   Future<List<Map<String, dynamic>>> getRomanceAndFriendshipMatches(
       Map<String, dynamic> user, List<Map<String, dynamic>> pool) async {
@@ -78,14 +75,45 @@ class MatchmakingNotifier extends ChangeNotifier {
     return matches.toSet().toList();
   }
 
-  Future<void> init() async {
+  Future<void> addAllImagesToCachedNetworkImagesCache(
+      List<Map<String, dynamic>> profiles, BuildContext context) async {
+    print('Cacheing image...');
+    for (Map<String, dynamic> profile in profiles) {
+      if (profile['profilePictures'] != null &&
+          profile['profilePictures'].isNotEmpty) {
+        for (String image in profile['profilePictures']) {
+          print('Image cached');
+          precacheImage(CachedNetworkImageProvider(image), context);
+        }
+      }
+    }
+  }
+
+  List<Map<String, dynamic>> filterProfilesWithoutProfilePictures(
+      List<Map<String, dynamic>> profiles) {
+    // If profilePictures[0] is equal to null or empty, AND if profilePicture is equal to null or empty, remove the profile
+    profiles.removeWhere((profile) {
+      if (profile['profilePictures'] == null ||
+          profile['profilePictures'].isEmpty) {
+        return true;
+      } else {
+        return false;
+      }
+    });
+    return profiles;
+  }
+
+  Future<void> init(BuildContext context) async {
+    await allUsersNotifier.init(uid);
     // Define an initial pool using the notifier
     print('Initial pool: ${allUsersNotifier.profiles}');
     initialPool = allUsersNotifier.profiles;
+    initialPool = filterProfilesWithoutProfilePictures(initialPool);
     _currentUser = allUsersNotifier.currentUser;
 
     _allMatches =
         await getRomanceAndFriendshipMatches(_currentUser!, initialPool);
+    await addAllImagesToCachedNetworkImagesCache(_allMatches, context);
     print('Matches: $_allMatches');
 
     // Define a filtered pool by removing swiped items
@@ -144,7 +172,7 @@ class MatchmakingNotifier extends ChangeNotifier {
     if (_filteredPool == null) {
       // If filteredPool is not initialized, call init() first
       // Good practice
-      await init();
+      // await init();
     }
     return Future.value(_filteredPool); // Return the Future value
   }

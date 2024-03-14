@@ -6,17 +6,17 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class ProfileCardBaseSettingsComponent extends StatefulWidget {
+class ProfileCardBaseSettingsComponentWeb extends StatefulWidget {
   final Map<String, dynamic> profile;
-  const ProfileCardBaseSettingsComponent({super.key, required this.profile});
+  const ProfileCardBaseSettingsComponentWeb({super.key, required this.profile});
 
   @override
-  State<ProfileCardBaseSettingsComponent> createState() =>
-      _ProfileCardBaseSettingsComponentState();
+  State<ProfileCardBaseSettingsComponentWeb> createState() =>
+      _ProfileCardBaseSettingsComponentWebState();
 }
 
-class _ProfileCardBaseSettingsComponentState
-    extends State<ProfileCardBaseSettingsComponent> {
+class _ProfileCardBaseSettingsComponentWebState
+    extends State<ProfileCardBaseSettingsComponentWeb> {
   int? _age;
   @override
   void initState() {

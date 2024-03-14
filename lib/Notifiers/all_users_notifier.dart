@@ -15,11 +15,12 @@ class AllUsersNotifier extends ChangeNotifier {
 
   init(String userId) async {
     await fetchCurrentUser(userId);
-    await fetchHardcodedProfiles();
+    await fetchProfilesExcludingUser(userId, true);
     await loadProfilePictures();
     print('Init called...');
     uid = userId;
     _reverseGeocodeService = ReverseGeocodeService(uid);
+    notifyListeners();
   }
 
   String getAddressStringFromGeocodingService() {
@@ -51,13 +52,18 @@ class AllUsersNotifier extends ChangeNotifier {
     });
   }
 
-  fetchProfilesExcludingUser(String userId) {
+  fetchProfilesExcludingUser(String userId, bool testing) async {
+    String collectionPath = testing ? 'test_users' : 'users';
     print('Fetching profiles...');
-    FirebaseFirestore.instance.collection('users').get().then((querySnapshot) {
+    FirebaseFirestore.instance
+        .collection(collectionPath)
+        .get()
+        .then((querySnapshot) {
       _profiles = querySnapshot.docs
           .where((doc) => doc.id != userId) // Filter out the current user
           .map((doc) => (doc.data() as Map<String, dynamic>)..remove('email'))
           .toList();
+      print('List length: ${_profiles.length}');
       notifyListeners();
     }).catchError((error) {
       print("Failed to fetch profiles: $error");

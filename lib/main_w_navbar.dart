@@ -1,6 +1,6 @@
 import 'package:childfree_romance/Notifiers/all_users_notifier.dart';
 import 'package:childfree_romance/Notifiers/user_notifier.dart';
-import 'package:childfree_romance/Screens/Menu/swiped_items_grid.dart';
+import 'package:childfree_romance/Services/match_stream_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 
 import 'Screens/Settings/settings_view.dart';
+import 'Screens/match_screen.dart';
 import 'Services/matchmaking_service.dart';
 import 'card_swiper.dart';
 import 'firebase_options.dart';
@@ -23,14 +24,13 @@ void main() async {
   _allUsersNotifier = AllUsersNotifier();
   // Get the initial pool
   // Get the current user
-  await _allUsersNotifier!.init(uid);
-
-  // Start the matchmaking service
   MatchmakingNotifier matchmakingNotifier =
       MatchmakingNotifier(uid, _allUsersNotifier!);
 
+  SwipeStreamService _service = SwipeStreamService();
+  // Start the matchmaking service
+
   // Define Romance & Friendship Matches, as well as pool containing the two
-  matchmakingNotifier.init();
 
   print(uid);
   runApp(MaterialApp(
@@ -39,6 +39,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => UserDataProvider()),
         ChangeNotifierProvider(create: (_) => _allUsersNotifier),
         ChangeNotifierProvider(create: (_) => matchmakingNotifier),
+        ChangeNotifierProvider(create: (_) => _service)
         // Add more providers if needed
       ],
       child: MyHomePage(),
@@ -74,15 +75,19 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _selectedItemPosition = 0;
-
-  List<Widget> _pages = [CardView(), SettingsView(), SwipedItemsGrid()];
+  bool darkModeEnabled = false;
+  List<Widget> _pages = [CardView(), SettingsView(), MatchesListWidget()];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.deepPurpleAccent,
+      backgroundColor: darkModeEnabled ? Colors.black : Colors.deepPurpleAccent,
       appBar: AppBar(
-        title: Text('Your Photos'),
+        leading: Switch(
+          value: darkModeEnabled,
+          onChanged: (val) => setState(() => darkModeEnabled = val),
+        ),
+        title: Text('Dark Mode'),
       ),
       body: Column(
         mainAxisSize: MainAxisSize.min,
@@ -98,7 +103,7 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Container(
               width: 800, // Limiting the width to a maximum of 800
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: darkModeEnabled ? Colors.white : Colors.white,
                 borderRadius: BorderRadius.circular(20),
               ),
               child: SalomonBottomBar(

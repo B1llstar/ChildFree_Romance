@@ -4,18 +4,18 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_flip_card/flutter_flip_card.dart';
 
-class ProfileCard extends StatefulWidget {
+class ProfileCardWeb extends StatefulWidget {
   final Map<String, dynamic> profile;
   final FlipCardController flipCardController;
-  const ProfileCard(
+  const ProfileCardWeb(
       {Key? key, required this.profile, required this.flipCardController})
       : super(key: key);
 
   @override
-  State<ProfileCard> createState() => _ProfileCardState();
+  State<ProfileCardWeb> createState() => _ProfileCardWebState();
 }
 
-class _ProfileCardState extends State<ProfileCard> {
+class _ProfileCardWebState extends State<ProfileCardWeb> {
   @override
   Widget build(BuildContext context) {
     // A width that is no greater than 500
@@ -42,8 +42,8 @@ class _ProfileCardState extends State<ProfileCard> {
             children: [
               Container(
                 height: !kIsWeb
-                    ? MediaQuery.of(context).size.height * .70
-                    : MediaQuery.of(context).size.height * .70,
+                    ? MediaQuery.of(context).size.height * .77
+                    : MediaQuery.of(context).size.height * .77,
                 width: width,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
@@ -68,7 +68,7 @@ class _ProfileCardState extends State<ProfileCard> {
                 left: 0,
                 right: 0,
                 top: 0,
-                height: 30,
+                height: 50,
                 child: Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.only(
@@ -128,7 +128,7 @@ class _ProfileCardState extends State<ProfileCard> {
                 left: 0,
                 right: 0,
                 top: 0,
-                height: 30,
+                height: 50,
                 child: Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.only(
