@@ -40,8 +40,6 @@ class AllUsersNotifier extends ChangeNotifier {
         .get()
         .then((doc) {
       if (doc.exists) {
-        print('User exists!');
-        print(doc.data());
         _currentUser = (doc.data() as Map<String, dynamic>)..remove('email');
         notifyListeners();
       } else {
@@ -63,7 +61,6 @@ class AllUsersNotifier extends ChangeNotifier {
           .where((doc) => doc.id != userId) // Filter out the current user
           .map((doc) => (doc.data() as Map<String, dynamic>)..remove('email'))
           .toList();
-      print('List length: ${_profiles.length}');
       notifyListeners();
     }).catchError((error) {
       print("Failed to fetch profiles: $error");
@@ -75,9 +72,6 @@ class AllUsersNotifier extends ChangeNotifier {
         ? List<String>.from(_currentUser['profilePictures'])
         : [];
     notifyListeners();
-    print('Loaded profile pictures.');
-    print('Length: ${_profilePictures.length}');
-    print('User: ' + _currentUser.toString());
   }
 
   convertIsLookingForToCardString(Map<String, dynamic> profile) {

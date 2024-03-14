@@ -1,4 +1,3 @@
-import 'package:childfree_romance/Services/swipe_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -15,17 +14,31 @@ class SwipeStreamService extends ChangeNotifier {
   }
 
   void startMonitoringSwipes() {
+    print('Monitoring...');
     _swipesStream = FirebaseFirestore.instance.collection('swipes').snapshots();
     _swipesStream!.listen((snapshot) {
-      if (snapshot.docs.isNotEmpty) {}
+      for (final change in snapshot.docChanges) {
+        final data = change.doc.data() as Map<String, dynamic>;
+        if (change.type == DocumentChangeType.added) {
+          if (data['userId'] == uid) {
+            userSwipes.add(data);
+            print('Added to userSwipes: $data');
+            checkAndCreateMatch(
+                change.doc.id, data, 'swipedUserId', 'userSwipes');
+          } else if (data['swipedUserId'] == uid) {
+            swipedTheUser.add(data);
+            print('Added to swipedTheUser: $data');
+            checkAndCreateMatch(change.doc.id, data, 'userId', 'swipedTheUser');
+          }
+        }
+      }
     });
   }
 
   init() async {
-    await SwipeService().makeRandomSwipe('standardYes');
+    startMonitoringSwipes();
     await _getAllUserSwipes();
     await _getSwipedUser();
-
     lookForMatches(userSwipes, swipedTheUser);
   }
 
@@ -71,5 +84,48 @@ class SwipeStreamService extends ChangeNotifier {
         .map((doc) => doc.data() as Map<String, dynamic>)
         .toList();
     print('Amount of swiped the user: ${swipedTheUser.length}');
+  }
+
+  Future<void> checkAndCreateMatch(String docId, Map<String, dynamic> swipeData,
+      String idKey, String listType) async {
+    final otherUserId = swipeData[idKey];
+    final querySnapshot = await FirebaseFirestore.instance
+        .collection('swipes')
+        .where(idKey, isEqualTo: otherUserId)
+        .where(listType, arrayContains: uid)
+        .get();
+
+    if (querySnapshot.docs.isNotEmpty) {
+      print('We found a match!');
+      final matchId = FirebaseFirestore.instance.collection('matches').doc().id;
+      final matchData = {
+        'matchId': matchId,
+        'swipes': [
+          swipeData,
+          ...(querySnapshot.docs
+              .map((doc) => doc.data() as Map<String, dynamic>))
+        ]
+      };
+      await FirebaseFirestore.instance
+          .collection('matches')
+          .doc(matchId)
+          .set(matchData);
+
+      print('Match created with ID: $matchId');
+
+      await FirebaseFirestore.instance.collection('swipes').doc(docId).delete();
+      print('Swipe document deleted with ID: $docId');
+
+      for (final matchSwipeDoc in querySnapshot.docs) {
+        await matchSwipeDoc.reference.delete();
+        print('Swipe document deleted with ID: ${matchSwipeDoc.id}');
+      }
+
+      // Remove the matched maps from the lists
+      userSwipes.remove(swipeData);
+      swipedTheUser.removeWhere((element) => element[idKey] == otherUserId);
+    } else {
+      print('Match was not found.');
+    }
   }
 }
