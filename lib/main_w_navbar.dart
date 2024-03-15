@@ -27,9 +27,7 @@ void main() async {
   // Get the current user
   MatchmakingNotifier matchmakingNotifier =
       MatchmakingNotifier(uid, _allUsersNotifier!);
-  SettingsService _settingsService = SettingsService();
-  _settingsService.init();
-
+  UserService _userService = UserService();
   // Start the matchmaking service
 
   // Define Romance & Friendship Matches, as well as pool containing the two

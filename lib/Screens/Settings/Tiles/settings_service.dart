@@ -1,125 +1,113 @@
-// TODO: If the user has no age, ask them for it
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import '../../../Utils/debug_utils.dart';
-import '../settings.dart' as settings;
+class UserService {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  Map<String, dynamic>? _userData;
+  List<Map<String, dynamic>> _allUsers = [];
+  List<Map<String, dynamic>> _romanceMatches = [];
+  List<Map<String, dynamic>> _friendshipMatches = [];
 
-class SettingsService {
-  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
-  final CollectionReference _userCollection =
-      FirebaseFirestore.instance.collection('test_users');
-
-  SettingsService();
+  UserService() {
+    init();
+  }
 
   Future<void> init() async {
-    int isLookingForFriendshipCount = 0;
-    int isLookingForRomanceCount = 0;
-    int femaleCount = 0;
-    int maleCount = 0;
-    int malesLookingForFriendship = 0;
-    int femalesLookingForFriendship = 0;
-    int malesLookingForRomance = 0;
-    int femalesLookingForRomance = 0;
+    await fetchAndStoreUserData();
+    await fetchAndStoreAllUsers();
+    await generateRomanceMatches();
+    await generateFriendshipMatches();
+  }
 
+  Future<void> fetchAndStoreUserData() async {
     try {
-      print('Ranking users...');
-      final rankedUsers = await rankUsers();
-      print(rankedUsers);
-      final filteredRankedUsers = rankedUsers
-          .where((userRank) => userRank.userSettings.age != 0)
-          .toList(); // Filter out users with age equal to zero
-      filteredRankedUsers.forEach((element) {
-        print(
-            'Age: ${element.userSettings.age.toString()}'); // Print the age of each user
-        print('Gender: ${element.userSettings.gender}');
+      // Get the current user
+      User? user = _auth.currentUser;
 
-        if (element.userSettings.isLookingFor == 'Friendship') {
-          isLookingForFriendshipCount++;
-          if (element.userSettings.gender == 'Male') {
-            malesLookingForFriendship++;
-          } else {
-            femalesLookingForFriendship++;
-          }
-        } else if (element.userSettings.isLookingFor == 'Romance') {
-          if (element.userSettings.gender == 'Male') {
-            malesLookingForRomance++;
-          } else {
-            femalesLookingForRomance++;
-          }
-          isLookingForRomanceCount++;
+      if (user != null) {
+        // Get the user document from Firestore
+        DocumentSnapshot userSnapshot =
+            await _firestore.collection('test_users').doc(user.uid).get();
+
+        // Check if the document exists
+        if (userSnapshot.exists) {
+          // Extract user data from the document
+          _userData = userSnapshot.data() as Map<String, dynamic>;
+
+          // Store the data or do whatever you want with it
+          // For example, you can store it in a local database or state management solution
+          // In this example, we'll just print it
+          print('User Data: $_userData');
         } else {
-          if (element.userSettings.gender == 'Male') {
-            malesLookingForFriendship++;
-          } else {
-            femalesLookingForFriendship++;
-          }
-          isLookingForFriendshipCount++;
-          isLookingForRomanceCount++;
+          // Document does not exist
+          print('User document does not exist');
         }
-
-        if (element.userSettings.gender == 'Female') {
-          femaleCount++;
-        } else {
-          maleCount++;
-        }
-      });
-      DebugUtils.printDebug(
-          'Amount of ranked users:${filteredRankedUsers.length}');
-
-      print('People looking for friendship: $isLookingForFriendshipCount');
-      print('People looking for romance: $isLookingForRomanceCount');
-      print('Female count: $femaleCount');
-      print('Male count: $maleCount');
-      print('Males looking for romance:  $malesLookingForRomance');
-      print('Females looking for romance: $femalesLookingForRomance');
-      print('Males looking for friendship: $malesLookingForFriendship');
-      print('Females looking for friendship: $femalesLookingForFriendship');
-      // Process ranked users or perform any additional tasks
-    } catch (e) {
-      print('Error initializing SettingsService: $e');
-      // Handle error
-    }
-  }
-
-  Future<List<UserRank>> rankUsers() async {
-    final currentUser = _firebaseAuth.currentUser;
-    if (currentUser == null) {
-      throw Exception('No current user');
-    }
-
-    final currentUserSnapshot =
-        await _userCollection.doc(currentUser.uid).get();
-    settings.Settings currentUserSettings = settings.Settings.fromMap(
-        currentUserSnapshot.data() as Map<String, dynamic>);
-
-    final List<UserRank> rankedUsers = [];
-
-    // Fetch all users except the current user
-    final QuerySnapshot userSnapshots = await _userCollection.get();
-    for (final userSnapshot in userSnapshots.docs) {
-      if (userSnapshot.id != currentUser.uid) {
-        settings.Settings userSettings = settings.Settings.fromMap(
-            userSnapshot.data() as Map<String, dynamic>);
-        final int identicalPairs =
-            currentUserSettings.compareSettings(userSettings);
-
-        rankedUsers.add(UserRank(
-            userSettings: userSettings, identicalPairs: identicalPairs));
+      } else {
+        // No user signed in
+        print('No user signed in');
       }
+    } catch (e) {
+      print('Error fetching and storing user data: $e');
     }
-
-    // Sort the users based on the number of identical pairs (most similar first)
-    rankedUsers.sort((a, b) => b.identicalPairs.compareTo(a.identicalPairs));
-
-    return rankedUsers;
   }
-}
 
-class UserRank {
-  final settings.Settings userSettings;
-  final int identicalPairs;
+  Future<void> fetchAndStoreAllUsers() async {
+    try {
+      // Get all users from Firestore
+      QuerySnapshot querySnapshot =
+          await _firestore.collection('test_users').get();
 
-  UserRank({required this.userSettings, required this.identicalPairs});
+      // Extract user data from the documents
+      _allUsers = querySnapshot.docs
+          .map((doc) => doc.data() as Map<String, dynamic>)
+          .toList();
+    } catch (e) {
+      print('Error fetching and storing all users: $e');
+    }
+  }
+
+  Future<void> generateRomanceMatches() async {
+    try {
+      _romanceMatches = _allUsers
+          .where((user) =>
+              user['gender'] == _userData!['desiredGenderRomance'] &&
+              user['desiredGenderRomance'] == _userData!['gender'] &&
+              ['Romance', 'Any', 'Both'].contains(user['isLookingFor']))
+          .toList();
+
+      print('Romance Matches: $_romanceMatches');
+      print('Romance length: ${_romanceMatches.length}');
+    } catch (e) {
+      print('Error generating romance matches: $e');
+    }
+  }
+
+  Future<void> generateFriendshipMatches() async {
+    try {
+      _friendshipMatches = _allUsers
+          .where((user) =>
+              (user['gender'] == _userData!['desiredGenderFriendship'] ||
+                  _userData!['desiredGenderFriendship'] == 'Any' ||
+                  _userData!['desiredGenderFriendship'] == 'Both') &&
+              ['Friendship', 'Any', 'Both'].contains(user['isLookingFor']))
+          .toList();
+
+      print('Friendship Matches: $_friendshipMatches');
+      print('Friendship length: ${_friendshipMatches.length}');
+    } catch (e) {
+      print('Error generating friendship matches: $e');
+    }
+  }
+
+  Future<void> refresh() async {
+    try {
+      await fetchAndStoreAllUsers();
+      await generateRomanceMatches();
+      await generateFriendshipMatches();
+      print('Refresh completed');
+    } catch (e) {
+      print('Error refreshing data: $e');
+    }
+  }
 }

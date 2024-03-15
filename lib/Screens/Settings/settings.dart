@@ -90,4 +90,28 @@ class Settings {
     }
     return age;
   }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'country': country,
+      'doesSmoke': doesSmoke,
+      'gender': gender,
+      'does420': does420,
+      'profilePictures': profilePictures,
+      'isLookingFor': isLookingFor,
+      'genderToShow': genderToShow,
+      'userId': userId,
+      'desiredGenderFriendship': desiredGenderFriendship,
+      'desiredGenderRomance': desiredGenderRomance,
+      'aboutMe': aboutMe,
+      'willRelocate': willRelocate,
+      'isSterilized': isSterilized,
+      'DOB': DOB,
+      'willDoLongDistance': willDoLongDistance,
+      'name': name,
+      'doesDrink': doesDrink,
+      'dreamPartner': dreamPartner,
+      'age': age,
+    };
+  }
 }

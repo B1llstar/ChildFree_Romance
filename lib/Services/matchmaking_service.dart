@@ -48,7 +48,6 @@ class MatchmakingNotifier extends ChangeNotifier {
       print('Looking for Friendship');
       _friendshipMatches =
           await getDesiredMatches(user, pool, 'desiredGenderFriendship');
-      print('Friendship matches: $_friendshipMatches');
       matches.addAll(_friendshipMatches);
     } else {
       _romanceMatches =
