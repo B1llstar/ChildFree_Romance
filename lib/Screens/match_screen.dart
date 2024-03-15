@@ -7,18 +7,26 @@ import 'package:provider/provider.dart';
 import '../Notifiers/all_users_notifier.dart';
 
 class MatchesListWidget extends StatefulWidget {
+  static final MatchesListWidget _singleton = MatchesListWidget._internal();
+
+  factory MatchesListWidget() {
+    return _singleton;
+  }
+
+  MatchesListWidget._internal();
+
   @override
   _MatchesListWidgetState createState() => _MatchesListWidgetState();
 }
 
 class _MatchesListWidgetState extends State<MatchesListWidget> {
   late String _currentUserId;
-  late Stream<QuerySnapshot> _matchesStream;
-  late Map<String, String> _userProfilePictures = {};
+  late Map<String, Map<String, dynamic>> _userDocuments;
 
   @override
   void initState() {
     super.initState();
+    _userDocuments = {};
     _getCurrentUser();
   }
 
@@ -27,29 +35,49 @@ class _MatchesListWidgetState extends State<MatchesListWidget> {
     if (user != null) {
       setState(() {
         _currentUserId = user.uid;
-        _matchesStream = FirebaseFirestore.instance
-            .collection('matches')
-            .where('userIds', arrayContains: _currentUserId)
-            .snapshots();
       });
-      await _fetchUserProfilePictures(); // Fetch profile pictures after setting the current user
+      await _loadMatches();
+      await _loadUserDocuments();
     }
   }
 
-  Future<void> _fetchUserProfilePictures() async {
-    QuerySnapshot usersSnapshot =
-        await FirebaseFirestore.instance.collection('test_users').get();
-    _userProfilePictures = Map.fromIterable(usersSnapshot.docs,
-        key: (doc) => doc.id,
-        value: (doc) => doc.data()['profilePictures'] != null &&
-                (doc.data()['profilePictures'] as List).isNotEmpty
-            ? (doc.data()['profilePictures'] as List)[0]
-            : 'cringe');
-    setState(() {}); // Update the UI after fetching data
+  Future<void> _loadMatches() async {
+    final matchesSnapshot = await FirebaseFirestore.instance
+        .collection('matches')
+        .where('userIds', arrayContains: _currentUserId)
+        .get();
+    final List<String> allUserIds = [];
+    matchesSnapshot.docs.forEach((doc) {
+      final userIds = List<String>.from(doc['userIds']);
+      userIds.remove(_currentUserId);
+      allUserIds.addAll(userIds);
+    });
+    setState(() {
+      _userDocuments =
+          Map.fromIterable(allUserIds, key: (id) => id, value: (_) => {});
+    });
+  }
+
+  Future<void> _loadUserDocuments() async {
+    await Future.forEach(_userDocuments.keys, (userId) async {
+      final userDocSnapshot = await FirebaseFirestore.instance
+          .collection('test_users')
+          .doc(userId)
+          .get();
+      final userData = userDocSnapshot.data();
+      if (userData != null) {
+        setState(() {
+          _userDocuments[userId] = userData;
+        });
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    final allUsersNotifier = Provider.of<AllUsersNotifier>(context);
+    final matchIds = allUsersNotifier.matchIds;
+    final matchProfilePictures = allUsersNotifier.matchProfilePictures;
     return Scaffold(
       appBar: AppBar(
         title: Text('Matches'),
@@ -58,57 +86,83 @@ class _MatchesListWidgetState extends State<MatchesListWidget> {
           ? Center(
               child: CircularProgressIndicator(),
             )
-          : StreamBuilder<QuerySnapshot>(
-              stream: _matchesStream,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }
-                if (snapshot.hasError) {
-                  return Center(
-                    child: Text('Error: ${snapshot.error}'),
-                  );
-                }
-                if (snapshot.data == null || snapshot.data!.docs.isEmpty) {
-                  return Center(
-                    child: Text('No matches found.'),
-                  );
-                }
-                return ListView.builder(
-                  itemCount: snapshot.data!.docs.length,
+          : _userDocuments.isEmpty
+              ? Center(
+                  child: Text('No matches found.'),
+                )
+              : ListView.builder(
+                  itemCount: _userDocuments.length,
                   itemBuilder: (context, index) {
-                    var match = snapshot.data!.docs[index].data()
-                        as Map<String, dynamic>;
-                    List<String> userIds = List<String>.from(match['userIds']);
-                    userIds.removeWhere((id) => id == _currentUserId);
-                    String userId = userIds.isNotEmpty ? userIds[0] : 'cringe';
-                    String? profilePicture = _userProfilePictures[userId];
-                    print(match['userIdSwipedFirst']);
-                    AllUsersNotifier _notifier =
-                        Provider.of<AllUsersNotifier>(context, listen: false);
+                    final userId = _userDocuments.keys.elementAt(index);
+                    final userData = _userDocuments[userId];
+                    String? profilePicture = userData != null
+                        ? userData['profilePictures'][0] ?? 'placeholder'
+                        : 'placeholder';
 
-                    return ListTile(
-                      leading: profilePicture != null
-                          ? Container(height: 50, width: 50,
-                            child: CachedNetworkImage(
-                                imageUrl: profilePicture,
-                                placeholder: (context, url) => Container(
-                                    height: 50, width: 50, child: Placeholder()),
-                                errorWidget: (context, url, error) =>
-                                    Icon(Icons.error),
+                    return Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        children: [
+                          // Profile Picture Card
+                          Card(
+                            elevation: 3,
+                            child: SizedBox(
+                              height: 150,
+                              width: 150,
+                              child: profilePicture != 'placeholder'
+                                  ? ClipRRect(
+                                      borderRadius: BorderRadius.circular(8),
+                                      child: CachedNetworkImage(
+                                        imageUrl: profilePicture!,
+                                        fit: BoxFit.cover,
+                                        placeholder: (context, url) =>
+                                            CircularProgressIndicator(),
+                                        errorWidget: (context, url, error) =>
+                                            Icon(Icons.error),
+                                      ),
+                                    )
+                                  : Container(
+                                      color: Colors.grey,
+                                      child: Center(
+                                        child: Text(
+                                          'Hi',
+                                          style: TextStyle(color: Colors.white),
+                                        ),
+                                      ),
+                                    ),
+                            ),
+                          ),
+                          SizedBox(width: 16),
+                          // Details Card
+                          Expanded(
+                            child: Card(
+                              elevation: 3,
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      userData != null
+                                          ? userData['name']
+                                          : 'Unknown User',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18,
+                                      ),
+                                    ),
+                                    SizedBox(height: 8),
+                                    // Add more user details here if needed
+                                  ],
+                                ),
                               ),
-                          )
-                          : Container(
-                              height: 50, width: 50, child: Placeholder()),
-                      title: Text('Match ID: ${snapshot.data!.docs[index].id}'),
-                      // Add more widgets to display match details
+                            ),
+                          ),
+                        ],
+                      ),
                     );
                   },
-                );
-              },
-            ),
+                ),
     );
   }
 }

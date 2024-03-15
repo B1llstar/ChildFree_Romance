@@ -23,7 +23,7 @@ class _CardViewState extends State<CardView> {
   late FlipCardController _flipCardController;
   late AllUsersNotifier _allUsersNotifier;
   AppinioSwiperController _swiperController = AppinioSwiperController();
-
+  bool isLoading = true;
   @override
   void initState() {
     super.initState();

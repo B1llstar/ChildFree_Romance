@@ -1,5 +1,6 @@
 import 'package:childfree_romance/Notifiers/all_users_notifier.dart';
 import 'package:childfree_romance/Notifiers/user_notifier.dart';
+import 'package:childfree_romance/Screens/Settings/Tiles/settings_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -7,9 +8,9 @@ import 'package:provider/provider.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 
 import 'Screens/Settings/settings_view.dart';
+import 'Screens/chat_widget.dart';
 import 'Screens/match_screen.dart';
 import 'Services/matchmaking_service.dart';
-import 'Services/swipe_service.dart';
 import 'card_swiper.dart';
 import 'firebase_options.dart';
 
@@ -26,10 +27,9 @@ void main() async {
   // Get the current user
   MatchmakingNotifier matchmakingNotifier =
       MatchmakingNotifier(uid, _allUsersNotifier!);
+  SettingsService _settingsService = SettingsService();
+  _settingsService.init();
 
-  for (int i = 0; i < 10; i++) {
-    SwipeService().makeRandomSwipe('standardYes');
-  }
   // Start the matchmaking service
 
   // Define Romance & Friendship Matches, as well as pool containing the two
@@ -77,7 +77,14 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _selectedItemPosition = 0;
   bool darkModeEnabled = false;
-  List<Widget> _pages = [CardView(), SettingsView(), MatchesListWidget()];
+  List<Widget> _pages = [
+    CardView(),
+    SettingsView(),
+    MatchesListWidget(),
+    ChatWidget(
+      matchId: '123',
+    )
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -122,6 +129,10 @@ class _MyHomePageState extends State<MyHomePage> {
                   SalomonBottomBarItem(
                     icon: Icon(Icons.person),
                     title: Text('Location'),
+                  ),
+                  SalomonBottomBarItem(
+                    icon: Icon(Icons.chat_bubble),
+                    title: Text('Chat'),
                   ),
                 ],
               ),

@@ -64,6 +64,7 @@ dependencies:
   flip_card: ^0.7.0
   flutter_flip_card: ^0.0.5
   uuid: ^4.3.3
+  flutter_chat_ui: ^1.6.12
 dev_dependencies:
   flutter_test:
     sdk: flutter

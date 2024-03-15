@@ -23,7 +23,8 @@ class MatchmakingNotifier extends ChangeNotifier {
 
   // Friendship List
   List<Map<String, dynamic>> _friendshipMatches = [];
-
+  List<String> _profilePictureUrls = [];
+  List<String> get profilePictureUrls => _profilePictureUrls;
   // Romance List
   List<Map<String, dynamic>> _romanceMatches = [];
 
@@ -70,6 +71,21 @@ class MatchmakingNotifier extends ChangeNotifier {
     return matches;
   }
 
+  void getProfilePictureUrlsFromAllMatchesAndAddToList() {
+    for (Map<String, dynamic> match in _allMatches) {
+      print('Looking at matches, length: ${_allMatches.length}');
+      if (match['profilePictures'] != null &&
+          match['profilePictures'][0] != null &&
+          match['profilePictures'][0].isNotEmpty &&
+          !profilePictureUrls.contains(match['profilePictures'][0])) {
+        print('Added a profile picture, yay');
+        _profilePictureUrls.add(match['profilePictures'][0]);
+        print('Length: ${_profilePictureUrls.length}');
+      }
+      print('Profile picture urls: ' + _profilePictureUrls.toString());
+    }
+  }
+
   List<Map<String, dynamic>> removeDuplicates(
       List<Map<String, dynamic>> matches) {
     return matches.toSet().toList();
@@ -113,7 +129,10 @@ class MatchmakingNotifier extends ChangeNotifier {
 
     _allMatches =
         await getRomanceAndFriendshipMatches(_currentUser!, initialPool);
-    await addAllImagesToCachedNetworkImagesCache(_allMatches, context);
+    getProfilePictureUrlsFromAllMatchesAndAddToList();
+    print('Profile pictures');
+    print(profilePictureUrls);
+    // await addAllImagesToCachedNetworkImagesCache(_allMatches, context);
     print('Matches: $_allMatches');
 
     // Define a filtered pool by removing swiped items
@@ -150,17 +169,12 @@ class MatchmakingNotifier extends ChangeNotifier {
 
     // Iterate through the userList
     for (var user in userList) {
-      print('Iterating... checking user: ${user['name']}');
-      print('Item gender: ${user['gender']}');
-
       // Check if the gender of the user matches the desiredGenderRomance
       if (user['gender'] == desiredGenderRomance ||
           desiredGenderRomance == 'Any') {
-        print('Foudn a potential match');
         // Check if the desiredGenderRomance of the user matches the gender of the userPreferences
         if (user[property] == gender || user[property] == 'Any') {
           romanceMatches.add(user);
-          print('Adding user: ${user['name']}');
         }
       }
     }

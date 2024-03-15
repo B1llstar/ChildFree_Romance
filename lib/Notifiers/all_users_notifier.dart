@@ -12,7 +12,11 @@ class AllUsersNotifier extends ChangeNotifier {
   List<String> get profilePictures => _profilePictures;
   String uid = '';
   ReverseGeocodeService? _reverseGeocodeService;
-
+  List<String> _matchIds = [];
+  List<String> _matchProfilePictures = [];
+  // getters and setters
+  List<String> get matchIds => _matchIds;
+  List<String> get matchProfilePictures => _matchProfilePictures;
   init(String userId) async {
     await fetchCurrentUser(userId);
     await fetchProfilesExcludingUser(userId, true);
@@ -20,6 +24,7 @@ class AllUsersNotifier extends ChangeNotifier {
     print('Init called...');
     uid = userId;
     _reverseGeocodeService = ReverseGeocodeService(uid);
+    await fetchMatches();
     notifyListeners();
   }
 
@@ -29,6 +34,64 @@ class AllUsersNotifier extends ChangeNotifier {
       return _reverseGeocodeService!.getAddressString();
     } else {
       return ' ';
+    }
+  }
+
+  Future<void> fetchMatches() async {
+    try {
+      print('Fetching matches...');
+      // Fetch matches from Firestore
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('matches')
+          .where('userIds', arrayContains: _currentUser['userId'])
+          .get();
+
+      // Extract userIds from documents and filter out current user's id
+      final List<String> allUserIds = [];
+      querySnapshot.docs.forEach((doc) {
+        final List<String> userIds = List<String>.from(doc['userIds']);
+        allUserIds.addAll(userIds);
+      });
+      _matchIds = allUserIds.toSet().toList(); // Remove duplicates
+      _matchIds.remove(_currentUser['userId']); // Remove current user's id
+
+      print('Unique match ids: $_matchIds');
+      // Fetch profile pictures of matches
+      await fetchMatchProfilePictures();
+    } catch (error) {
+      print('Failed to fetch matches: $error');
+    }
+  }
+
+  Future<void> fetchMatchProfilePictures() async {
+    try {
+      _matchProfilePictures = []; // Clear existing match profile pictures
+
+      // Iterate through each match ID
+      for (String matchId in _matchIds) {
+        // Filter profiles to find the one with matching userId
+        final List<Map<String, dynamic>> matchingProfiles =
+            _profiles.where((profile) => profile['userId'] == matchId).toList();
+
+        // If matching profile is found
+        if (matchingProfiles.isNotEmpty) {
+          final String userId = matchingProfiles[0]['userId'];
+
+          // Check if profilePictures is not a property or if it's null or empty
+          if (matchingProfiles[0]['profilePictures'] == null ||
+              (matchingProfiles[0]['profilePictures'] as List).isEmpty) {
+            _matchProfilePictures.add(
+                'https://static.wikia.nocookie.net/shingekinokyojin/images/3/3c/Eren_Jaeger_%28Anime%29_character_image_%28850%29.png/revision/latest/scale-to-width/360?cb=20201228000236');
+          } else {
+            _matchProfilePictures
+                .add(matchingProfiles[0]['profilePictures'][0]);
+          }
+        }
+      }
+      print(_matchProfilePictures.length);
+      notifyListeners();
+    } catch (error) {
+      print('Failed to fetch match profile pictures: $error');
     }
   }
 
