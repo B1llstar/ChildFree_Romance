@@ -1,15 +1,25 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 
-class UserService {
+class MatchService extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   Map<String, dynamic>? _userData;
   List<Map<String, dynamic>> _allUsers = [];
+  List<Map<String, dynamic>> get allUsers => _allUsers;
   List<Map<String, dynamic>> _romanceMatches = [];
+  List<Map<String, dynamic>> get romanceMatches => _romanceMatches;
   List<Map<String, dynamic>> _friendshipMatches = [];
+  List<Map<String, dynamic>> get friendshipMatches => _friendshipMatches;
+  List<Map<String, dynamic>> _friendshipAndRomanceMatches = [];
+  List<Map<String, dynamic>> get friendshipAndRomanceMatches =>
+      _friendshipAndRomanceMatches;
+  List<String> _profilePictures = [];
+  List<String> get profilePictures => _profilePictures;
 
-  UserService() {
+  MatchService() {
     init();
   }
 
@@ -18,6 +28,27 @@ class UserService {
     await fetchAndStoreAllUsers();
     await generateRomanceMatches();
     await generateFriendshipMatches();
+  }
+
+  Future<List<String>> getProfilePictures(BuildContext context) async {
+    // Extract profile pictures from the _allUsers list
+    List<String> profilePictures = _friendshipAndRomanceMatches
+        .where((user) =>
+            user['profilePictures'] != null &&
+            user['profilePictures'].isNotEmpty &&
+            user['profilePictures'][0] != null &&
+            user['profilePictures'][0].toString().isNotEmpty)
+        .map((user) => user['profilePictures'][0].toString())
+        .toList();
+    // Remove duplicates
+    profilePictures = profilePictures.toSet().toList();
+
+    await Future.wait(profilePictures
+        .map((urlImage) =>
+            precacheImage(CachedNetworkImageProvider(urlImage), context))
+        .toList());
+    print('Profile pictures: ${profilePictures.length}');
+    return profilePictures;
   }
 
   Future<void> fetchAndStoreUserData() async {
@@ -78,6 +109,10 @@ class UserService {
 
       print('Romance Matches: $_romanceMatches');
       print('Romance length: ${_romanceMatches.length}');
+      friendshipAndRomanceMatches.addAll(_romanceMatches);
+      // Randomize all elements
+      friendshipAndRomanceMatches.shuffle();
+      notifyListeners();
     } catch (e) {
       print('Error generating romance matches: $e');
     }
@@ -95,6 +130,9 @@ class UserService {
 
       print('Friendship Matches: $_friendshipMatches');
       print('Friendship length: ${_friendshipMatches.length}');
+      friendshipAndRomanceMatches.addAll(_friendshipMatches);
+      friendshipAndRomanceMatches.shuffle();
+      notifyListeners();
     } catch (e) {
       print('Error generating friendship matches: $e');
     }

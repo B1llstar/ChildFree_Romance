@@ -65,6 +65,8 @@ dependencies:
   flutter_flip_card: ^0.0.5
   uuid: ^4.3.3
   flutter_chat_ui: ^1.6.12
+  shimmer: ^3.0.0
+  flutter_blurhash: ^0.8.2
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -11,14 +11,14 @@ import 'Cards/user_card_web.dart';
 import 'Screens/Settings/Tiles/settings_service.dart';
 import 'Services/swipe_service.dart';
 
-class CardView extends StatefulWidget {
-  const CardView({Key? key}) : super(key: key);
+class CardViewFriendship extends StatefulWidget {
+  const CardViewFriendship({Key? key}) : super(key: key);
 
   @override
-  State<CardView> createState() => _CardViewState();
+  State<CardViewFriendship> createState() => _CardViewFriendshipState();
 }
 
-class _CardViewState extends State<CardView> {
+class _CardViewFriendshipState extends State<CardViewFriendship> {
   final SwipeService _swipeService = SwipeService();
   late MatchmakingNotifier _matchmakingService;
   late FlipCardController _flipCardController;
@@ -40,7 +40,7 @@ class _CardViewState extends State<CardView> {
       isLoading = true;
     });
     while (Provider.of<MatchService>(context, listen: false)
-        .friendshipAndRomanceMatches
+        .friendshipMatches
         .isEmpty) {
       await Future.delayed(Duration(seconds: 1));
     }
@@ -74,7 +74,7 @@ class _CardViewState extends State<CardView> {
         }
 
         return Column(
-          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -82,11 +82,10 @@ class _CardViewState extends State<CardView> {
                 SizedBox(
                   height: height ?? 0,
                   width: width ?? 0,
-                  child: matchService.friendshipAndRomanceMatches != null
+                  child: matchService.friendshipMatches != null
                       ? isLoading
                           ? CircularProgressIndicator()
                           : AppinioSwiper(
-                              isDisabled: true,
                               backgroundCardCount: 0,
                               backgroundCardScale: .8,
                               controller: _swiperController,
@@ -99,16 +98,14 @@ class _CardViewState extends State<CardView> {
                                 if (activity.end!.dx > 0.0) {
                                   print('Swiped right');
                                   String swipedUserId = matchService
-                                          .friendshipAndRomanceMatches[index]
-                                      ['userId'];
+                                      .friendshipMatches[index]['userId'];
                                   _swipeService.makeSwipe(
                                       swipedUserId: swipedUserId,
                                       swipeType: 'standardYes');
                                 } else {
                                   print('Swiped left');
                                   String swipedUserId = matchService
-                                          .friendshipAndRomanceMatches[index]
-                                      ['userId'];
+                                      .friendshipMatches[index]['userId'];
                                   _swipeService.makeSwipe(
                                       swipedUserId: swipedUserId,
                                       swipeType: 'nope');
@@ -117,8 +114,7 @@ class _CardViewState extends State<CardView> {
                               onCardPositionChanged:
                                   (SwiperPosition position) {},
                               cardBuilder: (context, index) {
-                                if (matchService.friendshipAndRomanceMatches ==
-                                        null ||
+                                if (matchService.friendshipMatches == null ||
                                     matchService.friendshipMatches.isEmpty) {
                                   return Center(
                                       child: CircularProgressIndicator());
@@ -126,15 +122,13 @@ class _CardViewState extends State<CardView> {
                                   return !kIsWeb
                                       ? ProfileCard(
                                           profile: matchService
-                                                  .friendshipAndRomanceMatches[
-                                              index],
+                                              .friendshipMatches[index],
                                           flipCardController:
                                               _flipCardController,
                                         )
                                       : ProfileCardWeb(
                                           profile: matchService
-                                                  .friendshipAndRomanceMatches[
-                                              index],
+                                              .friendshipMatches[index],
                                         );
                                 }
                               },
@@ -150,6 +144,9 @@ class _CardViewState extends State<CardView> {
                 ),
               ],
             ),
+            SizedBox(
+              height: 16,
+            ),
             Container(
               width: MediaQuery.of(context).size.width < 500
                   ? MediaQuery.of(context).size.width
@@ -162,16 +159,24 @@ class _CardViewState extends State<CardView> {
                       _swiperController.swipeLeft();
                       print('Red button clicked');
                     },
-                    backgroundColor: Colors.white,
-                    child: Icon(Icons.close, color: Colors.black, size: 40),
+                    backgroundColor: Colors.red,
+                    child: Icon(Icons.close, color: Colors.white),
+                  ),
+                  FloatingActionButton(
+                    onPressed: () {
+                      print('Info button clicked');
+                      _flipCardController.flipcard();
+                    },
+                    backgroundColor: Colors.blue,
+                    child: Icon(Icons.info, color: Colors.white),
                   ),
                   FloatingActionButton(
                     onPressed: () {
                       _swiperController.swipeRight();
                       print('Green button clicked');
                     },
-                    backgroundColor: Colors.white,
-                    child: Icon(Icons.check, color: Colors.black, size: 40),
+                    backgroundColor: Colors.green,
+                    child: Icon(Icons.check, color: Colors.white),
                   ),
                 ],
               ),

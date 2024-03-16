@@ -100,52 +100,61 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         title: Text('Dark Mode'),
       ),
-      body: Column(
-        mainAxisSize: MainAxisSize.min,
+      body: Row(
         children: [
-          Expanded(
+          Container(
+            width: MediaQuery.of(context).size.width / 3,
+            color: Colors.black,
+          ),
+          Container(
+            width: MediaQuery.of(context).size.width / 3,
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: _pages[_selectedItemPosition],
             ),
           ),
           Container(
-            margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            child: Container(
-              width: 600, // Limiting the width to a maximum of 800
-              decoration: BoxDecoration(
-                color: darkModeEnabled ? Colors.white : Colors.white,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: SalomonBottomBar(
-                currentIndex: _selectedItemPosition,
-                onTap: (i) => setState(() => _selectedItemPosition = i),
-                items: [
-                  SalomonBottomBarItem(
-                    icon: Icon(FontAwesomeIcons.heart),
-                    title: Text('Romance'),
-                  ),
-                  SalomonBottomBarItem(
-                    icon: Icon(FontAwesomeIcons.smile),
-                    title: Text('Friends'),
-                  ),
-                  SalomonBottomBarItem(
-                    icon: Icon(Icons.compass_calibration),
-                    title: Text('Discover'),
-                  ),
-                  SalomonBottomBarItem(
-                    icon: Icon(Icons.person),
-                    title: Text('Location'),
-                  ),
-                  SalomonBottomBarItem(
-                    icon: Icon(Icons.chat_bubble),
-                    title: Text('Chat'),
-                  ),
-                ],
-              ),
-            ),
+            width: MediaQuery.of(context).size.width / 3,
+            color: Colors.black,
           ),
         ],
+      ),
+      bottomNavigationBar: Container(
+        margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        child: Container(
+          width: MediaQuery.of(context).size.width *
+              0.8, // Limiting the width to 80% of the screen width
+          decoration: BoxDecoration(
+            color: darkModeEnabled ? Colors.white : Colors.white,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: SalomonBottomBar(
+            currentIndex: _selectedItemPosition,
+            onTap: (i) => setState(() => _selectedItemPosition = i),
+            items: [
+              SalomonBottomBarItem(
+                icon: Icon(FontAwesomeIcons.heart),
+                title: Text('Romance'),
+              ),
+              SalomonBottomBarItem(
+                icon: Icon(FontAwesomeIcons.smile),
+                title: Text('Friends'),
+              ),
+              SalomonBottomBarItem(
+                icon: Icon(Icons.compass_calibration),
+                title: Text('Discover'),
+              ),
+              SalomonBottomBarItem(
+                icon: Icon(Icons.person),
+                title: Text('Location'),
+              ),
+              SalomonBottomBarItem(
+                icon: Icon(Icons.chat_bubble),
+                title: Text('Chat'),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
