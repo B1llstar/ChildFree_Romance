@@ -17,6 +17,7 @@ class _CardDetailState extends State<CardDetail> {
         padding: const EdgeInsets.all(8.0),
         child: Row(children: [
           Icon(widget.icon, size: 32),
+          SizedBox(width: 8),
           Text(widget.title.toString())
         ]),
       ),

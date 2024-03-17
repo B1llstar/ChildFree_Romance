@@ -9,7 +9,6 @@ import 'package:provider/provider.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 
 import 'Screens/Settings/settings_view.dart';
-import 'Screens/chat_widget.dart';
 import 'Screens/match_screen.dart';
 import 'Services/matchmaking_service.dart';
 import 'card_swiper.dart';
@@ -25,13 +24,13 @@ void main() async {
       .signInWithEmailAndPassword(email: "dev@gmail.com", password: "testing");
   final uid = FirebaseAuth.instance.currentUser!.uid;
   _allUsersNotifier = AllUsersNotifier();
+  _allUsersNotifier!.init(uid);
   // Get the initial pool
   // Get the current user
   MatchmakingNotifier matchmakingNotifier =
       MatchmakingNotifier(uid, _allUsersNotifier!);
   // Start the matchmaking service
   MatchService _service = MatchService();
-  await _service.refresh();
 
   // Define Romance & Friendship Matches, as well as pool containing the two
 
@@ -83,16 +82,14 @@ class _MyHomePageState extends State<MyHomePage> {
   List<Widget> _pages = [
     CardView(),
     CardViewFriendship(),
-    SettingsView(),
     MatchesListWidget(),
-    ChatWidget(
-      matchId: '123',
-    )
+    SettingsView(),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: darkModeEnabled ? Colors.black87 : Colors.white,
       appBar: AppBar(
         leading: Switch(
           value: darkModeEnabled,
@@ -130,16 +127,12 @@ class _MyHomePageState extends State<MyHomePage> {
                     title: Text('Friends'),
                   ),
                   SalomonBottomBarItem(
-                    icon: Icon(Icons.compass_calibration),
-                    title: Text('Discover'),
+                    icon: Icon(FontAwesomeIcons.fire),
+                    title: Text('Matches'),
                   ),
                   SalomonBottomBarItem(
-                    icon: Icon(Icons.person),
-                    title: Text('Location'),
-                  ),
-                  SalomonBottomBarItem(
-                    icon: Icon(Icons.chat_bubble),
-                    title: Text('Chat'),
+                    icon: Icon(FontAwesomeIcons.user),
+                    title: Text('Profile'),
                   ),
                 ],
               ),

@@ -24,15 +24,17 @@ class SwipeService {
       }
 
       // Check for match before uploading the swipe
-      await checkForMatch(swipe.swipedUserId, swipe.swipeType);
+      await swipesCollection.doc(swipe.swipeId).set(swipe.toMap());
+      final userSwipeId = swipe.swipeId;
+      await checkForMatch(swipe.swipedUserId, swipe.swipeType, userSwipeId);
 
       // Generate a unique swipeId
 
       // Add the new swipe document to the swipes collection with swipeId
-      await swipesCollection.doc(swipe.swipeId).set(swipe.toMap());
 
       // Get the existing swipes list from the user document
       DocumentSnapshot userDoc = await usersCollection.doc(userId).get();
+
       List<dynamic> existingSwipes = userDoc.get('swipes') ?? [];
 
       // Check if a swipe with the same swipeId already exists
@@ -91,7 +93,9 @@ class SwipeService {
     }
   }
 
-  Future<void> checkForMatch(String swipedUserId, String swipeType) async {
+  // Check to see whether the other user (the person the current user just swiped) swiped them back already
+  Future<void> checkForMatch(
+      String swipedUserId, String swipeType, String userSwipeId) async {
     try {
       String currentUserId = FirebaseAuth.instance.currentUser!.uid;
 
@@ -104,8 +108,10 @@ class SwipeService {
 
       if (querySnapshot.docs.isNotEmpty) {
         // If there is a match, delete the existing swipe document
+        // This prevents duplicate matches from being made later
         await swipesCollection.doc(querySnapshot.docs.first.id).delete();
-        print('Existing match found and deleted.');
+        await swipesCollection.doc(userSwipeId).delete();
+        print('Existing match swipes found and deleted.');
 
         // Extract userIdSwipedFirst from the deleted document
         String userIdSwipedFirst = querySnapshot.docs.first['userId'];

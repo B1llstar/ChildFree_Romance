@@ -40,7 +40,7 @@ class _CardViewState extends State<CardView> {
       isLoading = true;
     });
     while (Provider.of<MatchService>(context, listen: false)
-        .friendshipAndRomanceMatches
+        .romanceMatches
         .isEmpty) {
       await Future.delayed(Duration(seconds: 1));
     }
@@ -79,76 +79,78 @@ class _CardViewState extends State<CardView> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                SizedBox(
-                  height: height ?? 0,
-                  width: width ?? 0,
-                  child: matchService.friendshipAndRomanceMatches != null
-                      ? isLoading
-                          ? CircularProgressIndicator()
-                          : AppinioSwiper(
-                              isDisabled: true,
-                              backgroundCardCount: 0,
-                              backgroundCardScale: .8,
-                              controller: _swiperController,
-                              loop: false,
-                              onEnd: () {
-                                print('We\'re all out of cards!');
-                              },
-                              onSwipeEnd: (int index, int direction,
-                                  SwiperActivity activity) {
-                                if (activity.end!.dx > 0.0) {
-                                  print('Swiped right');
-                                  String swipedUserId = matchService
-                                          .friendshipAndRomanceMatches[index]
-                                      ['userId'];
-                                  _swipeService.makeSwipe(
-                                      swipedUserId: swipedUserId,
-                                      swipeType: 'standardYes');
-                                } else {
-                                  print('Swiped left');
-                                  String swipedUserId = matchService
-                                          .friendshipAndRomanceMatches[index]
-                                      ['userId'];
-                                  _swipeService.makeSwipe(
-                                      swipedUserId: swipedUserId,
-                                      swipeType: 'nope');
-                                }
-                              },
-                              onCardPositionChanged:
-                                  (SwiperPosition position) {},
-                              cardBuilder: (context, index) {
-                                if (matchService.friendshipAndRomanceMatches ==
-                                        null ||
-                                    matchService.friendshipMatches.isEmpty) {
-                                  return Center(
-                                      child: CircularProgressIndicator());
-                                } else {
-                                  return !kIsWeb
-                                      ? ProfileCard(
-                                          profile: matchService
-                                                  .friendshipAndRomanceMatches[
-                                              index],
-                                          flipCardController:
-                                              _flipCardController,
-                                        )
-                                      : ProfileCardWeb(
-                                          profile: matchService
-                                                  .friendshipAndRomanceMatches[
-                                              index],
-                                        );
-                                }
-                              },
-                              cardCount: 35,
-                              swipeOptions: SwipeOptions.only(
-                                up: false,
-                                down: false,
-                                left: true,
-                                right: true,
-                              ),
-                            )
-                      : Center(child: CircularProgressIndicator()),
+                Container(
+                  decoration:
+                      BoxDecoration(borderRadius: BorderRadius.circular(20)),
+                  child: SizedBox(
+                    height: height ?? 0,
+                    width: width ?? 0,
+                    child: matchService.romanceMatches != null
+                        ? isLoading
+                            ? CircularProgressIndicator()
+                            : AppinioSwiper(
+                                isDisabled: true,
+                                backgroundCardCount: 0,
+                                backgroundCardScale: .8,
+                                controller: _swiperController,
+                                loop: false,
+                                onEnd: () {
+                                  print('We\'re all out of cards!');
+                                },
+                                onSwipeEnd: (int index, int direction,
+                                    SwiperActivity activity) {
+                                  if (activity.end!.dx > 0.0) {
+                                    print('Swiped right');
+                                    String swipedUserId = matchService
+                                        .romanceMatches[index]['userId'];
+                                    _swipeService.makeSwipe(
+                                        swipedUserId: swipedUserId,
+                                        swipeType: 'standardYes');
+                                  } else {
+                                    print('Swiped left');
+                                    String swipedUserId = matchService
+                                        .romanceMatches[index]['userId'];
+                                    _swipeService.makeSwipe(
+                                        swipedUserId: swipedUserId,
+                                        swipeType: 'nope');
+                                  }
+                                },
+                                onCardPositionChanged:
+                                    (SwiperPosition position) {},
+                                cardBuilder: (context, index) {
+                                  if (matchService.romanceMatches == null ||
+                                      matchService.romanceMatches.isEmpty) {
+                                    return Center(
+                                        child: CircularProgressIndicator());
+                                  } else {
+                                    return !kIsWeb
+                                        ? ProfileCard(
+                                            profile: matchService
+                                                .romanceMatches[index],
+                                            flipCardController:
+                                                _flipCardController,
+                                          )
+                                        : ProfileCardWeb(
+                                            profile: matchService
+                                                .romanceMatches[index],
+                                          );
+                                  }
+                                },
+                                cardCount: 35,
+                                swipeOptions: SwipeOptions.only(
+                                  up: false,
+                                  down: false,
+                                  left: true,
+                                  right: true,
+                                ),
+                              )
+                        : Center(child: CircularProgressIndicator()),
+                  ),
                 ),
               ],
+            ),
+            SizedBox(
+              height: 32,
             ),
             Container(
               width: MediaQuery.of(context).size.width < 500
@@ -157,13 +159,16 @@ class _CardViewState extends State<CardView> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  FloatingActionButton(
-                    onPressed: () {
-                      _swiperController.swipeLeft();
-                      print('Red button clicked');
-                    },
-                    backgroundColor: Colors.white,
-                    child: Icon(Icons.close, color: Colors.black, size: 40),
+                  Container(
+                    width: 50,
+                    child: FloatingActionButton(
+                      onPressed: () {
+                        _swiperController.swipeLeft();
+                        print('Red button clicked');
+                      },
+                      backgroundColor: Colors.white,
+                      child: Icon(Icons.close, color: Colors.black, size: 40),
+                    ),
                   ),
                   FloatingActionButton(
                     onPressed: () {

@@ -74,7 +74,7 @@ class _CardViewFriendshipState extends State<CardViewFriendship> {
         }
 
         return Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -86,6 +86,7 @@ class _CardViewFriendshipState extends State<CardViewFriendship> {
                       ? isLoading
                           ? CircularProgressIndicator()
                           : AppinioSwiper(
+                              isDisabled: true,
                               backgroundCardCount: 0,
                               backgroundCardScale: .8,
                               controller: _swiperController,
@@ -144,9 +145,6 @@ class _CardViewFriendshipState extends State<CardViewFriendship> {
                 ),
               ],
             ),
-            SizedBox(
-              height: 16,
-            ),
             Container(
               width: MediaQuery.of(context).size.width < 500
                   ? MediaQuery.of(context).size.width
@@ -159,24 +157,16 @@ class _CardViewFriendshipState extends State<CardViewFriendship> {
                       _swiperController.swipeLeft();
                       print('Red button clicked');
                     },
-                    backgroundColor: Colors.red,
-                    child: Icon(Icons.close, color: Colors.white),
-                  ),
-                  FloatingActionButton(
-                    onPressed: () {
-                      print('Info button clicked');
-                      _flipCardController.flipcard();
-                    },
-                    backgroundColor: Colors.blue,
-                    child: Icon(Icons.info, color: Colors.white),
+                    backgroundColor: Colors.white,
+                    child: Icon(Icons.close, color: Colors.black, size: 40),
                   ),
                   FloatingActionButton(
                     onPressed: () {
                       _swiperController.swipeRight();
                       print('Green button clicked');
                     },
-                    backgroundColor: Colors.green,
-                    child: Icon(Icons.check, color: Colors.white),
+                    backgroundColor: Colors.white,
+                    child: Icon(Icons.check, color: Colors.black, size: 40),
                   ),
                 ],
               ),

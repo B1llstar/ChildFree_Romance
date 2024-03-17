@@ -112,6 +112,7 @@ class MatchService extends ChangeNotifier {
       friendshipAndRomanceMatches.addAll(_romanceMatches);
       // Randomize all elements
       friendshipAndRomanceMatches.shuffle();
+      _romanceMatches.shuffle();
       notifyListeners();
     } catch (e) {
       print('Error generating romance matches: $e');
@@ -120,18 +121,26 @@ class MatchService extends ChangeNotifier {
 
   Future<void> generateFriendshipMatches() async {
     try {
+      // First, it checks to see if their gender matches the current user's desired gender OR the user wants anything
+      // Then, it checks the opposite
+      // Finally, it checks that they're looking for friends
+      // Any and Both are used because spaghetti code
+
       _friendshipMatches = _allUsers
           .where((user) =>
               (user['gender'] == _userData!['desiredGenderFriendship'] ||
-                  _userData!['desiredGenderFriendship'] == 'Any' ||
-                  _userData!['desiredGenderFriendship'] == 'Both') &&
-              ['Friendship', 'Any', 'Both'].contains(user['isLookingFor']))
+                      ['Any', 'Both']
+                          .contains(_userData?['desiredGenderFriendship'])) &&
+                  user['desiredGenderFriendship'] == _userData?['gender'] ||
+              ['Any', 'Both'].contains(user?['desiredGenderFriendship']) &&
+                  ['Friendship', 'Any', 'Both'].contains(user['isLookingFor']))
           .toList();
 
       print('Friendship Matches: $_friendshipMatches');
       print('Friendship length: ${_friendshipMatches.length}');
       friendshipAndRomanceMatches.addAll(_friendshipMatches);
       friendshipAndRomanceMatches.shuffle();
+      _friendshipMatches.shuffle();
       notifyListeners();
     } catch (e) {
       print('Error generating friendship matches: $e');

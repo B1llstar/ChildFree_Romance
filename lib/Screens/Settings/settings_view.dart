@@ -41,27 +41,23 @@ class MyApp extends StatelessWidget {
 class SettingsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.deepPurpleAccent,
-      appBar: AppBar(
-        title: Text('Settings'),
-      ),
-      body: Container(
-        child: SettingsList(
-          lightTheme: SettingsThemeData(
-            titleTextColor: Colors.white,
-            settingsListBackground: Colors.deepPurpleAccent,
-          ),
-          sections: [
-            CustomSettingsSection(child: PhotoManagerSection()),
-            CustomSettingsSection(child: EssentialsSettingsSection()),
-            CustomSettingsSection(
-                child: matching.MatchPreferencesSettingsSection()),
-            CustomSettingsSection(child: LifestyleSettingsSection()),
-            CustomSettingsSection(child: PersonalBeliefsSettingsSection()),
-            CustomSettingsSection(child: MiscSettingsSection())
-          ],
+    body:
+    return Container(
+      child: SettingsList(
+        lightTheme: SettingsThemeData(
+          titleTextColor: Colors.white,
+          settingsListBackground: Colors.transparent,
         ),
+        brightness: Brightness.dark,
+        sections: [
+          CustomSettingsSection(child: PhotoManagerSection()),
+          CustomSettingsSection(child: EssentialsSettingsSection()),
+          CustomSettingsSection(
+              child: matching.MatchPreferencesSettingsSection()),
+          CustomSettingsSection(child: LifestyleSettingsSection()),
+          CustomSettingsSection(child: PersonalBeliefsSettingsSection()),
+          CustomSettingsSection(child: MiscSettingsSection())
+        ],
       ),
     );
   }

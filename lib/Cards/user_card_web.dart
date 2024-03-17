@@ -26,13 +26,15 @@ class ProfileCardWeb extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(profile['name']),
+        title: Text(profile['name'] ?? 'No name provided'),
       ),
       body: SingleChildScrollView(
         child: Row(
           children: [
             Expanded(
               child: Container(
+                decoration:
+                    BoxDecoration(borderRadius: BorderRadius.circular(20)),
                 constraints: BoxConstraints(
                     maxWidth: width,
                     maxHeight: MediaQuery.of(context).size.height * 1),
@@ -79,50 +81,69 @@ class ProfileCardWeb extends StatelessWidget {
                                 ),
                               ),
                               SizedBox(height: 4),
-                              Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
+                              Card(
+                                child: Column(
                                   children: [
-                                    CardDetail(
-                                      icon: FontAwesomeIcons.briefcaseMedical,
-                                      title: profile['isSterilized'] == 'Yes'
-                                          ? 'Sterilized'
-                                          : profile['isSterilized'] == 'No'
-                                              ? 'Not Sterilized'
-                                              : 'Will Sterilize',
-                                    ),
-                                  ]),
-                              Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    CardDetail(
-                                        icon: FontAwesomeIcons.briefcaseMedical,
-                                        title: profile['willDoLongDistance'] ==
-                                                'Yes'
-                                            ? 'Will do long-distance'
-                                            : 'Will not do long-distance'),
-                                    CardDetail(
-                                      icon: FontAwesomeIcons.briefcaseMedical,
-                                      title: profile['willRelocate'] == 'Yes'
-                                          ? 'Willing to relocate'
-                                          : profile['isSterilized'] == 'No'
-                                              ? 'Not willing to relocate'
-                                              : 'Will consider relocating',
-                                    ),
-                                  ]),
-                              Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    CardDetail(
-                                        icon: FontAwesomeIcons.wineGlass,
-                                        title: profile['doesDrink'] ?? 'No'),
-                                    CardDetail(
-                                        icon: Icons.smoking_rooms,
-                                        title: profile['doesSmoke'] ?? 'No'),
-                                    CardDetail(
-                                        icon: FontAwesomeIcons.cannabis,
-                                        title: profile['does420'] ?? 'No'),
-                                  ]),
+                                    Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          CardDetail(
+                                            icon: FontAwesomeIcons
+                                                .briefcaseMedical,
+                                            title:
+                                                profile['isSterilized'] == 'Yes'
+                                                    ? 'Sterilized'
+                                                    : profile['isSterilized'] ==
+                                                            'No'
+                                                        ? 'Not Sterilized'
+                                                        : 'Will Sterilize',
+                                          ),
+                                        ]),
+                                    Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          CardDetail(
+                                              icon: FontAwesomeIcons
+                                                  .briefcaseMedical,
+                                              title: profile[
+                                                          'willDoLongDistance'] ==
+                                                      'Yes'
+                                                  ? 'Will do long-distance'
+                                                  : 'Will not do long-distance'),
+                                          CardDetail(
+                                            icon: FontAwesomeIcons
+                                                .briefcaseMedical,
+                                            title: profile['willRelocate'] ==
+                                                    'Yes'
+                                                ? 'Willing to relocate'
+                                                : profile['isSterilized'] ==
+                                                        'No'
+                                                    ? 'Not willing to relocate'
+                                                    : 'Will consider relocating',
+                                          ),
+                                        ]),
+                                    Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceEvenly,
+                                        children: [
+                                          CardDetail(
+                                              icon: FontAwesomeIcons.wineGlass,
+                                              title:
+                                                  profile['doesDrink'] ?? 'No'),
+                                          CardDetail(
+                                              icon: Icons.smoking_rooms,
+                                              title:
+                                                  profile['doesSmoke'] ?? 'No'),
+                                          CardDetail(
+                                              icon: FontAwesomeIcons.cannabis,
+                                              title:
+                                                  profile['does420'] ?? 'No'),
+                                        ]),
+                                  ],
+                                ),
+                              ),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
@@ -157,7 +178,8 @@ class ProfileCardWeb extends StatelessWidget {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     InterestsChoiceChipDisplay(
-                                        interests: profile['selectedInterests'])
+                                        interests:
+                                            profile['selectedInterests'] ?? [])
                                   ])
                             ],
                           ),
