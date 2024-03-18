@@ -1,5 +1,4 @@
 import 'package:appinio_swiper/appinio_swiper.dart';
-import 'package:childfree_romance/Cards/user_card.dart';
 import 'package:childfree_romance/Notifiers/all_users_notifier.dart';
 import 'package:childfree_romance/Services/matchmaking_service.dart';
 import 'package:flutter/foundation.dart';
@@ -124,11 +123,9 @@ class _CardViewState extends State<CardView> {
                                         child: CircularProgressIndicator());
                                   } else {
                                     return !kIsWeb
-                                        ? ProfileCard(
+                                        ? ProfileCardWeb(
                                             profile: matchService
                                                 .romanceMatches[index],
-                                            flipCardController:
-                                                _flipCardController,
                                           )
                                         : ProfileCardWeb(
                                             profile: matchService

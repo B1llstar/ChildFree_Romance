@@ -1,3 +1,5 @@
+// TODO: Update user collection for production (right now it's testing only)
+
 import 'package:childfree_romance/Services/reverse_geocode_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -14,17 +16,31 @@ class AllUsersNotifier extends ChangeNotifier {
   ReverseGeocodeService? _reverseGeocodeService;
   List<String> _matchIds = [];
   List<String> _matchProfilePictures = [];
+
   // getters and setters
   List<String> get matchIds => _matchIds;
+  List<String> _selectedInterests = [];
+  List<String> get selectedInterests => _selectedInterests;
   List<String> get matchProfilePictures => _matchProfilePictures;
+
+  final userCollection = FirebaseFirestore.instance.collection('test_users');
   init(String userId) async {
     await fetchCurrentUser(userId);
     await fetchProfilesExcludingUser(userId, true);
     await loadProfilePictures();
+    await loadInterests();
     print('Init called...');
     uid = userId;
     _reverseGeocodeService = ReverseGeocodeService(uid);
     await fetchMatches();
+    notifyListeners();
+  }
+
+  // Setter for selectedInterests
+  void setSelectedInterests(List<String> selectedInterests) async {
+    _selectedInterests = selectedInterests;
+    await updateSelectedInterestsInFirestore();
+    print('Updationg Firestore');
     notifyListeners();
   }
 
@@ -98,7 +114,7 @@ class AllUsersNotifier extends ChangeNotifier {
   fetchCurrentUser(String userId) async {
     print('Fetching current user profile...');
     await FirebaseFirestore.instance
-        .collection('users')
+        .collection('test_users')
         .doc(userId)
         .get()
         .then((doc) {
@@ -144,6 +160,19 @@ class AllUsersNotifier extends ChangeNotifier {
         ? List<String>.from(_currentUser['profilePictures'])
         : [];
     notifyListeners();
+  }
+
+  loadInterests() {
+    _selectedInterests = _currentUser['selectedInterests'] != null
+        ? List<String>.from(_currentUser['selectedInterests'])
+        : [];
+    notifyListeners();
+    print('Interests are: $_selectedInterests');
+  }
+
+  updateSelectedInterestsInFirestore() async {
+    await userCollection.doc(_currentUser['userId']).set(
+        {'selectedInterests': _selectedInterests}, SetOptions(merge: true));
   }
 
   convertIsLookingForToCardString(Map<String, dynamic> profile) {
@@ -229,7 +258,10 @@ class AllUsersNotifier extends ChangeNotifier {
 
   Future<void> addProfilePicture(String userId, String imageUrl) async {
     try {
-      await FirebaseFirestore.instance.collection('users').doc(userId).update({
+      await FirebaseFirestore.instance
+          .collection('test_users')
+          .doc(userId)
+          .update({
         'profilePictures': FieldValue.arrayUnion([imageUrl])
       });
       _profilePictures.add(imageUrl);
@@ -251,7 +283,10 @@ class AllUsersNotifier extends ChangeNotifier {
         // Insert the new image URL at the specified index
         updatedProfilePictures.insert(index, imageUrl);
         // Update Firestore with the new list of profile pictures
-        await FirebaseFirestore.instance.collection('users').doc(uid).update({
+        await FirebaseFirestore.instance
+            .collection('test_users')
+            .doc(uid)
+            .update({
           'profilePictures': updatedProfilePictures,
         });
         // Update local state with the updated profile pictures list
@@ -277,7 +312,10 @@ class AllUsersNotifier extends ChangeNotifier {
       notifyListeners();
 
       try {
-        await FirebaseFirestore.instance.collection('users').doc(uid).update({
+        await FirebaseFirestore.instance
+            .collection('test_users')
+            .doc(uid)
+            .update({
           'profilePictures': _profilePictures,
         });
         print('Successfully updated images');
@@ -300,7 +338,10 @@ class AllUsersNotifier extends ChangeNotifier {
         notifyListeners();
 
         // Update Firestore with the updated list of profile pictures
-        await FirebaseFirestore.instance.collection('users').doc(uid).update({
+        await FirebaseFirestore.instance
+            .collection('test_users')
+            .doc(uid)
+            .update({
           'profilePictures': _profilePictures,
         });
         print('Successfully deleted image at index $index');

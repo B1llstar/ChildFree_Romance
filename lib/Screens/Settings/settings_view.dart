@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 
 import '../../Notifiers/user_notifier.dart';
 import './Sections/match_preferences_section.dart' as matching;
+import 'Sections/interests_settings_section.dart';
 import 'Sections/lifestyle_section.dart';
 
 void main() async {
@@ -56,7 +57,8 @@ class SettingsView extends StatelessWidget {
               child: matching.MatchPreferencesSettingsSection()),
           CustomSettingsSection(child: LifestyleSettingsSection()),
           CustomSettingsSection(child: PersonalBeliefsSettingsSection()),
-          CustomSettingsSection(child: MiscSettingsSection())
+          CustomSettingsSection(child: MiscSettingsSection()),
+          CustomSettingsSection(child: InterestsSettingsSection())
         ],
       ),
     );
