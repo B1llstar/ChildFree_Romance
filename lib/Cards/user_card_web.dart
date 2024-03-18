@@ -1,12 +1,13 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:childfree_romance/Cards/interests_choice_chips.dart';
-import 'package:childfree_romance/Cards/prompt_plate.dart';
+import 'package:childfree_romance/Cards/prompt_question_answer_row.dart';
+import 'package:childfree_romance/Cards/triple_details_row.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:shimmer/shimmer.dart';
 
-import 'card_detail_row.dart';
+import 'detail_row.dart';
 
 class ProfileCardWeb extends StatelessWidget {
   final Map<String, dynamic> profile;
@@ -81,99 +82,41 @@ class ProfileCardWeb extends StatelessWidget {
                                 ),
                               ),
                               SizedBox(height: 4),
-                              Card(
-                                child: Column(
-                                  children: [
-                                    Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          CardDetail(
-                                            icon: FontAwesomeIcons
-                                                .briefcaseMedical,
-                                            title:
-                                                profile['isSterilized'] == 'Yes'
-                                                    ? 'Sterilized'
-                                                    : profile['isSterilized'] ==
-                                                            'No'
-                                                        ? 'Not Sterilized'
-                                                        : 'Will Sterilize',
-                                          ),
-                                        ]),
-                                    Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          CardDetail(
-                                              icon: FontAwesomeIcons
-                                                  .briefcaseMedical,
-                                              title: profile[
-                                                          'willDoLongDistance'] ==
-                                                      'Yes'
-                                                  ? 'Will do long-distance'
-                                                  : 'Will not do long-distance'),
-                                          CardDetail(
-                                            icon: FontAwesomeIcons
-                                                .briefcaseMedical,
-                                            title: profile['willRelocate'] ==
-                                                    'Yes'
-                                                ? 'Willing to relocate'
-                                                : profile['isSterilized'] ==
-                                                        'No'
-                                                    ? 'Not willing to relocate'
-                                                    : 'Will consider relocating',
-                                          ),
-                                        ]),
-                                    Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceEvenly,
-                                        children: [
-                                          CardDetail(
-                                              icon: FontAwesomeIcons.wineGlass,
-                                              title:
-                                                  profile['doesDrink'] ?? 'No'),
-                                          CardDetail(
-                                              icon: Icons.smoking_rooms,
-                                              title:
-                                                  profile['doesSmoke'] ?? 'No'),
-                                          CardDetail(
-                                              icon: FontAwesomeIcons.cannabis,
-                                              title:
-                                                  profile['does420'] ?? 'No'),
-                                        ]),
-                                  ],
-                                ),
+                              DetailRow(
+                                title: profile['isSterilized'] == 'Yes'
+                                    ? 'Sterilized'
+                                    : profile['isSterilized'] == 'No'
+                                        ? 'Not Sterilized'
+                                        : 'Will Sterilize',
+                                icon: FontAwesomeIcons.briefcaseMedical,
                               ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Expanded(
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Prompt(
-                                        prompt: 'About Me',
-                                        answer: profile['aboutMe'] ??
-                                            'None provided',
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              if (profile['dreamPartner'] != null)
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Expanded(
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Prompt(
-                                          prompt: 'My dream partner is...',
-                                          answer: profile['dreamPartner'],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                              DetailRow(
+                                  title: profile['willDoLongDistance'] == 'Yes'
+                                      ? 'Not open to long-distance'
+                                      : 'Not open to long-distance',
+                                  icon: FontAwesomeIcons.globe),
+                              DetailRow(
+                                  title: profile['willRelocate'] == 'Yes'
+                                      ? 'Open to relocating'
+                                      : 'Not open to relocating',
+                                  icon: FontAwesomeIcons.suitcaseRolling),
+                              Divider(),
+                              TripleDetailRow(icons: [
+                                FontAwesomeIcons.beer,
+                                FontAwesomeIcons.smoking,
+                                FontAwesomeIcons.cannabis
+                              ], titles: [
+                                'Sometimes',
+                                'No',
+                                'Sometimes'
+                              ]),
+                              Divider(),
+                              PromptQuestionAnswerRow(
+                                  question: 'About Me',
+                                  answer: profile['aboutMe']),
+                              PromptQuestionAnswerRow(
+                                  question: 'My dream match is...',
+                                  answer: profile['dreamPartner']),
                               Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [

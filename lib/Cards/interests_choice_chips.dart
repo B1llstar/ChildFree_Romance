@@ -16,28 +16,28 @@ class _InterestsChoiceChipDisplayState
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: Card(
-        child: Column(
-          children: [
-            Text('Interests', style: TextStyle(fontSize: 28)),
-            Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Wrap(
-                direction: Axis.horizontal,
-                spacing: 8.0,
-                runSpacing: 8.0,
-                alignment: WrapAlignment.center,
-                verticalDirection: VerticalDirection.down,
-                children: [
-                  for (var interest in widget.interests)
-                    Chip(
-                      label: Text(interest),
-                    ),
-                ],
-              ),
+      child: Column(
+        children: [
+          Padding(
+              padding: EdgeInsets.only(left: 8, right: 8, top: 8),
+              child: Text('Interests', style: TextStyle(fontSize: 18))),
+          Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: Wrap(
+              direction: Axis.horizontal,
+              spacing: 8.0,
+              runSpacing: 8.0,
+              alignment: WrapAlignment.center,
+              verticalDirection: VerticalDirection.down,
+              children: [
+                for (var interest in widget.interests)
+                  Chip(
+                    label: Text(interest),
+                  ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

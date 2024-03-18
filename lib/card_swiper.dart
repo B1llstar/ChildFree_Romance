@@ -64,7 +64,7 @@ class _CardViewState extends State<CardView> {
         double? width;
         if (!kIsWeb) {
           width = MediaQuery.of(context).size.width < 500 ? 350 : 500;
-          height = MediaQuery.of(context).size.height * 0.65;
+          height = MediaQuery.of(context).size.height * 1;
         } else {
           double screenWidth = MediaQuery.of(context).size.width;
           double screenHeight = MediaQuery.of(context).size.height;
@@ -145,9 +145,6 @@ class _CardViewState extends State<CardView> {
                   ),
                 ),
               ],
-            ),
-            SizedBox(
-              height: 32,
             ),
             Container(
               width: MediaQuery.of(context).size.width < 500
