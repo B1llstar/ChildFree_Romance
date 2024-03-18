@@ -72,11 +72,11 @@ class _CardViewState extends State<CardView> {
           height = screenHeight * 0.8;
         }
 
-        return Column(
-          mainAxisAlignment: MainAxisAlignment.start,
+        return Stack(
+          fit: StackFit.expand,
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
                   decoration:
@@ -146,36 +146,36 @@ class _CardViewState extends State<CardView> {
                 ),
               ],
             ),
-            Container(
-              width: MediaQuery.of(context).size.width < 500
-                  ? MediaQuery.of(context).size.width
-                  : 500,
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 00,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  Container(
-                    width: 50,
-                    child: FloatingActionButton(
-                      onPressed: () {
-                        _swiperController.swipeLeft();
-                        print('Red button clicked');
-                      },
-                      backgroundColor: Colors.white,
-                      child: Icon(Icons.close, color: Colors.black, size: 40),
+                  ElevatedButton(
+                    onPressed: () {
+                      _swiperController.swipeLeft();
+                      print('Red button clicked');
+                    },
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.white,
                     ),
+                    child: Icon(Icons.close, color: Colors.black, size: 40),
                   ),
-                  FloatingActionButton(
+                  ElevatedButton(
                     onPressed: () {
                       _swiperController.swipeRight();
                       print('Green button clicked');
                     },
-                    backgroundColor: Colors.white,
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.white,
+                    ),
                     child: Icon(Icons.check, color: Colors.black, size: 40),
                   ),
                 ],
               ),
             ),
-            SizedBox(height: 10),
           ],
         );
       },
