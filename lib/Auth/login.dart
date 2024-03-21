@@ -1,11 +1,16 @@
-import 'package:childfree_romance/main.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_login/flutter_login.dart';
+import 'package:provider/provider.dart';
 
+import '../Notifiers/all_users_notifier.dart';
+import '../Notifiers/user_notifier.dart';
+import '../Screens/Settings/Tiles/settings_service.dart';
+import '../Services/matchmaking_service.dart';
 import '../Utils/debug_utils.dart';
+import '../main_w_navbar.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -57,7 +62,10 @@ class _LoginPageState extends State<LoginPage> {
       // Navigate to profile setup screen
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => QuestionPage()),
+        MaterialPageRoute(
+            builder: (context) => MyHomePage(
+                  startingIndex: 3,
+                )),
       );
     } catch (error) {
       DebugUtils.printDebug('Sign-up failed: $error');
@@ -65,23 +73,59 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  Future<void> _handleSuccessfulLogin() async {
-    // Clear existing preferences
+  Future<void> _handleSuccessfulLogin(BuildContext context) async {
+    try {
+      // Clear existing preferences
+      final uid = FirebaseAuth.instance.currentUser!.uid;
 
-    Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context) => QuestionPage()));
+      // Initialize AllUsersNotifier
+      AllUsersNotifier _allUsersNotifier = AllUsersNotifier();
+      _allUsersNotifier.init(uid);
+
+      // Initialize MatchmakingNotifier
+      MatchmakingNotifier matchmakingNotifier =
+          MatchmakingNotifier(uid, _allUsersNotifier);
+
+      // Initialize MatchService
+      MatchService _service = MatchService();
+
+      // Navigate to the home page with providers
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => MultiProvider(
+            providers: [
+              ChangeNotifierProvider(create: (_) => UserDataProvider()),
+              ChangeNotifierProvider.value(value: _allUsersNotifier),
+              ChangeNotifierProvider.value(value: matchmakingNotifier),
+              ChangeNotifierProvider.value(value: _service),
+              // Add more providers if needed
+            ],
+            child: MyHomePage(),
+          ),
+        ),
+      );
+    } catch (error) {
+      // Handle errors
+      print("Error during successful login: $error");
+      // You can show a snackbar, dialog, or navigate to an error page
+      // to inform the user about the error and provide appropriate actions.
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.red,
       body: Container(
+        color: Colors.red,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
               child: Expanded(
                 child: FlutterLogin(
+                  logo: 'assets/cfc_logo_med_2.png',
                   title: kIsWeb
                       ? '  Childfree\nConnection'
                       : '  Childfree\nConnection',
@@ -102,7 +146,7 @@ class _LoginPageState extends State<LoginPage> {
                     if (loginError == null) {
                       // Login successful, check Privacy Policy acceptance and navigate accordingly
 
-                      await _handleSuccessfulLogin();
+                      await _handleSuccessfulLogin(context);
                     }
                     return loginError;
                   },

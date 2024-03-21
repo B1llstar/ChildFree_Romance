@@ -47,7 +47,7 @@ class _ProfilePicturesPageState extends State<ProfilePicturesPage> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.0),
                     ),
-                    elevation: 1,
+                    elevation: 0,
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(10.0),
                       child: GestureDetector(
@@ -65,6 +65,27 @@ class _ProfilePicturesPageState extends State<ProfilePicturesPage> {
                     ),
                   ),
                   Positioned(
+                    bottom: 0,
+                    left: 0,
+                    child: Container(
+                      padding: EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: Colors.black54,
+                        borderRadius: BorderRadius.only(
+                          topRight: Radius.circular(10),
+                          bottomLeft: Radius.circular(10),
+                        ),
+                      ),
+                      child: Text(
+                        (index + 1).toString(),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Positioned(
                     top: 0,
                     right: 0,
                     child: GestureDetector(
@@ -75,7 +96,7 @@ class _ProfilePicturesPageState extends State<ProfilePicturesPage> {
                       },
                       child: CircleAvatar(
                         backgroundColor: Colors.red,
-                        radius: 12,
+                        radius: 11,
                         child: Icon(
                           Icons.close,
                           color: Colors.white,
@@ -123,7 +144,7 @@ class _ProfilePicturesPageState extends State<ProfilePicturesPage> {
           children: [
             Container(
               width: !kIsWeb ? 300 : 500,
-              height: !kIsWeb ? 300 : 350,
+              height: !kIsWeb ? 200 : 350,
               child: ReorderableGridView.extent(
                 maxCrossAxisExtent: itemSize!,
                 onReorder: (oldIndex, newIndex) {

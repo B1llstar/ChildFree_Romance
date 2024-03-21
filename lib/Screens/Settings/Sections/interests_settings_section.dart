@@ -22,7 +22,7 @@ class _InterestsSettingsSectionState extends State<InterestsSettingsSection> {
   @override
   Widget build(BuildContext context) {
     return SettingsSection(
-      title: Text('Interests.'),
+      title: Text('Interests'),
       tiles: [
         CustomSettingsTile(
             child: InterestsCard(

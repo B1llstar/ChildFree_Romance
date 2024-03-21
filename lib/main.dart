@@ -26,7 +26,6 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   final AllUsersNotifier allUsersNotifier = AllUsersNotifier();
-  allUsersNotifier.fetchProfiles();
   runApp(
     MultiProvider(
       providers: [
@@ -335,7 +334,6 @@ class _QuestionPageState extends State<QuestionPage> {
     return Consumer(
         builder: (context, UserDataProvider userDataProvider, child) {
       return Scaffold(
-        backgroundColor: Colors.deepPurpleAccent,
         body: Column(
           children: [
             Expanded(

@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:appinio_swiper/appinio_swiper.dart';
+import 'package:childfree_romance/Cards/loadingWidget.dart';
 import 'package:childfree_romance/Notifiers/all_users_notifier.dart';
 import 'package:childfree_romance/Services/matchmaking_service.dart';
 import 'package:flutter/foundation.dart';
@@ -24,7 +27,11 @@ class _CardViewState extends State<CardView> {
   late AllUsersNotifier _allUsersNotifier;
   AppinioSwiperController _swiperController = AppinioSwiperController();
   bool isLoading = true;
-
+  final ScrollController _scrollController = ScrollController();
+  int _currentIndex = 0; // Track the current index
+  String glowType = 'none';
+  bool _isButtonDisabled = false; // Boolean flag to control button clicks
+  late Timer _debounceTimer; // Timer for debouncing button clicks
   @override
   void initState() {
     super.initState();
@@ -32,6 +39,7 @@ class _CardViewState extends State<CardView> {
     WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
       loadData();
     });
+    Provider.of<MatchService>(context, listen: false).refresh();
   }
 
   Future loadData() async {
@@ -48,6 +56,24 @@ class _CardViewState extends State<CardView> {
 
     setState(() {
       isLoading = false;
+    });
+  }
+
+  // Callback function to scroll to the top of ProfileCardWeb
+  void scrollBackUp() {
+    _scrollController.jumpTo(0);
+  }
+
+  // Method to debounce button clicks
+  void _debounceButton() {
+    setState(() {
+      _isButtonDisabled = true; // Disable the buttons
+    });
+    _debounceTimer = Timer(Duration(seconds: 2), () {
+      // Enable the buttons after 3 seconds
+      setState(() {
+        _isButtonDisabled = false;
+      });
     });
   }
 
@@ -84,64 +110,138 @@ class _CardViewState extends State<CardView> {
                   child: SizedBox(
                     height: height ?? 0,
                     width: width ?? 0,
-                    child: matchService.romanceMatches != null
+                    child: matchService.romanceMatches != null &&
+                            matchService.romanceMatches.isNotEmpty
                         ? isLoading
-                            ? CircularProgressIndicator()
-                            : AppinioSwiper(
-                                isDisabled: true,
-                                backgroundCardCount: 0,
-                                backgroundCardScale: .8,
-                                controller: _swiperController,
-                                loop: false,
-                                onEnd: () {
-                                  print('We\'re all out of cards!');
-                                },
-                                onSwipeEnd: (int index, int direction,
-                                    SwiperActivity activity) {
-                                  if (activity.end!.dx > 0.0) {
-                                    print('Swiped right');
-                                    String swipedUserId = matchService
-                                        .romanceMatches[index]['userId'];
-                                    _swipeService.makeSwipe(
-                                        swipedUserId: swipedUserId,
-                                        swipeType: 'standardYes');
-                                  } else {
-                                    print('Swiped left');
-                                    String swipedUserId = matchService
-                                        .romanceMatches[index]['userId'];
-                                    _swipeService.makeSwipe(
-                                        swipedUserId: swipedUserId,
-                                        swipeType: 'nope');
-                                  }
-                                },
-                                onCardPositionChanged:
-                                    (SwiperPosition position) {},
-                                cardBuilder: (context, index) {
-                                  if (matchService.romanceMatches == null ||
-                                      matchService.romanceMatches.isEmpty) {
-                                    return Center(
-                                        child: CircularProgressIndicator());
-                                  } else {
-                                    return !kIsWeb
-                                        ? ProfileCardWeb(
-                                            profile: matchService
-                                                .romanceMatches[index],
-                                          )
-                                        : ProfileCardWeb(
-                                            profile: matchService
-                                                .romanceMatches[index],
-                                          );
-                                  }
-                                },
-                                cardCount: 35,
-                                swipeOptions: SwipeOptions.only(
-                                  up: false,
-                                  down: false,
-                                  left: true,
-                                  right: true,
+                            ? SizedBox(
+                                height: 50,
+                                width: 50,
+                                child: CFCLoadingWidget())
+                            : Container(
+                                decoration: BoxDecoration(boxShadow: [
+                                  BoxShadow(
+                                    color: matchService.glowType == 'Yes'
+                                        ? Colors.green
+                                        : matchService.glowType == 'No'
+                                            ? Colors.red
+                                            : Colors
+                                                .transparent, // Set transparent color when glowType is 'None'
+                                  )
+                                ]),
+                                child: AppinioSwiper(
+                                  isDisabled: false,
+                                  backgroundCardCount: 0,
+                                  backgroundCardScale: .8,
+                                  controller: _swiperController,
+                                  threshold: 200,
+                                  loop: false,
+                                  onEnd: () {
+                                    print('We\'re all out of cards!');
+                                  },
+                                  onSwipeEnd: (int index, int direction,
+                                      SwiperActivity activity) {
+                                    if (activity.end!.dx > 0.0) {
+                                      print('Swiped right');
+                                      print('WE SWIPED OR SOMETHING');
+                                      if (index <
+                                          matchService.romanceMatches.length) {
+                                        String swipedUserId = matchService
+                                            .romanceMatches[index]['userId'];
+                                        _swipeService.makeSwipe(
+                                            swipedUserId: swipedUserId,
+                                            swipeType: 'standardYes');
+                                      }
+                                    } else {
+                                      print('Swiped left');
+                                      if (index <
+                                          matchService.romanceMatches.length) {
+                                        String swipedUserId = matchService
+                                            .romanceMatches[index]['userId'];
+                                        _swipeService.makeSwipe(
+                                            swipedUserId: swipedUserId,
+                                            swipeType: 'nope');
+                                      }
+                                    }
+                                    _currentIndex =
+                                        index; // Update current index
+                                    scrollBackUp();
+                                    print('Done swiping');
+                                    matchService.glowType = 'None';
+                                  },
+                                  onCardPositionChanged:
+                                      (SwiperPosition position) {
+                                    print('Changing position');
+                                    print(position.offset.dx);
+                                    if (position.offset.dx > 0) {
+                                      print('Moving right....');
+                                      setState(() {
+                                        matchService.glowType = 'Yes';
+                                        print('Setting glow type...');
+                                      });
+                                    } else if (position.offset.dx < 0) {
+                                      print('Moving left....');
+                                      matchService.glowType = 'No';
+                                    } else {
+                                      print('Stationary');
+                                    }
+                                  },
+                                  cardBuilder: (context, index) {
+                                    if (index <
+                                        matchService.romanceMatches.length) {
+                                      return !kIsWeb
+                                          ? ProfileCardWeb(
+                                              profile: matchService
+                                                  .romanceMatches[index],
+                                              scrollController:
+                                                  _scrollController,
+                                            )
+                                          : ProfileCardWeb(
+                                              profile: matchService
+                                                  .romanceMatches[index],
+                                              scrollController:
+                                                  _scrollController,
+                                            );
+                                    } else {
+                                      return SizedBox(); // Return an empty SizedBox if index is out of bounds
+                                    }
+                                  },
+                                  cardCount: matchService.romanceMatches.length,
+                                  swipeOptions: SwipeOptions.only(
+                                    up: false,
+                                    down: false,
+                                    left: true,
+                                    right: true,
+                                  ),
                                 ),
                               )
-                        : Center(child: CircularProgressIndicator()),
+                        : Center(
+                            child: Consumer<AllUsersNotifier>(
+                              builder: (context, _allUsersNotifier, _) =>
+                                  Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Image.asset('assets/cfc_logo_med_2.png'),
+                                  SizedBox(height: 2),
+                                  Text(
+                                    'Thanks for participating in the Closed Beta!',
+                                    style: TextStyle(
+                                      color: _allUsersNotifier.darkMode
+                                          ? Colors.white
+                                          : Colors.black,
+                                    ),
+                                  ),
+                                  Text(
+                                    'Check back soon for more profiles!',
+                                    style: TextStyle(
+                                      color: _allUsersNotifier.darkMode
+                                          ? Colors.white
+                                          : Colors.black,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
                   ),
                 ),
               ],
@@ -149,27 +249,71 @@ class _CardViewState extends State<CardView> {
             Positioned(
               left: 0,
               right: 0,
-              bottom: 00,
+              bottom: 0,
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      _swiperController.swipeLeft();
-                      print('Red button clicked');
-                    },
-                    style: ElevatedButton.styleFrom(
-                      primary: Colors.white,
+                  Container(
+                    child: ElevatedButton(
+                      onPressed: _isButtonDisabled
+                          ? null
+                          : () {
+                              if (_currentIndex ==
+                                  matchService.romanceMatches.length - 1) {
+                                print('Can\'t swipe any further!');
+                                return;
+                              }
+                              _debounceButton();
+                              _swiperController.swipeLeft();
+
+                              /*
+                        String swipedUserId =
+                            matchService.romanceMatches[_currentIndex]
+                                ['userId']; // Use current index
+                        _swipeService.makeSwipe(
+                            swipedUserId: swipedUserId,
+                            swipeType:
+                                'nope'); // Call makeSwipe with appropriate index
+
+                         */
+                              scrollBackUp();
+                              print('Red button clicked');
+                            },
+                      style: ElevatedButton.styleFrom(
+                          primary: Colors.white, elevation: 6),
+                      child: Icon(Icons.close, color: Colors.black, size: 40),
                     ),
-                    child: Icon(Icons.close, color: Colors.black, size: 40),
+                  ),
+                  SizedBox(
+                    width: 16,
                   ),
                   ElevatedButton(
-                    onPressed: () {
-                      _swiperController.swipeRight();
-                      print('Green button clicked');
-                    },
+                    onPressed: _isButtonDisabled
+                        ? null
+                        : () {
+                            if (_currentIndex ==
+                                matchService.romanceMatches.length - 1) {
+                              print('Can\'t swipe any further!');
+                              return;
+                            }
+                            _debounceButton();
+                            _swiperController.swipeRight();
+                            /*
+                      String swipedUserId =
+                          matchService.romanceMatches[_currentIndex]
+                              ['userId']; // Use current index
+                      _swipeService.makeSwipe(
+                          swipedUserId: swipedUserId,
+                          swipeType:
+                              'standardYes'); // Call makeSwipe with appropriate index
+
+                       */
+                            scrollBackUp();
+                            print('Green button clicked');
+                          },
                     style: ElevatedButton.styleFrom(
                       primary: Colors.white,
+                      elevation: 6,
                     ),
                     child: Icon(Icons.check, color: Colors.black, size: 40),
                   ),

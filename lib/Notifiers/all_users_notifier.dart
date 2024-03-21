@@ -16,12 +16,40 @@ class AllUsersNotifier extends ChangeNotifier {
   ReverseGeocodeService? _reverseGeocodeService;
   List<String> _matchIds = [];
   List<String> _matchProfilePictures = [];
+  List<dynamic> _prompts = [];
 
   // getters and setters
   List<String> get matchIds => _matchIds;
+  Map<String, dynamic> _prompt_1 = {};
+  Map<String, dynamic> _prompt_2 = {};
+  Map<String, dynamic> _prompt_3 = {};
+  Map<String, dynamic> get prompt_1 => prompt_1;
+  Map<String, dynamic> get prompt_2 => prompt_2;
+  Map<String, dynamic> get prompt_3 => prompt_3;
+  bool _visibility = false;
+  bool get visibility => _visibility;
+  bool _canShow = false;
+  bool get canShow => _canShow;
+  set canShow(bool value) {
+    _canShow = value;
+    notifyListeners();
+  }
+
+  set visibility(bool value) {
+    _visibility = value;
+    notifyListeners();
+  }
+
   List<String> _selectedInterests = [];
   List<String> get selectedInterests => _selectedInterests;
   List<String> get matchProfilePictures => _matchProfilePictures;
+  bool _darkMode = false;
+  bool get darkMode => _darkMode;
+// Setter
+  set darkMode(bool value) {
+    _darkMode = value;
+    notifyListeners();
+  }
 
   final userCollection = FirebaseFirestore.instance.collection('test_users');
   init(String userId) async {
@@ -32,7 +60,7 @@ class AllUsersNotifier extends ChangeNotifier {
     print('Init called...');
     uid = userId;
     _reverseGeocodeService = ReverseGeocodeService(uid);
-    await fetchMatches();
+//    await fetchMatches();
     notifyListeners();
   }
 
@@ -42,6 +70,121 @@ class AllUsersNotifier extends ChangeNotifier {
     await updateSelectedInterestsInFirestore();
     print('Updationg Firestore');
     notifyListeners();
+  }
+
+  Future<void> checkToSeeIfTheyHaveEnoughToShowTheirProfile() async {
+    try {
+      final DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
+          .collection('test_users')
+          .doc(_currentUser['userId'])
+          .get();
+
+      Map<String, dynamic> userData =
+          userSnapshot.data() as Map<String, dynamic>;
+      Map<String, dynamic> prompt =
+          userData['prompt_1'] ?? ''; // Assuming 'prompt_1' is a String
+      List<dynamic> profilePictures = userData['profilePictures'] ?? [];
+      print(userData);
+      String gender = userData['gender'] ?? ''; // Assuming 'gender' is a String
+      print('Prompt 1: $prompt');
+      print('Profile Pictures: $profilePictures');
+      print('Gender: $gender');
+      bool promptIsAcceptable = prompt.isNotEmpty &&
+          prompt.containsKey('prompt') &&
+          prompt.containsKey('answer') &&
+          prompt['prompt'] != null &&
+          prompt['prompt'].isNotEmpty &&
+          prompt['answer'] != null &&
+          prompt['answer'].isNotEmpty;
+      print('Prompt is acceptable: $promptIsAcceptable');
+
+      if (promptIsAcceptable &&
+          profilePictures.isNotEmpty &&
+          gender.isNotEmpty) {
+        _canShow = true;
+
+        notifyListeners();
+      } else {
+        _canShow = false;
+        visibility = false;
+        onlyChangeUserVisibility(_currentUser['userId'], false);
+        notifyListeners();
+      }
+    } catch (error) {
+      print('Error fetching user data: $error');
+      // Handle error as needed
+    }
+  }
+
+  Future<void> onlyChangeUserVisibility(String userId, bool isVisible) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('test_users')
+          .doc(userId)
+          .set({
+        'visible': isVisible,
+      }, SetOptions(merge: true));
+      print('User visibility updated successfully');
+    } catch (error) {
+      print('Error updating user visibility: $error');
+      // Handle error as needed
+    }
+  }
+
+  Future<void> changeUserVisibilityOrShowDialog(
+      String userId, bool isVisible, BuildContext context) async {
+    try {
+      await checkToSeeIfTheyHaveEnoughToShowTheirProfile(); // Wait for the async check to complete
+      if (canShow) {
+        visibility = isVisible;
+        notifyListeners();
+        await FirebaseFirestore.instance
+            .collection('test_users')
+            .doc(userId)
+            .set({
+          'visible': isVisible,
+        }, SetOptions(merge: true));
+        print('User visibility updated successfully');
+      } else {
+        // Show an Alert Dialog
+        print('User does not have enough information to show their profile');
+        // Show AlertDialog
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Please fill out all of the required fields!'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Please provide more information to show your profile:',
+                  ),
+                  SizedBox(height: 8),
+                  Text('- One prompt'),
+                  Text('- One profile picture'),
+                  Text('- Gender'),
+                  Text(
+                      'For your convenience, these fields are marked with asterisks (*)!'),
+                ],
+              ),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Close the dialog
+                  },
+                  child: Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      }
+    } catch (error) {
+      print('Error updating user visibility: $error');
+      // Handle error as needed
+    }
   }
 
   String getAddressStringFromGeocodingService() {
@@ -120,6 +263,12 @@ class AllUsersNotifier extends ChangeNotifier {
         .then((doc) {
       if (doc.exists) {
         _currentUser = (doc.data() as Map<String, dynamic>)..remove('email');
+        _prompt_1 = _currentUser['prompt_1'] ?? {};
+        _prompt_2 = _currentUser['prompt_2'] ?? {};
+        _prompt_3 = _currentUser['prompt_3'] ?? {};
+        _visibility =
+            _currentUser['visible'] ?? false; // All users start  as false
+        print('Prompts: $_prompt_1, $_prompt_2, $_prompt_3');
         notifyListeners();
       } else {
         print('User profile not found');
@@ -345,6 +494,7 @@ class AllUsersNotifier extends ChangeNotifier {
           'profilePictures': _profilePictures,
         });
         print('Successfully deleted image at index $index');
+        await checkToSeeIfTheyHaveEnoughToShowTheirProfile();
       } else {
         print('Invalid index');
       }

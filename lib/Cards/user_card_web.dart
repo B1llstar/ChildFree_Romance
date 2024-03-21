@@ -1,129 +1,195 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:childfree_romance/Cards/interests_choice_chips.dart';
-import 'package:childfree_romance/Cards/prompt_question_answer_row.dart';
 import 'package:childfree_romance/Cards/triple_details_row.dart';
+import 'package:childfree_romance/Cards/triple_prompt_widget.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:shimmer/shimmer.dart';
 
-import 'detail_row.dart';
-
 class ProfileCardWeb extends StatelessWidget {
   final Map<String, dynamic> profile;
-
-  const ProfileCardWeb({Key? key, required this.profile}) : super(key: key);
+  final ScrollController scrollController;
+  const ProfileCardWeb(
+      {Key? key, required this.profile, required this.scrollController})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     // A width that is no greater than 500
     double? width;
     if (!kIsWeb)
-      width = MediaQuery.of(context).size.width < 500 ? 500 : 500;
+      width = MediaQuery.of(context).size.width < 550 ? 500 : 550;
     else
       width = MediaQuery.of(context).size.width < 1000
           ? MediaQuery.of(context).size.width
           : 1000;
 
+    // Function to calculate age from Firestore Timestamp
+    int calculateAge(Timestamp dobTimestamp) {
+      DateTime dob = dobTimestamp.toDate();
+      DateTime now = DateTime.now();
+      int years = now.year - dob.year;
+      if (now.month < dob.month ||
+          (now.month == dob.month && now.day < dob.day)) {
+        years--;
+      }
+      return years;
+    }
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text(profile['name'] ?? 'No name provided'),
-      ),
-      body: SingleChildScrollView(
+      backgroundColor: Colors.transparent,
+      body: ClipRRect(
+        borderRadius: BorderRadius.circular(18),
         child: Row(
           children: [
             Expanded(
               child: Container(
-                decoration:
-                    BoxDecoration(borderRadius: BorderRadius.circular(20)),
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    color: Colors.transparent),
                 constraints: BoxConstraints(
-                    maxWidth: width,
-                    maxHeight: MediaQuery.of(context).size.height * 1),
+                  maxWidth: width,
+                  maxHeight: !kIsWeb
+                      ? MediaQuery.of(context).size.height * .80
+                      : MediaQuery.of(context).size.height * 1,
+                ),
                 child: Card(
                   color: Colors.white,
                   elevation: 4,
                   child: Stack(
                     children: [
+                      // The height of the card
                       Container(
                         height: !kIsWeb
-                            ? MediaQuery.of(context).size.height * .61
+                            ? MediaQuery.of(context).size.height * .68
                             : MediaQuery.of(context).size.height * 1,
                         child: SingleChildScrollView(
+                          controller: scrollController,
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: <Widget>[
-                              Card(
-                                elevation: 1,
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(20.0),
-                                  child: CachedNetworkImage(
-                                    progressIndicatorBuilder:
-                                        (context, url, downloadProgress) {
-                                      return Shimmer(
-                                        gradient: LinearGradient(
-                                          colors: [Colors.grey, Colors.white],
-                                        ),
-                                        child: Container(
-                                          height: 500,
-                                          width: 500,
-                                          child: Card(),
-                                        ),
-                                      );
-                                    },
-                                    height: MediaQuery.of(context).size.height *
-                                        .50,
-                                    width: width,
-                                    fit: BoxFit.cover,
-                                    imageUrl:
-                                        profile.containsKey('profilePictures')
-                                            ? profile['profilePictures'][0]
-                                            : 'Crigne',
-                                  ),
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                    top: 8.0, left: 8.0, right: 8.0),
+                                child: Text(
+                                    profile['name'] ?? 'No Name Provided',
+                                    style: TextStyle(
+                                        fontSize: 30,
+                                        fontWeight: FontWeight.bold)),
+                              ),
+                              Divider(),
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(8.0),
+                                child: CachedNetworkImage(
+                                  progressIndicatorBuilder:
+                                      (context, url, downloadProgress) {
+                                    return Shimmer(
+                                      gradient: LinearGradient(
+                                        colors: [Colors.grey, Colors.white],
+                                      ),
+                                      child: Container(
+                                        height: 500,
+                                        width: 500,
+                                        child: Card(),
+                                      ),
+                                    );
+                                  },
+                                  height: 400,
+                                  width: width,
+                                  fit: kIsWeb
+                                      ? BoxFit.fitHeight
+                                      : BoxFit.fitWidth,
+                                  imageUrl:
+                                      profile.containsKey('profilePictures')
+                                          ? profile['profilePictures'][0]
+                                          : 'Crigne',
                                 ),
                               ),
                               SizedBox(height: 4),
-                              DetailRow(
-                                title: profile['isSterilized'] == 'Yes'
-                                    ? 'Sterilized'
-                                    : profile['isSterilized'] == 'No'
-                                        ? 'Not Sterilized'
-                                        : 'Will Sterilize',
-                                icon: FontAwesomeIcons.briefcaseMedical,
+                              TripleDetailRow(
+                                titles: [
+                                  '${calculateAge(profile['DOB'])}',
+                                  profile['isSterilized'] == 'Yes'
+                                      ? 'Sterilized'
+                                      : profile['isSterilized'] == 'No'
+                                          ? 'Not Sterilized'
+                                          : 'Will Sterilize',
+                                  profile['sexuality']
+                                ],
+                                icons: [
+                                  FontAwesomeIcons.birthdayCake,
+                                  FontAwesomeIcons.briefcaseMedical,
+                                  FontAwesomeIcons.smileWink
+                                ],
                               ),
-                              DetailRow(
-                                  title: profile['willDoLongDistance'] == 'Yes'
+                              Divider(),
+                              TripleDetailRow(
+                                titles: [
+                                  profile['job'],
+                                  profile['educationLevel']
+                                ],
+                                icons: [
+                                  FontAwesomeIcons.briefcase,
+                                  FontAwesomeIcons.school
+                                ],
+                              ),
+                              if (profile['job'] != null &&
+                                      profile['job'].isNotEmpty ||
+                                  profile['educationLevel'] != null &&
+                                      profile['educationLevel'].isNotEmpty)
+                                Divider(),
+                              TripleDetailRow(
+                                icons: [
+                                  FontAwesomeIcons.globe,
+                                  FontAwesomeIcons.suitcaseRolling
+                                ],
+                                titles: [
+                                  profile['willDoLongDistance'] == 'Yes'
                                       ? 'Not open to long-distance'
                                       : 'Not open to long-distance',
-                                  icon: FontAwesomeIcons.globe),
-                              DetailRow(
-                                  title: profile['willRelocate'] == 'Yes'
+                                  profile['willRelocate'] == 'Yes'
                                       ? 'Open to relocating'
                                       : 'Not open to relocating',
-                                  icon: FontAwesomeIcons.suitcaseRolling),
+                                ],
+                              ),
                               Divider(),
+                              TripleDetailRow(
+                                icons: [
+                                  FontAwesomeIcons.beer,
+                                  FontAwesomeIcons.smoking,
+                                  FontAwesomeIcons.cannabis
+                                ],
+                                titles: [
+                                  profile['doesDrink'],
+                                  profile['doesSmoke'],
+                                  profile['does420']
+                                ],
+                              ),
+                              profile['politics'] != null &&
+                                          profile['politics'].isNotEmpty ||
+                                      profile['religion'] != null &&
+                                          profile['religion'].isNotEmpty
+                                  ? Divider()
+                                  : Container(),
                               TripleDetailRow(icons: [
-                                FontAwesomeIcons.beer,
-                                FontAwesomeIcons.smoking,
-                                FontAwesomeIcons.cannabis
+                                FontAwesomeIcons.landmark,
+                                FontAwesomeIcons.pray
                               ], titles: [
-                                'Sometimes',
-                                'No',
-                                'Sometimes'
+                                profile['politics'],
+                                profile['religion']
                               ]),
-                              Divider(),
-                              PromptQuestionAnswerRow(
-                                  question: 'About Me',
-                                  answer: profile['aboutMe']),
-                              PromptQuestionAnswerRow(
-                                  question: 'My dream match is...',
-                                  answer: profile['dreamPartner']),
+                              TriplePromptWidget(profile: profile),
                               Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    InterestsChoiceChipDisplay(
-                                        interests:
-                                            profile['selectedInterests'] ?? [])
-                                  ])
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  InterestsChoiceChipDisplay(
+                                    interests:
+                                        profile['selectedInterests'] ?? [],
+                                  )
+                                ],
+                              )
                             ],
                           ),
                         ),

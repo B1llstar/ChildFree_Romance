@@ -9,18 +9,35 @@ class SwipeService {
       FirebaseFirestore.instance.collection('test_users');
   final CollectionReference swipesCollection =
       FirebaseFirestore.instance.collection('swipes');
+  Future<void> printNumberOfSwipes() async {
+    try {
+      QuerySnapshot querySnapshot = await swipesCollection.get();
+      int numberOfSwipes = querySnapshot.size;
+      print('Number of documents in swipes collection: $numberOfSwipes');
+    } catch (e) {
+      print('Error printing number of swipes: $e');
+    }
+  }
 
   Future<void> uploadSwipeData(Swipe swipe, String userId) async {
     try {
+      printNumberOfSwipes();
       // Check if a swipe with the same swipedUserId already exists
       final existingSwipeQuery = await swipesCollection
-          .where('swipeIds', arrayContains: swipe.userIds)
+          .where('userId', isEqualTo: swipe.userId)
+          .where('swipedUserId', isEqualTo: swipe.swipedUserId)
           .get();
-
+      print('User Ids: ${swipe.userIds}');
       if (existingSwipeQuery.docs.isNotEmpty) {
         // Delete the existing swipe document
-        await swipesCollection.doc(existingSwipeQuery.docs.first.id).delete();
-        print('Existing swipe document deleted.');
+
+        // Delete all
+        existingSwipeQuery.docs.forEach((doc) async {
+          await swipesCollection.doc(doc.id).delete();
+        });
+        print('Deleted ' +
+            existingSwipeQuery.docs.length.toString() +
+            " documents");
       }
 
       // Check for match before uploading the swipe
@@ -33,6 +50,7 @@ class SwipeService {
       // Add the new swipe document to the swipes collection with swipeId
 
       // Get the existing swipes list from the user document
+      /*
       DocumentSnapshot userDoc = await usersCollection.doc(userId).get();
 
       List<dynamic> existingSwipes = userDoc.get('swipes') ?? [];
@@ -54,7 +72,7 @@ class SwipeService {
         {'swipes': existingSwipes},
         SetOptions(merge: true),
       );
-
+*/
       print('Swipe data uploaded successfully!');
     } catch (e) {
       print('Error uploading swipe data: $e');

@@ -67,6 +67,7 @@ dependencies:
   flutter_chat_ui: ^1.6.12
   shimmer: ^3.0.0
   flutter_blurhash: ^0.8.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -105,6 +106,14 @@ flutter:
     - assets/discord.png
     - assets/discord.jpg
     - assets/confetti_emoji.png
+    - assets/cfc_logo_black_x.png
+    - assets/cfc_logo_red_x.png
+    - assets/cfc_logo_red_x_yellow_beak.png
+    - assets/cfc_logo_black_x_no_legs.png
+    - assets/cfc_logo_no_legs_yellow_beak_black_x.png
+    - assets/cfc_logo_tiny.png
+    - assets/cfc_logo_med.png
+    - assets/cfc_logo_med_2.png
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 

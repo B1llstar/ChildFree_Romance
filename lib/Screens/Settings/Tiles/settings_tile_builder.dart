@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_settings_ui/flutter_settings_ui.dart';
 import 'package:provider/provider.dart';
 
+import '../../../Notifiers/all_users_notifier.dart';
 import '../../../Notifiers/user_notifier.dart';
 
 class CustomSettingsTileSingleAnswer extends StatefulWidget {
@@ -13,14 +14,15 @@ class CustomSettingsTileSingleAnswer extends StatefulWidget {
   final List<String> options;
   final IconData? leadingIcon;
   final BuildContext myContext;
-
+  final bool isImportant;
   const CustomSettingsTileSingleAnswer(
       {Key? key,
       required this.firestorePropertyName,
       required this.options,
       required this.title,
       this.leadingIcon,
-      required this.myContext})
+      required this.myContext,
+      this.isImportant = false})
       : super(key: key);
 
   @override
@@ -35,10 +37,19 @@ class _CustomSettingsTileSingleAnswerState
     String description = Provider.of<UserDataProvider>(widget.myContext)
             .getProperty(widget.firestorePropertyName) ??
         '';
+    AllUsersNotifier allUsersNotifier =
+        Provider.of<AllUsersNotifier>(widget.myContext, listen: false);
+
     return SettingsTile(
       title: Text(widget.title),
       description: Text(description),
-      leading: Icon(widget.leadingIcon, size: 32),
+      leading: Icon(widget.leadingIcon,
+          size: 32,
+          color: widget.isImportant
+              ? Colors.yellow
+              : allUsersNotifier.darkMode
+                  ? Colors.white
+                  : Colors.black),
       onPressed: (BuildContext context) {
         _showConfirmationDialog(
             widget.title, widget.firestorePropertyName, widget.options);

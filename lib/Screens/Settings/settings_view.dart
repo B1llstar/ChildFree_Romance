@@ -2,6 +2,7 @@ import 'package:childfree_romance/Screens/Settings/Sections/essentials_section.d
 import 'package:childfree_romance/Screens/Settings/Sections/misc_section.dart';
 import 'package:childfree_romance/Screens/Settings/Sections/personal_beliefs.dart';
 import 'package:childfree_romance/Screens/Settings/Sections/photo_manager_section.dart';
+import 'package:childfree_romance/Screens/Settings/Sections/prompts_section.dart';
 import 'package:childfree_romance/firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -9,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_settings_ui/flutter_settings_ui.dart';
 import 'package:provider/provider.dart';
 
+import '../../Notifiers/all_users_notifier.dart';
 import '../../Notifiers/user_notifier.dart';
 import './Sections/match_preferences_section.dart' as matching;
 import 'Sections/interests_settings_section.dart';
@@ -42,25 +44,49 @@ class MyApp extends StatelessWidget {
 class SettingsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    AllUsersNotifier allUsersNotifier =
+        Provider.of<AllUsersNotifier>(context, listen: false);
     body:
-    return Container(
-      child: SettingsList(
-        lightTheme: SettingsThemeData(
-          titleTextColor: Colors.white,
-          settingsListBackground: Colors.transparent,
-        ),
-        brightness: Brightness.dark,
-        sections: [
-          CustomSettingsSection(child: PhotoManagerSection()),
-          CustomSettingsSection(child: EssentialsSettingsSection()),
-          CustomSettingsSection(
-              child: matching.MatchPreferencesSettingsSection()),
-          CustomSettingsSection(child: LifestyleSettingsSection()),
-          CustomSettingsSection(child: PersonalBeliefsSettingsSection()),
-          CustomSettingsSection(child: MiscSettingsSection()),
-          CustomSettingsSection(child: InterestsSettingsSection())
-        ],
-      ),
+    return Consumer<AllUsersNotifier>(
+      builder: (BuildContext context, notifier, Widget? child) {
+        return Container(
+          child: SettingsList(
+            lightTheme: SettingsThemeData(
+              titleTextColor: notifier.darkMode ? Colors.white : Colors.black,
+              settingsTileTextColor:
+                  notifier.darkMode ? Colors.white : Colors.black,
+              trailingTextColor:
+                  notifier.darkMode ? Colors.white : Colors.black,
+              tileDescriptionTextColor:
+                  notifier.darkMode ? Colors.white : Colors.black,
+              settingsListBackground: Colors.transparent,
+            ),
+            brightness: Brightness.light,
+            sections: [
+              CustomSettingsSection(child: PhotoManagerSection()),
+              CustomSettingsSection(
+                  child: SettingsTile.switchTile(
+                      initialValue: notifier.visibility,
+                      onToggle: (value) {
+                        notifier.changeUserVisibilityOrShowDialog(
+                            FirebaseAuth.instance.currentUser!.uid,
+                            value,
+                            context);
+                      },
+                      enabled: true,
+                      title: Text('Show My Profile'))),
+              CustomSettingsSection(child: PromptSection()),
+              CustomSettingsSection(child: EssentialsSettingsSection()),
+              CustomSettingsSection(
+                  child: matching.MatchPreferencesSettingsSection()),
+              CustomSettingsSection(child: LifestyleSettingsSection()),
+              CustomSettingsSection(child: PersonalBeliefsSettingsSection()),
+              CustomSettingsSection(child: MiscSettingsSection()),
+              CustomSettingsSection(child: InterestsSettingsSection())
+            ],
+          ),
+        );
+      },
     );
   }
 

@@ -120,10 +120,11 @@ class _MatchesListWidgetState extends State<MatchesListWidget> {
                               context,
                               MaterialPageRoute(
                                 builder: (context) => ChatWidget(
-                                  matchId: _matchIds[
-                                      index], // Use the match ID from the list
-                                  uid: _currentUserId,
-                                ),
+                                    profilePictureUrl: profilePicture!,
+                                    matchId: _matchIds[
+                                        index], // Use the match ID from the list
+                                    uid: _currentUserId,
+                                    notifier: allUsersNotifier),
                               ),
                             );
                           },

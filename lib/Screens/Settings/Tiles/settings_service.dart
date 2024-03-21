@@ -14,6 +14,14 @@ class MatchService extends ChangeNotifier {
   List<Map<String, dynamic>> _friendshipMatches = [];
   List<Map<String, dynamic>> get friendshipMatches => _friendshipMatches;
   List<Map<String, dynamic>> _friendshipAndRomanceMatches = [];
+  String _glowType = 'None';
+  String get glowType => _glowType;
+  set glowType(String value) {
+    _glowType = value;
+    print('Changing glow type...');
+    notifyListeners();
+  }
+
   List<Map<String, dynamic>> get friendshipAndRomanceMatches =>
       _friendshipAndRomanceMatches;
   List<String> _profilePictures = [];
@@ -28,6 +36,9 @@ class MatchService extends ChangeNotifier {
     await fetchAndStoreAllUsers();
     await generateRomanceMatches();
     await generateFriendshipMatches();
+    await Future.delayed(
+        Duration.zero); // Wait for other async operations to complete
+    await removeSwipedUsers(); // Call removeSwipedUsers after other async operations
   }
 
   Future<List<String>> getProfilePictures(BuildContext context) async {
@@ -119,6 +130,45 @@ class MatchService extends ChangeNotifier {
     }
   }
 
+  Future<void> removeSwipedUsers() async {
+    try {
+      print('Removing Swiped Users');
+      // Fetch swipes from Firestore
+      QuerySnapshot swipeSnapshot = await _firestore.collection('swipes').get();
+
+      // Iterate through swipes
+      swipeSnapshot.docs.forEach((doc) {
+        Map<String, dynamic>? docData = doc.data() as Map<String, dynamic>?;
+
+        if (docData != null) {
+          String? swipedUserId = docData['swipedUserId'];
+          String? swipeType = docData['swipeType'];
+
+          if (swipedUserId != null &&
+              swipeType != null &&
+              swipeType == 'standardYes') {
+            print('Looking at romance matches');
+            print(_romanceMatches);
+            // Remove swiped user from romanceMatches
+            _romanceMatches
+                .removeWhere((user) => user['userId'] == swipedUserId);
+            // Remove swiped user from friendshipMatches
+            _friendshipMatches
+                .removeWhere((user) => user['userId'] == swipedUserId);
+            // Remove swiped user from friendshipAndRomanceMatches
+            _friendshipAndRomanceMatches
+                .removeWhere((user) => user['userId'] == swipedUserId);
+          }
+        }
+      });
+
+      print('Swiped users removed');
+      notifyListeners();
+    } catch (e) {
+      print('Error removing swiped users: $e');
+    }
+  }
+
   Future<void> generateFriendshipMatches() async {
     try {
       // First, it checks to see if their gender matches the current user's desired gender OR the user wants anything
@@ -152,6 +202,7 @@ class MatchService extends ChangeNotifier {
       await fetchAndStoreAllUsers();
       await generateRomanceMatches();
       await generateFriendshipMatches();
+      await removeSwipedUsers();
       print('Refresh completed');
     } catch (e) {
       print('Error refreshing data: $e');
