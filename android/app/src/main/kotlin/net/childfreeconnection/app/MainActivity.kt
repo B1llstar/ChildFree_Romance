@@ -1,4 +1,4 @@
-package com.example.childfree_romance
+package net.childfreeconnection.app
 
 import io.flutter.embedding.android.FlutterActivity
 

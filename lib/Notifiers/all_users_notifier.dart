@@ -51,7 +51,7 @@ class AllUsersNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
-  final userCollection = FirebaseFirestore.instance.collection('test_users');
+  final userCollection = FirebaseFirestore.instance.collection('users');
   init(String userId) async {
     await fetchCurrentUser(userId);
     await fetchProfilesExcludingUser(userId, true);
@@ -59,7 +59,7 @@ class AllUsersNotifier extends ChangeNotifier {
     await loadInterests();
     print('Init called...');
     uid = userId;
-    _reverseGeocodeService = ReverseGeocodeService(uid);
+    //_reverseGeocodeService = ReverseGeocodeService(uid);
 //    await fetchMatches();
     notifyListeners();
   }
@@ -75,7 +75,7 @@ class AllUsersNotifier extends ChangeNotifier {
   Future<void> checkToSeeIfTheyHaveEnoughToShowTheirProfile() async {
     try {
       final DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
-          .collection('test_users')
+          .collection('users')
           .doc(_currentUser['userId'])
           .get();
 
@@ -83,19 +83,27 @@ class AllUsersNotifier extends ChangeNotifier {
           userSnapshot.data() as Map<String, dynamic>;
       Map<String, dynamic> prompt =
           userData['prompt_1'] ?? ''; // Assuming 'prompt_1' is a String
+      List<Map<String, dynamic>> prompts = [
+        userData['prompt_1'],
+        userData['prompt_2'],
+        userData['prompt_3']
+      ];
       List<dynamic> profilePictures = userData['profilePictures'] ?? [];
       print(userData);
       String gender = userData['gender'] ?? ''; // Assuming 'gender' is a String
       print('Prompt 1: $prompt');
       print('Profile Pictures: $profilePictures');
       print('Gender: $gender');
-      bool promptIsAcceptable = prompt.isNotEmpty &&
-          prompt.containsKey('prompt') &&
-          prompt.containsKey('answer') &&
-          prompt['prompt'] != null &&
-          prompt['prompt'].isNotEmpty &&
-          prompt['answer'] != null &&
-          prompt['answer'].isNotEmpty;
+
+      bool promptIsAcceptable = prompts.any((prompt) {
+        return prompt != null &&
+            prompt.containsKey('prompt') &&
+            prompt.containsKey('answer') &&
+            prompt['prompt'] != null &&
+            prompt['prompt'].isNotEmpty &&
+            prompt['answer'] != null &&
+            prompt['answer'].isNotEmpty;
+      });
       print('Prompt is acceptable: $promptIsAcceptable');
 
       if (promptIsAcceptable &&
@@ -118,10 +126,7 @@ class AllUsersNotifier extends ChangeNotifier {
 
   Future<void> onlyChangeUserVisibility(String userId, bool isVisible) async {
     try {
-      await FirebaseFirestore.instance
-          .collection('test_users')
-          .doc(userId)
-          .set({
+      await FirebaseFirestore.instance.collection('users').doc(userId).set({
         'visible': isVisible,
       }, SetOptions(merge: true));
       print('User visibility updated successfully');
@@ -138,10 +143,7 @@ class AllUsersNotifier extends ChangeNotifier {
       if (canShow) {
         visibility = isVisible;
         notifyListeners();
-        await FirebaseFirestore.instance
-            .collection('test_users')
-            .doc(userId)
-            .set({
+        await FirebaseFirestore.instance.collection('users').doc(userId).set({
           'visible': isVisible,
         }, SetOptions(merge: true));
         print('User visibility updated successfully');
@@ -165,8 +167,18 @@ class AllUsersNotifier extends ChangeNotifier {
                   Text('- One prompt'),
                   Text('- One profile picture'),
                   Text('- Gender'),
-                  Text(
-                      'For your convenience, these fields are marked with asterisks (*)!'),
+                  Text.rich(
+                    TextSpan(
+                      text: 'For your convenience, these fields are marked ',
+                      children: [
+                        TextSpan(
+                          text: '*required',
+                          style: TextStyle(color: Colors.red),
+                        ),
+                        TextSpan(text: '!'),
+                      ],
+                    ),
+                  )
                 ],
               ),
               actions: <Widget>[
@@ -257,7 +269,7 @@ class AllUsersNotifier extends ChangeNotifier {
   fetchCurrentUser(String userId) async {
     print('Fetching current user profile...');
     await FirebaseFirestore.instance
-        .collection('test_users')
+        .collection('users')
         .doc(userId)
         .get()
         .then((doc) {
@@ -288,7 +300,7 @@ class AllUsersNotifier extends ChangeNotifier {
   }
 
   fetchProfilesExcludingUser(String userId, bool testing) async {
-    String collectionPath = testing ? 'test_users' : 'users';
+    String collectionPath = testing ? 'users' : 'users';
     print('Fetching profiles...');
     FirebaseFirestore.instance
         .collection(collectionPath)
@@ -407,10 +419,7 @@ class AllUsersNotifier extends ChangeNotifier {
 
   Future<void> addProfilePicture(String userId, String imageUrl) async {
     try {
-      await FirebaseFirestore.instance
-          .collection('test_users')
-          .doc(userId)
-          .update({
+      await FirebaseFirestore.instance.collection('users').doc(userId).update({
         'profilePictures': FieldValue.arrayUnion([imageUrl])
       });
       _profilePictures.add(imageUrl);
@@ -432,10 +441,7 @@ class AllUsersNotifier extends ChangeNotifier {
         // Insert the new image URL at the specified index
         updatedProfilePictures.insert(index, imageUrl);
         // Update Firestore with the new list of profile pictures
-        await FirebaseFirestore.instance
-            .collection('test_users')
-            .doc(uid)
-            .update({
+        await FirebaseFirestore.instance.collection('users').doc(uid).update({
           'profilePictures': updatedProfilePictures,
         });
         // Update local state with the updated profile pictures list
@@ -461,10 +467,7 @@ class AllUsersNotifier extends ChangeNotifier {
       notifyListeners();
 
       try {
-        await FirebaseFirestore.instance
-            .collection('test_users')
-            .doc(uid)
-            .update({
+        await FirebaseFirestore.instance.collection('users').doc(uid).update({
           'profilePictures': _profilePictures,
         });
         print('Successfully updated images');
@@ -487,10 +490,7 @@ class AllUsersNotifier extends ChangeNotifier {
         notifyListeners();
 
         // Update Firestore with the updated list of profile pictures
-        await FirebaseFirestore.instance
-            .collection('test_users')
-            .doc(uid)
-            .update({
+        await FirebaseFirestore.instance.collection('users').doc(uid).update({
           'profilePictures': _profilePictures,
         });
         print('Successfully deleted image at index $index');

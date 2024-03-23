@@ -1,3 +1,4 @@
+import 'package:childfree_romance/main.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -10,7 +11,6 @@ import '../Notifiers/user_notifier.dart';
 import '../Screens/Settings/Tiles/settings_service.dart';
 import '../Services/matchmaking_service.dart';
 import '../Utils/debug_utils.dart';
-import '../main_w_navbar.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -20,13 +20,34 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  void _createUserInFirestore(SignupData data) async {
+  _createUserInFirestore(SignupData data) async {
     User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       DocumentReference userDocRef =
           FirebaseFirestore.instance.collection('users').doc(user.uid);
       await userDocRef.set({
         'email': data.name,
+        'aboutMe': '',
+        'desiredGenderFriendship': 'Any',
+        'desiredGenderRomance': 'Any',
+        'does420': '',
+        'dopesDrink': '',
+        'doesSmoke': '',
+        'dreamPartner': '',
+        'gender': '',
+        'genderToShow': 'Any',
+        'isLookingFor': 'Any',
+        'isSterilized': '',
+        'name': '',
+        'profilePictures': [],
+        'prompt_1': {},
+        'prompt_2': {},
+        'prompt_3': {},
+        'selectedInterests': [],
+        'userId': user.uid,
+        'visible': false,
+        'willDoLongDistance': 'Yes',
+        'willRelocate': 'Maybe'
       });
     }
   }
@@ -57,15 +78,36 @@ class _LoginPageState extends State<LoginPage> {
       );
 
       // Create user in Firestore
-      _createUserInFirestore(data);
+      await _createUserInFirestore(data);
+      final uid = FirebaseAuth.instance.currentUser!.uid;
 
-      // Navigate to profile setup screen
+      // Initialize AllUsersNotifier
+      AllUsersNotifier _allUsersNotifier = AllUsersNotifier();
+      _allUsersNotifier.init(uid);
+
+      // Initialize MatchmakingNotifier
+      MatchmakingNotifier matchmakingNotifier =
+          MatchmakingNotifier(uid, _allUsersNotifier);
+
+      // Initialize MatchService
+      MatchService _service = MatchService();
+
+      // Navigate to the home page with providers
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-            builder: (context) => MyHomePage(
-                  startingIndex: 3,
-                )),
+          builder: (context) => MultiProvider(
+            providers: [
+              ChangeNotifierProvider(create: (_) => UserDataProvider()),
+              ChangeNotifierProvider(create: (_) => _allUsersNotifier),
+              ChangeNotifierProvider(create: (_) => matchmakingNotifier),
+              ChangeNotifierProvider(create: (_) => _service),
+              // Add more providers if needed
+            ],
+            child: MyHomePage(startingIndex: 3),
+          ),
+        ),
+        // Navigate to profile setup screen
       );
     } catch (error) {
       DebugUtils.printDebug('Sign-up failed: $error');
@@ -96,12 +138,12 @@ class _LoginPageState extends State<LoginPage> {
           builder: (context) => MultiProvider(
             providers: [
               ChangeNotifierProvider(create: (_) => UserDataProvider()),
-              ChangeNotifierProvider.value(value: _allUsersNotifier),
-              ChangeNotifierProvider.value(value: matchmakingNotifier),
-              ChangeNotifierProvider.value(value: _service),
+              ChangeNotifierProvider(create: (_) => _allUsersNotifier),
+              ChangeNotifierProvider(create: (_) => matchmakingNotifier),
+              ChangeNotifierProvider(create: (_) => _service),
               // Add more providers if needed
             ],
-            child: MyHomePage(),
+            child: MyHomePage(startingIndex: 0),
           ),
         ),
       );
@@ -113,10 +155,21 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+  Future<String?> _recoverPassword(String email) async {
+    try {
+      // Use Firebase Authentication to send a pa`ssword reset email
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+
+      return null; // Return null to indicate password recovery initiated successfully
+    } catch (e) {
+      return 'Password recovery failed. Please try again.'; // Return an error message for any errors during password recovery
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.red,
+      backgroundColor: Color(0xFFA6E7FF),
       body: Container(
         color: Colors.red,
         child: Column(
@@ -125,6 +178,19 @@ class _LoginPageState extends State<LoginPage> {
             Container(
               child: Expanded(
                 child: FlutterLogin(
+                  termsOfService: [
+                    TermOfService(
+                      id: 'TOS',
+                      text: 'I am over the age of 18.',
+                      mandatory: true,
+                    ),
+                    TermOfService(
+                      id: 'TOS',
+                      text:
+                          'Practical AI LLC and its subsidiaries are not responsible for any of my interactions on Childfree Connection.',
+                      mandatory: true,
+                    ),
+                  ],
                   logo: 'assets/cfc_logo_med_2.png',
                   title: kIsWeb
                       ? '  Childfree\nConnection'
@@ -134,13 +200,18 @@ class _LoginPageState extends State<LoginPage> {
                     children: [
                       Padding(
                           padding: EdgeInsets.only(bottom: 10),
-                          child: Text('Sign up and get early access!')),
+                          child: Column(
+                            children: [
+                              Text('Welcome to the Closed Beta!'),
+                            ],
+                          )),
                     ],
                   ),
                   theme: LoginTheme(
+                      primaryColor: Colors.blue,
                       cardTheme: CardTheme(),
                       cardInitialHeight: 150,
-                      titleStyle: TextStyle(color: Colors.white)),
+                      titleStyle: TextStyle(color: Colors.black)),
                   onLogin: (loginData) async {
                     String? loginError = await _authUser(loginData);
                     if (loginError == null) {
@@ -159,7 +230,9 @@ class _LoginPageState extends State<LoginPage> {
                     }
                     return null;
                   },
-                  onRecoverPassword: (String) {},
+                  onRecoverPassword: (email) {
+                    _recoverPassword(email);
+                  },
                 ),
               ),
             ),

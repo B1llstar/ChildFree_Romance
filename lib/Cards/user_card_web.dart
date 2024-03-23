@@ -1,12 +1,11 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:childfree_romance/Cards/interests_choice_chips.dart';
 import 'package:childfree_romance/Cards/triple_details_row.dart';
 import 'package:childfree_romance/Cards/triple_prompt_widget.dart';
+import 'package:childfree_romance/Screens/profile_pictures_widget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:shimmer/shimmer.dart';
 
 class ProfileCardWeb extends StatelessWidget {
   final Map<String, dynamic> profile;
@@ -81,6 +80,10 @@ class ProfileCardWeb extends StatelessWidget {
                               ),
                               Divider(),
                               ClipRRect(
+                                  child:
+                                      ProfilePicturesWidget(profile: profile)),
+                              /*
+                              ClipRRect(
                                 borderRadius: BorderRadius.circular(8.0),
                                 child: CachedNetworkImage(
                                   progressIndicatorBuilder:
@@ -101,29 +104,49 @@ class ProfileCardWeb extends StatelessWidget {
                                   fit: kIsWeb
                                       ? BoxFit.fitHeight
                                       : BoxFit.fitWidth,
-                                  imageUrl:
-                                      profile.containsKey('profilePictures')
-                                          ? profile['profilePictures'][0]
-                                          : 'Crigne',
+                                  imageUrl: profile
+                                              .containsKey('profilePictures') &&
+                                          profile['profilePictures'] != null &&
+                                          profile['profilePictures'].length > 0
+                                      ? profile['profilePictures'][0]
+                                      : 'Crigne',
                                 ),
                               ),
+
+                               */
                               SizedBox(height: 4),
-                              TripleDetailRow(
-                                titles: [
-                                  '${calculateAge(profile['DOB'])}',
-                                  profile['isSterilized'] == 'Yes'
-                                      ? 'Sterilized'
-                                      : profile['isSterilized'] == 'No'
-                                          ? 'Not Sterilized'
-                                          : 'Will Sterilize',
-                                  profile['sexuality']
-                                ],
-                                icons: [
-                                  FontAwesomeIcons.birthdayCake,
-                                  FontAwesomeIcons.briefcaseMedical,
-                                  FontAwesomeIcons.smileWink
-                                ],
-                              ),
+                              if (profile['DOB'] != null)
+                                TripleDetailRow(
+                                  titles: [
+                                    '${calculateAge(profile['DOB'])}',
+                                    profile['isSterilized'] == 'Yes'
+                                        ? 'Sterilized'
+                                        : profile['isSterilized'] == 'No'
+                                            ? 'Not Sterilized'
+                                            : 'Will Sterilize',
+                                    profile['sexuality']
+                                  ],
+                                  icons: [
+                                    FontAwesomeIcons.birthdayCake,
+                                    FontAwesomeIcons.briefcaseMedical,
+                                    FontAwesomeIcons.smileWink
+                                  ],
+                                )
+                              else
+                                TripleDetailRow(
+                                  titles: [
+                                    profile['isSterilized'] == 'Yes'
+                                        ? 'Sterilized'
+                                        : profile['isSterilized'] == 'No'
+                                            ? 'Not Sterilized'
+                                            : 'Will Sterilize',
+                                    profile['sexuality']
+                                  ],
+                                  icons: [
+                                    FontAwesomeIcons.briefcaseMedical,
+                                    FontAwesomeIcons.smileWink
+                                  ],
+                                ),
                               Divider(),
                               TripleDetailRow(
                                 titles: [
@@ -189,7 +212,7 @@ class ProfileCardWeb extends StatelessWidget {
                                         profile['selectedInterests'] ?? [],
                                   )
                                 ],
-                              )
+                              ),
                             ],
                           ),
                         ),

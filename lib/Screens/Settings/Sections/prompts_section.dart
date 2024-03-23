@@ -1,3 +1,4 @@
+import 'package:badges/badges.dart' as badges;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_settings_ui/flutter_settings_ui.dart';
@@ -18,8 +19,24 @@ class _PromptSectionState extends State<PromptSection> {
       title: Text('Prompts'),
       tiles: [
         CustomSettingsTile(
-            child: FirestorePromptsWidget(
-                userId: FirebaseAuth.instance.currentUser!.uid)),
+            child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                badges.Badge(
+                  badgeStyle: badges.BadgeStyle(
+                    badgeColor: Colors.transparent,
+                  ),
+                  badgeContent: Text('*at least one required',
+                      style: TextStyle(color: Colors.red)),
+                ),
+              ],
+            ),
+            FirestorePromptsWidget(
+                userId: FirebaseAuth.instance.currentUser!.uid),
+          ],
+        )),
       ],
     );
   }

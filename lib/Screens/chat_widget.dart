@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
@@ -12,10 +13,12 @@ class ChatWidget extends StatefulWidget {
   final String uid;
   final String profilePictureUrl;
   final AllUsersNotifier notifier;
+  final String name;
 
   const ChatWidget(
       {Key? key,
       required this.matchId,
+      required this.name,
       required this.uid,
       required this.profilePictureUrl,
       required this.notifier})
@@ -190,18 +193,23 @@ class _ChatWidgetState extends State<ChatWidget> {
         ],
         title: Text('Chat'),
       ),
-      body: Stack(
+      body: Column(
         children: [
+          Text(widget.name, style: TextStyle(fontSize: 32)),
+          CachedNetworkImage(
+              height: 200, width: 200, imageUrl: widget.profilePictureUrl),
           Container(
-            child: Chat(
-              onSendPressed: (message) {
-                _handleSendPressed(message.text);
-              },
-              theme: widget.notifier.darkMode
-                  ? DarkChatTheme()
-                  : DefaultChatTheme(primaryColor: Colors.black87),
-              messages: _messages,
-              user: userAuthor!,
+            child: Expanded(
+              child: Chat(
+                onSendPressed: (message) {
+                  _handleSendPressed(message.text);
+                },
+                theme: widget.notifier.darkMode
+                    ? DarkChatTheme()
+                    : DefaultChatTheme(primaryColor: Colors.black87),
+                messages: _messages,
+                user: userAuthor!,
+              ),
             ),
           ),
         ],

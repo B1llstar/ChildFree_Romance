@@ -8,25 +8,25 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../Tiles/settings_tile_builder.dart';
 
-class MatchPreferencesSettingsSection extends StatefulWidget {
-  const MatchPreferencesSettingsSection({super.key});
+class FriendshipPreferencesSettingsSection extends StatefulWidget {
+  const FriendshipPreferencesSettingsSection({super.key});
 
   @override
-  State<MatchPreferencesSettingsSection> createState() =>
-      _MatchPreferencesSettingsSectionState();
+  State<FriendshipPreferencesSettingsSection> createState() =>
+      _FriendshipPreferencesSettingsSectionState();
 }
 
-class _MatchPreferencesSettingsSectionState
-    extends State<MatchPreferencesSettingsSection> {
+class _FriendshipPreferencesSettingsSectionState
+    extends State<FriendshipPreferencesSettingsSection> {
   @override
   Widget build(BuildContext context) {
     return SettingsSection(
-      title: Text('Match Preferences (Romance)'),
+      title: Text('Match Preferences (Friendship)'),
       tiles: [
         CustomSettingsTile(
           child: CustomSettingsTileSingleAnswer(
               leadingIcon: FontAwesomeIcons.solidHeart,
-              firestorePropertyName: 'desiredGenderRomance',
+              firestorePropertyName: 'desiredGenderFriendship',
               options: [
                 'Male',
                 'Female',
@@ -45,19 +45,6 @@ class _MatchPreferencesSettingsSectionState
                 'Maybe',
               ],
               title: 'Open to long-distance',
-              myContext: context),
-        ),
-        CustomSettingsTile(
-          child: CustomSettingsTileSingleAnswer(
-              leadingIcon: FontAwesomeIcons.infinity,
-              firestorePropertyName: 'relationshipType',
-              options: [
-                'Monogamy',
-                'Non-monogamy',
-                'Open to anything',
-                'Prefer not to say',
-              ],
-              title: 'Relationship Type',
               myContext: context),
         ),
       ],

@@ -148,7 +148,8 @@ class _CardViewFriendshipState extends State<CardViewFriendship> {
                                             .friendshipMatches[index]['userId'];
                                         _swipeService.makeSwipe(
                                             swipedUserId: swipedUserId,
-                                            swipeType: 'standardYes');
+                                            swipeType: 'standardYes',
+                                            isRomance: false);
                                       }
                                     } else {
                                       print('Swiped left');
@@ -159,7 +160,8 @@ class _CardViewFriendshipState extends State<CardViewFriendship> {
                                             .friendshipMatches[index]['userId'];
                                         _swipeService.makeSwipe(
                                             swipedUserId: swipedUserId,
-                                            swipeType: 'nope');
+                                            swipeType: 'nope',
+                                            isRomance: false);
                                       }
                                     }
                                     _currentIndex =
@@ -256,7 +258,7 @@ class _CardViewFriendshipState extends State<CardViewFriendship> {
                                 print('Can\'t swipe any further!');
                                 return;
                               }
-                              _debounceButton();
+                              //       _debounceButton();
                               _swiperController.swipeLeft();
 
                               /*
@@ -289,7 +291,7 @@ class _CardViewFriendshipState extends State<CardViewFriendship> {
                               print('Can\'t swipe any further!');
                               return;
                             }
-                            _debounceButton();
+                            //    _debounceButton();
                             _swiperController.swipeRight();
                             /*
                       String swipedUserId =

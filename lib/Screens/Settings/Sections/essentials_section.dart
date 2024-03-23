@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_settings_ui/flutter_settings_ui.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -24,12 +25,32 @@ class _EssentialsSettingsSectionState extends State<EssentialsSettingsSection> {
       title: Text('Essentials'),
       tiles: [
         CustomSettingsTile(
+          child: CustomSettingsTileSingleAnswer(
+              isImportant: true,
+              leadingIcon: FontAwesomeIcons.solidUser,
+              firestorePropertyName: 'gender',
+              options: ['Male', 'Female', 'Non-binary', 'Other'],
+              title: 'Gender',
+              myContext: context),
+        ),
+        CustomSettingsTile(
           child: SettingsTile(
             title: Text('Job',
                 style: TextStyle(
-                    color: _notifier.darkMode ? Colors.white : Colors.black)),
-            leading: Icon(FontAwesomeIcons.briefcase,
-                color: _notifier.darkMode ? Colors.white : Colors.black),
+                  color: _notifier.darkMode
+                      ? kIsWeb
+                          ? Colors.black
+                          : Colors.white
+                      : Colors.black,
+                )),
+            leading: Icon(
+              FontAwesomeIcons.briefcase,
+              color: _notifier.darkMode
+                  ? kIsWeb
+                      ? Colors.black
+                      : Colors.white
+                  : Colors.black,
+            ),
             description: Text(_notifier.currentUser['job'] ?? ''),
             onPressed: (context) {
               showDialog(
@@ -125,15 +146,6 @@ class _EssentialsSettingsSectionState extends State<EssentialsSettingsSection> {
               ],
               title: 'Sexuality',
               leadingIcon: FontAwesomeIcons.solidSmileWink,
-              myContext: context),
-        ),
-        CustomSettingsTile(
-          child: CustomSettingsTileSingleAnswer(
-              isImportant: true,
-              leadingIcon: FontAwesomeIcons.solidStar,
-              firestorePropertyName: 'gender',
-              options: ['Male', 'Female', 'Non-binary', 'Other'],
-              title: 'Gender',
               myContext: context),
         ),
         CustomSettingsTile(

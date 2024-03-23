@@ -1,18 +1,17 @@
+import 'package:badges/badges.dart' as badges;
 import 'package:childfree_romance/Cards/user_card_web.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:provider/provider.dart';
 
 import '../Notifiers/all_users_notifier.dart';
 import '../Screens/chat_widget.dart';
 import 'matchCard.dart';
 
 class MatchesWidget extends StatefulWidget {
-  final AllUsersNotifier allUsersNotifier;
-
-  const MatchesWidget({Key? key, required this.allUsersNotifier})
-      : super(key: key);
+  const MatchesWidget({Key? key}) : super(key: key);
 
   @override
   _MatchesWidgetState createState() => _MatchesWidgetState();
@@ -22,6 +21,7 @@ class _MatchesWidgetState extends State<MatchesWidget> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   late User? _currentUser;
+  String mode = 'Romance';
   List<Map<String, dynamic>> _matchedUserData = [];
   bool _isLoading = true;
 
@@ -34,6 +34,7 @@ class _MatchesWidgetState extends State<MatchesWidget> {
   Future<void> _getCurrentUser() async {
     _currentUser = _auth.currentUser;
     if (_currentUser != null) {
+      print('Getting matches');
       await _fetchMatches();
     }
   }
@@ -67,12 +68,13 @@ class _MatchesWidgetState extends State<MatchesWidget> {
       if (!isDuplicate) {
         for (String userId in userIds) {
           DocumentSnapshot userSnapshot =
-              await _firestore.collection('test_users').doc(userId).get();
+              await _firestore.collection('users').doc(userId).get();
           if (userSnapshot.exists) {
             final snapshotData = userSnapshot.data() as Map<String, dynamic>;
 
             matches.add({
               'matchId': match.id,
+              'relationshipType': match['relationshipType'],
               'userData': snapshotData,
               'messages': match['messages'] ?? []
             });
@@ -85,13 +87,30 @@ class _MatchesWidgetState extends State<MatchesWidget> {
 
     setState(() {
       _matchedUserData = matches;
+      print('Matched user data set. Matches: $_matchedUserData');
       _isLoading = false;
     });
   }
 
-  void _showProfilePopup(String matchId, Map<String, dynamic> userData) {
+  Future<void> unmatch(String matchId) async {
+    try {
+      // Delete the match document from Firestore
+      await _firestore.collection('matches').doc(matchId).delete();
+      print('Match with ID $matchId has been removed.');
+      await _fetchMatches();
+      setState(() {});
+      // Refresh data after unmatching
+    } catch (e) {
+      print('Error removing match: $e');
+    }
+  }
+
+  void _showProfilePopup(String matchId, Map<String, dynamic> userData,
+      BuildContext providerContext) {
     String uid = _auth.currentUser!.uid;
     String profilePictureUrl = _auth.currentUser!.photoURL ?? '';
+    AllUsersNotifier _allUsersNotifier =
+        Provider.of<AllUsersNotifier>(providerContext, listen: false);
 
     showDialog(
       context: context,
@@ -126,8 +145,14 @@ class _MatchesWidgetState extends State<MatchesWidget> {
                               builder: (context) => ChatWidget(
                                   matchId: matchId,
                                   uid: uid,
-                                  profilePictureUrl: profilePictureUrl,
-                                  notifier: widget.allUsersNotifier),
+                                  name: userData['name'],
+                                  profilePictureUrl:
+                                      userData['profilePictures'] != null &&
+                                              userData['profilePictures']
+                                                  .isNotEmpty
+                                          ? userData['profilePictures'][0]
+                                          : '',
+                                  notifier: _allUsersNotifier),
                             ),
                           );
                         },
@@ -139,7 +164,38 @@ class _MatchesWidgetState extends State<MatchesWidget> {
                       SizedBox(width: 20),
                       ElevatedButton(
                         onPressed: () {
-                          // Implement unmatch functionality here
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: Text("Confirm Unmatch"),
+                                content: Column(
+                                  children: [
+                                    Text(
+                                        "Are you sure you want to unmatch this user?"),
+                                    Text("Refresh your page to see results.")
+                                  ],
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context)
+                                          .pop(); // Close the dialog
+                                    },
+                                    child: Text("Cancel"),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context)
+                                          .pop(); // Close the dialog
+                                      unmatch(matchId); // Call unmatch method
+                                    },
+                                    child: Text("Unmatch"),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
                         },
                         child: Text('Unmatch'),
                       ),
@@ -164,6 +220,18 @@ class _MatchesWidgetState extends State<MatchesWidget> {
 
   @override
   Widget build(BuildContext context) {
+    List<Map<String, dynamic>> romanceMatches = [];
+    List<Map<String, dynamic>> friendshipMatches = [];
+
+    // Separate matchedUserData based on relationshipType
+    for (var userData in _matchedUserData) {
+      if (userData['relationshipType'] == 'Romance') {
+        romanceMatches.add(userData);
+      } else if (userData['relationshipType'] == 'Friendship') {
+        friendshipMatches.add(userData);
+      }
+    }
+
     return _isLoading
         ? Center(
             child: CircularProgressIndicator(),
@@ -172,7 +240,7 @@ class _MatchesWidgetState extends State<MatchesWidget> {
             ? Center(
                 child: Text('No user logged in.'),
               )
-            : _matchedUserData.isEmpty
+            : (romanceMatches.isEmpty && friendshipMatches.isEmpty)
                 ? Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -185,43 +253,108 @@ class _MatchesWidgetState extends State<MatchesWidget> {
                   )
                 : SingleChildScrollView(
                     child: Column(
-                      children: _matchedUserData.map((userData) {
-                        String matchId = userData['matchId'];
-                        Map<String, dynamic> user = userData['userData'];
-                        String? profilePicture;
-                        if (user.containsKey('profilePictures') &&
-                            user['profilePictures'][0] != null) {
-                          profilePicture = user['profilePictures'][0];
-                        } else {
-                          profilePicture = 'placeholder';
-                        }
-                        List<dynamic> messages = userData['messages'] ?? [];
-                        String userThatSentMessage = '';
-                        String lastMessage = 'Start a conversation';
-
-                        if (messages.isNotEmpty) {
-                          String uid = messages.last['userId'];
-                          if (uid == _currentUser!.uid) {
-                            userThatSentMessage = messages.last['userId'];
-                            lastMessage = 'You: ' + messages.last['text'];
-                          } else {
-                            lastMessage = messages.last['text'];
-                          }
-                        }
-
-                        String name = user['name'];
-                        return GestureDetector(
-                          onTap: () {
-                            _showProfilePopup(matchId, user);
-                          },
-                          child: MatchCard(
-                            imageUrl: profilePicture!,
-                            name: name,
-                            lastMessage: lastMessage!, // Placeholder
+                      children: [
+                        if (romanceMatches.isNotEmpty)
+                          Column(
+                            children: [
+                              Text(
+                                'Romance Matches',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20,
+                                ),
+                              ),
+                              SizedBox(height: 10),
+                              Column(
+                                children: romanceMatches.map((userData) {
+                                  return _buildMatchCard(userData);
+                                }).toList(),
+                              ),
+                            ],
                           ),
-                        );
-                      }).toList(),
+                        if (friendshipMatches.isNotEmpty)
+                          Column(
+                            children: [
+                              Text(
+                                'Friendship Matches',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20,
+                                ),
+                              ),
+                              SizedBox(height: 10),
+                              Column(
+                                children: friendshipMatches.map((userData) {
+                                  return _buildMatchCard(userData);
+                                }).toList(),
+                              ),
+                            ],
+                          ),
+                      ],
                     ),
                   );
+  }
+
+  Widget _buildMatchCard(Map<String, dynamic> userData) {
+    String matchId = userData['matchId'];
+    Map<String, dynamic> user = userData['userData'];
+    String? profilePicture;
+    if (user.containsKey('profilePictures') &&
+        user['profilePictures'] != null &&
+        user['profilePictures'].length > 0 &&
+        user['profilePictures'][0] != null &&
+        user['profilePictures'][0].isNotEmpty) {
+      profilePicture = user['profilePictures'][0] ?? 'placeholder';
+    } else {
+      profilePicture = 'placeholder';
+    }
+    List<dynamic> messages = userData['messages'] ?? [];
+    String userThatSentMessage = '';
+    String lastMessage = 'Start a conversation'; // Default message
+    int messageCount = 0;
+
+    if (messages.isNotEmpty) {
+      String uid = messages.last['userId'];
+      if (uid == _currentUser!.uid) {
+        userThatSentMessage = messages.last['userId'];
+        lastMessage = 'You: ' + messages.last['text'];
+      } else {
+        lastMessage = messages.last['text'];
+      }
+
+      // Calculate the message count since the last user message
+      for (int i = messages.length - 1; i >= 0; i--) {
+        if (messages[i]['userId'] != _currentUser!.uid) {
+          messageCount++;
+        } else {
+          break; // Stop counting messages when the last user message is found
+        }
+      }
+    }
+
+    String name = user['name'];
+    return GestureDetector(
+      onTap: () {
+        _showProfilePopup(matchId, user, context);
+      },
+      child: messageCount > 0
+          ? badges.Badge(
+              position: badges.BadgePosition.topStart(start: 0, top: 0),
+              badgeContent: Text(
+                messageCount.toString(),
+                style: TextStyle(color: Colors.white),
+              ),
+              child: MatchCard(
+                imageUrl: profilePicture!,
+                name: name,
+                lastMessage: lastMessage!, // Placeholder
+              ),
+            )
+          : MatchCard(
+              imageUrl: profilePicture!,
+              name: name,
+              lastMessage: lastMessage!, // Placeholder
+            ),
+    );
   }
 }

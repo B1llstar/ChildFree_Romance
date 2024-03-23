@@ -6,7 +6,7 @@ import 'package:uuid/uuid.dart';
 
 class SwipeService {
   final CollectionReference usersCollection =
-      FirebaseFirestore.instance.collection('test_users');
+      FirebaseFirestore.instance.collection('users');
   final CollectionReference swipesCollection =
       FirebaseFirestore.instance.collection('swipes');
   Future<void> printNumberOfSwipes() async {
@@ -19,7 +19,8 @@ class SwipeService {
     }
   }
 
-  Future<void> uploadSwipeData(Swipe swipe, String userId) async {
+  Future<void> uploadSwipeData(
+      Swipe swipe, String userId, bool isRomance) async {
     try {
       printNumberOfSwipes();
       // Check if a swipe with the same swipedUserId already exists
@@ -43,7 +44,8 @@ class SwipeService {
       // Check for match before uploading the swipe
       await swipesCollection.doc(swipe.swipeId).set(swipe.toMap());
       final userSwipeId = swipe.swipeId;
-      await checkForMatch(swipe.swipedUserId, swipe.swipeType, userSwipeId);
+      await checkForMatch(
+          swipe.swipedUserId, swipe.swipeType, userSwipeId, isRomance);
 
       // Generate a unique swipeId
 
@@ -79,7 +81,7 @@ class SwipeService {
     }
   }
 
-  Future<void> makeMatch(String userIdSwipedFirst) async {
+  Future<void> makeMatch(String userIdSwipedFirst, bool isRomance) async {
     try {
       String currentUserId = FirebaseAuth.instance.currentUser!.uid;
       // Check if the current user ID is equal to both userIdSwipedFirst and currentUserId
@@ -97,6 +99,7 @@ class SwipeService {
         'userIdSwipedFirst': userIdSwipedFirst,
         'userIdSwipedSecond': currentUserId,
         'userIds': userIds,
+        'relationshipType': isRomance ? 'Romance' : 'Friendship',
         'messages': [],
       };
 
@@ -112,8 +115,8 @@ class SwipeService {
   }
 
   // Check to see whether the other user (the person the current user just swiped) swiped them back already
-  Future<void> checkForMatch(
-      String swipedUserId, String swipeType, String userSwipeId) async {
+  Future<void> checkForMatch(String swipedUserId, String swipeType,
+      String userSwipeId, bool isRomance) async {
     try {
       String currentUserId = FirebaseAuth.instance.currentUser!.uid;
 
@@ -135,16 +138,16 @@ class SwipeService {
         String userIdSwipedFirst = querySnapshot.docs.first['userId'];
 
         // Create a match with userIdSwipedFirst and the current user
-        await makeMatch(userIdSwipedFirst);
+        await makeMatch(userIdSwipedFirst, isRomance);
       }
     } catch (e) {
       print('Error checking for match: $e');
     }
   }
 
-  Future<void> makeRandomSwipe(String swipeType) async {
+  Future<void> makeRandomSwipe(String swipeType, bool isRomance) async {
     try {
-      // Get a random document from the 'test_users' collection
+      // Get a random document from the 'users' collection
       QuerySnapshot querySnapshot = await usersCollection.get();
       List<DocumentSnapshot> documents = querySnapshot.docs;
       int randomIndex = Random().nextInt(documents.length);
@@ -161,19 +164,20 @@ class SwipeService {
         swipedUserId: currentUserId,
         swipeType: swipeType,
         userIds: userIds,
+        relationshipType: isRomance ? 'Romance' : 'Friendship',
         timestamp: Timestamp.now(),
       );
-      await uploadSwipeData(swipe, currentUserId);
+      await uploadSwipeData(swipe, currentUserId, isRomance);
       print('Random swipe made successfully!');
     } catch (e) {
       print('Error making random swipe: $e');
     }
   }
 
-  Future<void> makeSwipe({
-    required String swipedUserId,
-    required String swipeType,
-  }) async {
+  Future<void> makeSwipe(
+      {required String swipedUserId,
+      required String swipeType,
+      required bool isRomance}) async {
     try {
       String currentUserId = FirebaseAuth.instance.currentUser!.uid;
       String swipeId = Uuid().v4();
@@ -185,9 +189,10 @@ class SwipeService {
         swipedUserId: swipedUserId,
         swipeType: swipeType,
         userIds: userIds,
+        relationshipType: isRomance ? 'Romance' : 'Friendship',
         timestamp: Timestamp.now(),
       );
-      await uploadSwipeData(swipe, currentUserId);
+      await uploadSwipeData(swipe, currentUserId, isRomance);
       print('Swipe made successfully!');
     } catch (e) {
       print('Error making swipe: $e');
@@ -229,7 +234,7 @@ class Swipe {
   final String swipeType;
   final List<String> userIds;
   final Timestamp timestamp;
-
+  final String relationshipType;
   Swipe({
     required this.swipeId,
     required this.userId,
@@ -237,6 +242,7 @@ class Swipe {
     required this.swipeType,
     required this.userIds,
     required this.timestamp,
+    required this.relationshipType,
   });
 
   Map<String, dynamic> toMap() {
@@ -247,6 +253,7 @@ class Swipe {
       'swipeType': swipeType,
       'userIds': userIds,
       'timestamp': timestamp,
+      'relationshipType': relationshipType,
     };
   }
 }

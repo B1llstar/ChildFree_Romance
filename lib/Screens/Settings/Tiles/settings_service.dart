@@ -14,6 +14,9 @@ class MatchService extends ChangeNotifier {
   List<Map<String, dynamic>> _friendshipMatches = [];
   List<Map<String, dynamic>> get friendshipMatches => _friendshipMatches;
   List<Map<String, dynamic>> _friendshipAndRomanceMatches = [];
+  List<Map<String, dynamic>> _matches = [];
+  List<Map<String, dynamic>> get matches => _matches;
+
   String _glowType = 'None';
   String get glowType => _glowType;
   set glowType(String value) {
@@ -29,6 +32,26 @@ class MatchService extends ChangeNotifier {
 
   MatchService() {
     init();
+    subscribeToMatchesStream();
+  }
+  void subscribeToMatchesStream() {
+    final user = _auth.currentUser;
+    if (user != null) {
+      final userMatchesRef = _firestore
+          .collection('matches')
+          .where('userIds', arrayContains: user.uid);
+      userMatchesRef.snapshots().listen((snapshot) {
+        final updatedMatches = snapshot.docs
+            .map((doc) => doc.data() as Map<String, dynamic>)
+            .toList();
+        updateMatches(updatedMatches);
+      });
+    }
+  }
+
+  void updateMatches(List<Map<String, dynamic>> updatedMatches) {
+    _matches = updatedMatches;
+    notifyListeners();
   }
 
   Future<void> init() async {
@@ -39,6 +62,11 @@ class MatchService extends ChangeNotifier {
     await Future.delayed(
         Duration.zero); // Wait for other async operations to complete
     await removeSwipedUsers(); // Call removeSwipedUsers after other async operations
+  }
+
+  removeAllWhereVisibleIsFalse() async {
+    _romanceMatches.removeWhere((match) => match['visible'] == false);
+    _friendshipMatches.removeWhere((match) => match['visible'] == false);
   }
 
   Future<List<String>> getProfilePictures(BuildContext context) async {
@@ -70,7 +98,7 @@ class MatchService extends ChangeNotifier {
       if (user != null) {
         // Get the user document from Firestore
         DocumentSnapshot userSnapshot =
-            await _firestore.collection('test_users').doc(user.uid).get();
+            await _firestore.collection('users').doc(user.uid).get();
 
         // Check if the document exists
         if (userSnapshot.exists) {
@@ -97,13 +125,14 @@ class MatchService extends ChangeNotifier {
   Future<void> fetchAndStoreAllUsers() async {
     try {
       // Get all users from Firestore
-      QuerySnapshot querySnapshot =
-          await _firestore.collection('test_users').get();
+      QuerySnapshot querySnapshot = await _firestore.collection('users').get();
 
       // Extract user data from the documents
       _allUsers = querySnapshot.docs
           .map((doc) => doc.data() as Map<String, dynamic>)
           .toList();
+      // Remove where visibility is false
+      _allUsers.removeWhere((user) => user['visible'] == false);
     } catch (e) {
       print('Error fetching and storing all users: $e');
     }
@@ -124,6 +153,7 @@ class MatchService extends ChangeNotifier {
       // Randomize all elements
       friendshipAndRomanceMatches.shuffle();
       _romanceMatches.shuffle();
+
       notifyListeners();
     } catch (e) {
       print('Error generating romance matches: $e');
@@ -143,18 +173,18 @@ class MatchService extends ChangeNotifier {
         if (docData != null) {
           String? swipedUserId = docData['swipedUserId'];
           String? swipeType = docData['swipeType'];
-
+          String? relationshipType = docData['relationshipType'];
           if (swipedUserId != null &&
               swipeType != null &&
               swipeType == 'standardYes') {
-            print('Looking at romance matches');
-            print(_romanceMatches);
             // Remove swiped user from romanceMatches
-            _romanceMatches
-                .removeWhere((user) => user['userId'] == swipedUserId);
+            if (relationshipType == 'Romance')
+              _romanceMatches
+                  .removeWhere((user) => user['userId'] == swipedUserId);
             // Remove swiped user from friendshipMatches
-            _friendshipMatches
-                .removeWhere((user) => user['userId'] == swipedUserId);
+            if (relationshipType == 'Friendship')
+              _friendshipMatches
+                  .removeWhere((user) => user['userId'] == swipedUserId);
             // Remove swiped user from friendshipAndRomanceMatches
             _friendshipAndRomanceMatches
                 .removeWhere((user) => user['userId'] == swipedUserId);
@@ -199,6 +229,7 @@ class MatchService extends ChangeNotifier {
 
   Future<void> refresh() async {
     try {
+      await fetchAndStoreUserData();
       await fetchAndStoreAllUsers();
       await generateRomanceMatches();
       await generateFriendshipMatches();

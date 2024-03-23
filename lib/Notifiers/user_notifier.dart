@@ -185,7 +185,7 @@ class UserDataProvider extends ChangeNotifier {
       notifyListeners();
 
       // Update in Firestore
-      await _firestore.collection('test_users').doc(_user!.uid).set({
+      await _firestore.collection('users').doc(_user!.uid).set({
         property: value,
       }, SetOptions(merge: true));
     } catch (error) {

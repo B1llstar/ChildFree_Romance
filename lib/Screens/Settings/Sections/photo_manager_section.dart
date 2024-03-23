@@ -1,3 +1,4 @@
+import 'package:badges/badges.dart' as badges;
 import 'package:childfree_romance/Screens/Settings/Tiles/profile_picture_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_settings_ui/flutter_settings_ui.dart';
@@ -14,7 +15,26 @@ class _PhotoManagerSectionState extends State<PhotoManagerSection> {
   Widget build(BuildContext context) {
     return SettingsSection(
       title: Text('Photos'),
-      tiles: [CustomSettingsTile(child: PhotoManagerSettingsTile())],
+      tiles: [
+        CustomSettingsTile(
+            child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                badges.Badge(
+                  badgeStyle: badges.BadgeStyle(
+                    badgeColor: Colors.transparent,
+                  ),
+                  badgeContent: Text('*at least one required',
+                      style: TextStyle(color: Colors.red)),
+                ), // Adjust spacing between title and badge
+              ],
+            ),
+            PhotoManagerSettingsTile(),
+          ],
+        ))
+      ],
     );
   }
 }

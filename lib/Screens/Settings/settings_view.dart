@@ -1,4 +1,5 @@
 import 'package:childfree_romance/Screens/Settings/Sections/essentials_section.dart';
+import 'package:childfree_romance/Screens/Settings/Sections/friendship_preferences_section.dart';
 import 'package:childfree_romance/Screens/Settings/Sections/misc_section.dart';
 import 'package:childfree_romance/Screens/Settings/Sections/personal_beliefs.dart';
 import 'package:childfree_romance/Screens/Settings/Sections/photo_manager_section.dart';
@@ -6,6 +7,7 @@ import 'package:childfree_romance/Screens/Settings/Sections/prompts_section.dart
 import 'package:childfree_romance/firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_settings_ui/flutter_settings_ui.dart';
 import 'package:provider/provider.dart';
@@ -53,12 +55,21 @@ class SettingsView extends StatelessWidget {
           child: SettingsList(
             lightTheme: SettingsThemeData(
               titleTextColor: notifier.darkMode ? Colors.white : Colors.black,
-              settingsTileTextColor:
-                  notifier.darkMode ? Colors.white : Colors.black,
-              trailingTextColor:
-                  notifier.darkMode ? Colors.white : Colors.black,
-              tileDescriptionTextColor:
-                  notifier.darkMode ? Colors.white : Colors.black,
+              settingsTileTextColor: notifier.darkMode
+                  ? kIsWeb
+                      ? Colors.black
+                      : Colors.white
+                  : Colors.black,
+              trailingTextColor: notifier.darkMode
+                  ? kIsWeb
+                      ? Colors.black
+                      : Colors.white
+                  : Colors.black,
+              tileDescriptionTextColor: notifier.darkMode
+                  ? kIsWeb
+                      ? Colors.black
+                      : Colors.white
+                  : Colors.black,
               settingsListBackground: Colors.transparent,
             ),
             brightness: Brightness.light,
@@ -79,6 +90,8 @@ class SettingsView extends StatelessWidget {
               CustomSettingsSection(child: EssentialsSettingsSection()),
               CustomSettingsSection(
                   child: matching.MatchPreferencesSettingsSection()),
+              CustomSettingsSection(
+                  child: FriendshipPreferencesSettingsSection()),
               CustomSettingsSection(child: LifestyleSettingsSection()),
               CustomSettingsSection(child: PersonalBeliefsSettingsSection()),
               CustomSettingsSection(child: MiscSettingsSection()),

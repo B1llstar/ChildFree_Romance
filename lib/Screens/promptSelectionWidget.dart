@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_settings_ui/flutter_settings_ui.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class FirestorePromptsWidget extends StatefulWidget {
   final String userId;
@@ -35,7 +34,7 @@ class _FirestorePromptsWidgetState extends State<FirestorePromptsWidget> {
   Widget build(BuildContext context) {
     return StreamBuilder<DocumentSnapshot>(
       stream: FirebaseFirestore.instance
-          .collection('test_users')
+          .collection('users')
           .doc(widget.userId)
           .snapshots(),
       builder: (context, snapshot) {
@@ -86,7 +85,6 @@ class _FirestorePromptsWidgetState extends State<FirestorePromptsWidget> {
     final answer = promptData?['answer'] ?? 'No answer yet';
 
     return SettingsTile(
-      leading: Icon(FontAwesomeIcons.solidStar, color: Colors.yellow),
       title: Text(promptData?['prompt'] ?? 'Choose a prompt'),
       description: Text(answer),
       onPressed: (context) {
@@ -168,7 +166,7 @@ class _FirestorePromptsWidgetState extends State<FirestorePromptsWidget> {
       String promptName, String? selectedPromptName, String answer) {
     final snakeCasePromptName =
         'prompt_${promptName.split(' ')[1]}'; // Convert prompt name to snake case
-    FirebaseFirestore.instance.collection('test_users').doc(widget.userId).set(
+    FirebaseFirestore.instance.collection('users').doc(widget.userId).set(
       {
         snakeCasePromptName: {
           'prompt': selectedPromptName,

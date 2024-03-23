@@ -67,7 +67,7 @@ class _MatchesListWidgetState extends State<MatchesListWidget> {
   Future<void> _loadUserDocuments() async {
     await Future.forEach(_userDocuments.keys, (userId) async {
       final userDocSnapshot = await FirebaseFirestore.instance
-          .collection('test_users')
+          .collection('users')
           .doc(userId)
           .get();
       final userData = userDocSnapshot.data();
@@ -120,6 +120,7 @@ class _MatchesListWidgetState extends State<MatchesListWidget> {
                               context,
                               MaterialPageRoute(
                                 builder: (context) => ChatWidget(
+                                    name: userData!['name'],
                                     profilePictureUrl: profilePicture!,
                                     matchId: _matchIds[
                                         index], // Use the match ID from the list

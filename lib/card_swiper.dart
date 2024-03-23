@@ -36,10 +36,11 @@ class _CardViewState extends State<CardView> {
   void initState() {
     super.initState();
     _flipCardController = FlipCardController();
+    Provider.of<MatchService>(context, listen: false).refresh();
+
     WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
       loadData();
     });
-    Provider.of<MatchService>(context, listen: false).refresh();
   }
 
   Future loadData() async {
@@ -149,17 +150,21 @@ class _CardViewState extends State<CardView> {
                                             .romanceMatches[index]['userId'];
                                         _swipeService.makeSwipe(
                                             swipedUserId: swipedUserId,
-                                            swipeType: 'standardYes');
+                                            swipeType: 'standardYes',
+                                            isRomance: true);
                                       }
                                     } else {
                                       print('Swiped left');
                                       if (index <
                                           matchService.romanceMatches.length) {
-                                        String swipedUserId = matchService
-                                            .romanceMatches[index]['userId'];
+                                        String swipedUserId =
+                                            matchService.romanceMatches[index]
+                                                    ['userId'] ??
+                                                '123';
                                         _swipeService.makeSwipe(
                                             swipedUserId: swipedUserId,
-                                            swipeType: 'nope');
+                                            swipeType: 'nope',
+                                            isRomance: true);
                                       }
                                     }
                                     _currentIndex =
@@ -263,7 +268,7 @@ class _CardViewState extends State<CardView> {
                                 print('Can\'t swipe any further!');
                                 return;
                               }
-                              _debounceButton();
+                              // _debounceButton();
                               _swiperController.swipeLeft();
 
                               /*
@@ -296,7 +301,7 @@ class _CardViewState extends State<CardView> {
                               print('Can\'t swipe any further!');
                               return;
                             }
-                            _debounceButton();
+                            //_debounceButton();
                             _swiperController.swipeRight();
                             /*
                       String swipedUserId =

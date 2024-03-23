@@ -29,41 +29,12 @@ Future<void> baconSignIn() async {
       email: "crigne4lyfe@gmail.com", password: "crigne");
 }
 
-Future<void> duplicateDocument(String documentId) async {
-  try {
-    // Get reference to the document to be duplicated
-    DocumentSnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
-        .instance
-        .collection('users')
-        .doc(documentId)
-        .get();
-
-    if (snapshot.exists) {
-      // Get the data from the original document
-      Map<String, dynamic> data = snapshot.data()!;
-
-      // Add the document to the test_users collection
-      await FirebaseFirestore.instance
-          .collection('test_users')
-          .doc(documentId)
-          .set(data);
-
-      print('Success: Document duplicated');
-    } else {
-      print(
-          'Error: Document with ID $documentId does not exist in the users collection');
-    }
-  } catch (e) {
-    print('Error: $e');
-  }
-}
-
 // Convert Prompt Format
 // List of Prompts -> prompt_1, prompt_2 etc.
 Future<void> fetchDataAndUpdateProfile() async {
   try {
     QuerySnapshot querySnapshot =
-        await FirebaseFirestore.instance.collection('test_users').get();
+        await FirebaseFirestore.instance.collection('users').get();
     querySnapshot.docs.forEach((DocumentSnapshot document) async {
       Map<String, dynamic>? data =
           document.data() as Map<String, dynamic>?; // Explicit casting
@@ -92,7 +63,7 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   // await baconSignIn();
 
-  if (kIsWeb)
+  if (!kIsWeb)
     await devSignIn();
   else
     await baconSignIn();
@@ -124,7 +95,9 @@ void main() async {
 
         // Add more providers if needed
       ],
-      child: MyHomePage(),
+      child: MyHomePage(
+        allUsersNotifier: _allUsersNotifier!,
+      ),
     ),
     debugShowCheckedModeBanner: false,
   ));
@@ -144,7 +117,9 @@ class MyApp extends StatelessWidget {
           ChangeNotifierProvider(create: (_) => _allUsersNotifier),
           ChangeNotifierProvider(create: (_) => UserDataProvider()),
         ],
-        child: MyHomePage(),
+        child: MyHomePage(
+          allUsersNotifier: _allUsersNotifier!,
+        ),
       ),
     );
   }
@@ -152,7 +127,9 @@ class MyApp extends StatelessWidget {
 
 class MyHomePage extends StatefulWidget {
   final int startingIndex;
-  MyHomePage({Key? key, this.startingIndex = 0}) : super(key: key);
+  final AllUsersNotifier allUsersNotifier;
+  MyHomePage({Key? key, this.startingIndex = 0, required this.allUsersNotifier})
+      : super(key: key);
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -163,9 +140,7 @@ class _MyHomePageState extends State<MyHomePage> {
   List<Widget> _pages = [
     CardView(),
     CardViewFriendship(),
-    MatchesWidget(
-      allUsersNotifier: _allUsersNotifier!,
-    ),
+    MatchesWidget(),
     SettingsView(),
   ];
   @override
