@@ -275,7 +275,7 @@ class _CardViewFriendshipState extends State<CardViewFriendship> {
                               print('Red button clicked');
                             },
                       style: ElevatedButton.styleFrom(
-                          primary: Colors.white, elevation: 6),
+                          backgroundColor: Colors.white, elevation: 6),
                       child: Icon(Icons.close, color: Colors.black, size: 40),
                     ),
                   ),
@@ -307,7 +307,7 @@ class _CardViewFriendshipState extends State<CardViewFriendship> {
                             print('Green button clicked');
                           },
                     style: ElevatedButton.styleFrom(
-                      primary: Colors.white,
+                      backgroundColor: Colors.white,
                       elevation: 6,
                     ),
                     child: Icon(Icons.check, color: Colors.black, size: 40),
