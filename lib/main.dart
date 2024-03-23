@@ -1,7 +1,6 @@
 import 'package:badges/badges.dart' as badges;
 import 'package:childfree_romance/Notifiers/all_users_notifier.dart';
 import 'package:childfree_romance/Notifiers/user_notifier.dart';
-import 'package:childfree_romance/Screens/profile_pictures_widget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -14,6 +13,7 @@ import 'Auth/login.dart';
 import 'Cards/matchesWidget.dart';
 import 'Screens/Settings/Tiles/settings_service.dart';
 import 'Screens/Settings/settings_view.dart';
+import 'Screens/mail_widget.dart';
 import 'card_swiper.dart';
 import 'card_swiper_friendship.dart';
 import 'firebase_options.dart';
@@ -89,6 +89,7 @@ void main() async {
 */
   // print(uid);
   runApp(MaterialApp(
+    title: 'Childfree Connection',
     home: LoginPage(),
     debugShowCheckedModeBanner: false,
   ));
@@ -132,9 +133,7 @@ class _MyHomePageState extends State<MyHomePage> {
     CardViewFriendship(),
     MatchesWidget(),
     SettingsView(),
-    ProfilePicturesWidget(profile: {
-      'profilePictures': ['crigne', 'crigne', 'crigne']
-    })
+    MailWidget()
   ];
   @override
   void initState() {
@@ -178,6 +177,10 @@ class _MyHomePageState extends State<MyHomePage> {
                     }),
                     child: Icon(FontAwesomeIcons.fire)),
                 title: Text('Matches'),
+              ),
+              SalomonBottomBarItem(
+                icon: Icon(FontAwesomeIcons.user),
+                title: Text('Profile'),
               ),
               SalomonBottomBarItem(
                 icon: Icon(FontAwesomeIcons.user),

@@ -4,6 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:uuid/uuid.dart';
 
+import '../Screens/email_service.dart';
+
 class SwipeService {
   final CollectionReference usersCollection =
       FirebaseFirestore.instance.collection('users');
@@ -109,8 +111,54 @@ class SwipeService {
           .doc(matchId)
           .set(matchData);
       print('Match created successfully!');
+
+      sendAlertEmails(currentUserId, userIdSwipedFirst);
     } catch (e) {
       print('Error creating match: $e');
+    }
+  }
+
+  Future<void> sendAlertEmails(String id1, String id2) async {
+    // Get both users from the users collection
+    final user1 = FirebaseFirestore.instance.collection('users').doc(id1);
+    final user2 = FirebaseFirestore.instance.collection('users').doc(id2);
+
+    MailService _mailService = MailService();
+
+    // Fetching user1 data
+    DocumentSnapshot user1Snapshot = await user1.get();
+    if (user1Snapshot.exists) {
+      // Grab the email property of user1
+      Map<String, dynamic> userData1 =
+          user1Snapshot.data() as Map<String, dynamic>;
+      String email1 = userData1['email'];
+
+      // Sending email to user1
+      await _mailService.sendMail(
+        email1,
+        'You have a new match on Childfree Connection!',
+        'View your match on our website at https://childfreeconnection.us :)',
+      );
+    } else {
+      print('User with ID $id1 not found');
+    }
+
+    // Fetching user2 data
+    DocumentSnapshot user2Snapshot = await user2.get();
+    if (user2Snapshot.exists) {
+      // Grab the email property of user2
+      Map<String, dynamic> userData2 =
+          user2Snapshot.data() as Map<String, dynamic>;
+      String email2 = userData2['email'];
+
+      // Sending email to user2
+      await _mailService.sendMail(
+        email2,
+        'You have a new match on Childfree Connection!',
+        'View your match on our website at https://childfreeconnection.us :)',
+      );
+    } else {
+      print('User with ID $id2 not found');
     }
   }
 
