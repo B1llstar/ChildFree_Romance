@@ -69,6 +69,7 @@ dependencies:
   flutter_blurhash: ^0.8.2
   badges: ^3.1.2
   change_app_package_name: ^1.1.0
+  firebase_messaging: ^14.7.19
 
 dev_dependencies:
   flutter_test:

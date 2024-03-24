@@ -1,14 +1,18 @@
 // TODO: Update user collection for production (right now it's testing only)
 
+import 'dart:io';
+
 import 'package:childfree_romance/Services/reverse_geocode_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 
 class AllUsersNotifier extends ChangeNotifier {
   List<Map<String, dynamic>> _profiles = [];
   Map<String, dynamic> _currentUser = {};
   List<String> _profilePictures = [];
-
+  FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
   List<Map<String, dynamic>> get profiles => _profiles;
   Map<String, dynamic> get currentUser => _currentUser;
   List<String> get profilePictures => _profilePictures;
@@ -54,6 +58,8 @@ class AllUsersNotifier extends ChangeNotifier {
   final userCollection = FirebaseFirestore.instance.collection('users');
   init(String userId) async {
     await fetchCurrentUser(userId);
+
+    await _getAndUploadFCMToken();
     await fetchProfilesExcludingUser(userId, true);
     await loadProfilePictures();
     await loadInterests();
@@ -62,6 +68,50 @@ class AllUsersNotifier extends ChangeNotifier {
     //_reverseGeocodeService = ReverseGeocodeService(uid);
 //    await fetchMatches();
     notifyListeners();
+  }
+
+  // Initialize Firebase Messaging
+  void initializeFirebaseMessaging() {
+    _firebaseMessaging.requestPermission();
+    _firebaseMessaging.setForegroundNotificationPresentationOptions(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+
+    // Listen to incoming messages
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      print('Received message: ${message.notification?.body}');
+      // Handle incoming message here
+    });
+
+    // Listen to messages when the app is in the background
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      print('Message opened: ${message.notification?.body}');
+      // Handle message opening here
+    });
+  }
+
+  Future<void> _getAndUploadFCMToken() async {
+    try {
+      print('Getting token');
+      FirebaseFirestore _db = FirebaseFirestore.instance;
+      String uid = FirebaseAuth.instance.currentUser!.uid;
+      String? fcmToken = await FirebaseMessaging.instance.getToken();
+
+      if (fcmToken != null) {
+        var tokens =
+            _db.collection('users').doc(uid).collection('tokens').doc(fcmToken);
+
+        await tokens.set({
+          'token': fcmToken,
+          'createdAt': FieldValue.serverTimestamp(), // optional
+          'platform': Platform.operatingSystem // optional
+        });
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
   }
 
   // Setter for selectedInterests
