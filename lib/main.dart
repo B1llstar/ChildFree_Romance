@@ -13,7 +13,6 @@ import 'Auth/login.dart';
 import 'Cards/matchesWidget.dart';
 import 'Screens/Settings/Tiles/settings_service.dart';
 import 'Screens/Settings/settings_view.dart';
-import 'Screens/mail_widget.dart';
 import 'card_swiper.dart';
 import 'card_swiper_friendship.dart';
 import 'firebase_options.dart';
@@ -133,7 +132,6 @@ class _MyHomePageState extends State<MyHomePage> {
     CardViewFriendship(),
     MatchesWidget(),
     SettingsView(),
-    MailWidget()
   ];
   @override
   void initState() {
@@ -177,10 +175,6 @@ class _MyHomePageState extends State<MyHomePage> {
                     }),
                     child: Icon(FontAwesomeIcons.fire)),
                 title: Text('Matches'),
-              ),
-              SalomonBottomBarItem(
-                icon: Icon(FontAwesomeIcons.user),
-                title: Text('Profile'),
               ),
               SalomonBottomBarItem(
                 icon: Icon(FontAwesomeIcons.user),
