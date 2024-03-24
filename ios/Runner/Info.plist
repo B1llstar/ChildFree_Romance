@@ -37,5 +37,18 @@
 		<string>UIInterfaceOrientationPortrait</string>
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 	</array>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>For uploading profile pictures</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>For the matchmaking algorithm to determine where you are in relation to other users</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>For the matchmaking algorithm to determine where you are in relation to other users</string>
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+	</array>
 </dict>
 </plist>
