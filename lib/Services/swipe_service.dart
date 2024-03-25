@@ -1,7 +1,9 @@
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:http/http.dart' as http;
 import 'package:uuid/uuid.dart';
 
 import '../Screens/email_service.dart';
@@ -83,6 +85,41 @@ class SwipeService {
     }
   }
 
+  Future<void> sendPushNotification(String userId, String messageTitle,
+      String messageBody, String type, String id) async {
+    try {
+      // Define the URL of your Cloud Function
+      final url =
+          'https://us-central1-childfree-connection.cloudfunctions.net/sendPushNotification';
+
+      // Define the request body
+      final body = json.encode({
+        'userId': userId,
+        "title": messageTitle,
+        "body": messageBody,
+        "type": type,
+        "id": id
+      });
+
+      // Make the POST request
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {'Content-Type': 'application/json'},
+        body: body,
+      );
+
+      // Check if the request was successful
+      if (response.statusCode == 200) {
+        print('Notification sent successfully');
+      } else {
+        print(
+            'Failed to send notification. Status code: ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error sending notification: $error');
+    }
+  }
+
   Future<void> makeMatch(String userIdSwipedFirst, bool isRomance) async {
     try {
       String currentUserId = FirebaseAuth.instance.currentUser!.uid;
@@ -113,6 +150,10 @@ class SwipeService {
       print('Match created successfully!');
 
       sendAlertEmails(currentUserId, userIdSwipedFirst);
+      sendPushNotification(
+          currentUserId, 'You have a new match!', '', "newMatch", "-1");
+      sendPushNotification(
+          userIdSwipedFirst, 'You have a new match!', '', "newMatch", "-1");
     } catch (e) {
       print('Error creating match: $e');
     }

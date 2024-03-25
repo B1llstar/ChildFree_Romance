@@ -319,9 +319,7 @@ class _MatchesWidgetState extends State<MatchesWidget> {
         userThatSentMessage = messages.last['userId'];
         lastMessage = 'You: ' + messages.last['text'];
       } else {
-        lastMessage = messages.last['text'] ??
-            'Start a conversation'
-                '';
+        lastMessage = messages.last['text'] ?? 'Start a conversation';
       }
 
       // Calculate the message count since the last user message

@@ -16,6 +16,7 @@ class ReverseGeocodeService {
   String countryCode = '';
   String? uid;
   ReverseGeocodeResponse? reverseGeocodeResponse;
+
   // Constructor that takes uid
   ReverseGeocodeService(String uid) {
     this.uid = uid;
@@ -60,6 +61,8 @@ class ReverseGeocodeService {
           'state': state,
           'country': country,
           'countryCode': countryCode,
+          'latitude': lat, // Add latitude to Firestore
+          'longitude': long, // Add longitude to Firestore
         },
       }, SetOptions(merge: true));
     } catch (e) {
@@ -88,10 +91,12 @@ class ReverseGeocodeService {
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       return ReverseGeocodeResponse(
-        city: data['city'] ?? 'N\\A',
-        state: data['state'] ?? 'N\\A',
-        country: data['country'] ?? 'N\\A',
-        countryCode: data['country_code'] ?? 'N\\A',
+        city: data['city'] ?? 'N\/A',
+        state: data['state'] ?? 'N\/A',
+        country: data['country'] ?? 'N\/A',
+        countryCode: data['country_code'] ?? 'N\/A',
+        latitude: latitude, // Add latitude to response object
+        longitude: longitude, // Add longitude to response object
       );
     } else {
       return ReverseGeocodeResponse(
@@ -99,6 +104,8 @@ class ReverseGeocodeService {
         state: 'N\\A',
         country: 'N\\A',
         countryCode: 'N\\A',
+        latitude: 0.0,
+        longitude: 0.0,
       );
     }
   }
@@ -106,7 +113,7 @@ class ReverseGeocodeService {
   Future<void> getCoordinates() async {
     loc.LocationData? locationData;
     loc.Location location = loc.Location();
-
+    print('Getting coordinates');
     try {
       locationData = await location.getLocation();
       lat = locationData.latitude!;
@@ -181,11 +188,15 @@ class ReverseGeocodeResponse {
   final String? state;
   final String? country;
   final String? countryCode;
+  final double? latitude; // Latitude property
+  final double? longitude; // Longitude property
 
   ReverseGeocodeResponse({
     required this.city,
     required this.state,
     required this.country,
     required this.countryCode,
+    required this.latitude,
+    required this.longitude,
   });
 }

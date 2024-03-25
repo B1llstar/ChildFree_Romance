@@ -8,11 +8,14 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
-
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'Auth/login.dart';
 import 'Cards/matchesWidget.dart';
 import 'Screens/Settings/Tiles/settings_service.dart';
 import 'Screens/Settings/settings_view.dart';
+import 'Utils/feedback_service.dart';
 import 'card_swiper.dart';
 import 'card_swiper_friendship.dart';
 import 'firebase_options.dart';
@@ -58,6 +61,8 @@ Future<void> fetchDataAndUpdateProfile() async {
   }
 }
 
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -88,6 +93,7 @@ void main() async {
 */
   // print(uid);
   runApp(MaterialApp(
+    navigatorKey: navigatorKey,
     title: 'Childfree Connection',
     home: LoginPage(),
     debugShowCheckedModeBanner: false,
@@ -138,6 +144,58 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     _selectedItemPosition =
         widget.startingIndex; // Initialize _selectedItemPosition in initState
+    initInfo();
+  }
+
+
+  void onDidReceiveNotificationResponse(
+      BuildContext context, NotificationResponse notificationResponse) async {
+    final String? payload = notificationResponse.payload;
+    if (notificationResponse.payload != null) {}
+  }
+
+  initInfo() {
+    FirebaseMessaging messaging = FirebaseMessaging.instance;
+    print('Initializing Messenger services...');
+    var androidInitialize =
+    const AndroidInitializationSettings('@mipmap/launcher_icon');
+    var iOSInitialize = const DarwinInitializationSettings();
+    var initializationSettings =
+    InitializationSettings(android: androidInitialize, iOS: iOSInitialize);
+    FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
+    flutterLocalNotificationsPlugin.initialize(initializationSettings,
+        onDidReceiveNotificationResponse: (response) {
+          onDidReceiveNotificationResponse(context, response);
+        });
+
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+      print('On Message has been called');
+      print('Title: ${message.notification?.title}');
+      print('Body: ${message.notification?.body}');
+
+      print(message.data);
+      BigTextStyleInformation bigTextStyleInformation = BigTextStyleInformation(
+          message.data['title'],
+          htmlFormatBigText: true,
+          contentTitle: message.data['title'],
+          htmlFormatContentTitle: true);
+
+      AndroidNotificationDetails androidPlatformChannelSpecifics =
+      AndroidNotificationDetails('cfc', 'cfc',
+          importance: Importance.high,
+          styleInformation: bigTextStyleInformation,
+          priority: Priority.high,
+          playSound: true);
+
+      NotificationDetails platformChannelSpecifics = NotificationDetails(
+          android: androidPlatformChannelSpecifics,
+          iOS: DarwinNotificationDetails());
+
+      await flutterLocalNotificationsPlugin.show(0, message.data['title'],
+          message.data['body'], platformChannelSpecifics,
+          payload: message.data['body']);
+    });
   }
 
   @override
@@ -154,9 +212,9 @@ class _MyHomePageState extends State<MyHomePage> {
             borderRadius: BorderRadius.circular(20),
           ),
           child: SalomonBottomBar(
-            currentIndex: _selectedItemPosition,
-            onTap: (i) => setState(() => _selectedItemPosition =
-                i), // Update _selectedItemPosition when tapped
+            currentIndex: _notifier.selectedItemPosition,
+            onTap: (i) => setState(() => _notifier.selectedItemPosition =
+                i), // Update _notifier.selectedItemPosition when tapped
             items: [
               SalomonBottomBarItem(
                 icon: Icon(FontAwesomeIcons.heart),
@@ -191,10 +249,11 @@ class _MyHomePageState extends State<MyHomePage> {
           children: [
             GestureDetector(
                 onTap: () {
-                  print('Tapped');
+                  _showFeedbackDialog(context);
                 },
                 child: Image.asset('assets/cfc_logo_med_2.png')),
-            Text('Click me to provide feedback!')
+            SizedBox(width: 4),
+            Text('<- Tap for feedback')
           ],
         ),
         actions: [
@@ -216,7 +275,44 @@ class _MyHomePageState extends State<MyHomePage> {
               }),
         ],
       ),
-      body: _pages[_selectedItemPosition],
+      body: _pages[_notifier.selectedItemPosition],
     );
   }
+}
+
+Future<void> _showFeedbackDialog(BuildContext context) async {
+  TextEditingController _feedbackController = TextEditingController();
+
+  return showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('Provide Feedback'),
+        content: TextField(
+          controller: _feedbackController,
+          decoration: InputDecoration(hintText: 'Enter your feedback'),
+          maxLines: 3,
+        ),
+        actions: <Widget>[
+          ElevatedButton(
+            child: Text('Submit'),
+            onPressed: () {
+              String feedback = _feedbackController.text;
+              if (feedback.isNotEmpty) {
+                FeedbackService feedbackService = FeedbackService();
+                feedbackService.submitFeedback(feedback);
+                Navigator.of(context).pop();
+              }
+            },
+          ),
+          ElevatedButton(
+            child: Text('Cancel'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      );
+    },
+  );
 }

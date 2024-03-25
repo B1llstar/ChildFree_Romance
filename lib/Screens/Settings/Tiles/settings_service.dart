@@ -3,6 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../../../distance_calculator.dart';
+
 class MatchService extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -133,9 +135,48 @@ class MatchService extends ChangeNotifier {
           .toList();
       // Remove where visibility is false
       _allUsers.removeWhere((user) => user['visible'] == false);
+
+      double? currentUserLatitude = _userData?['locale']['latitude'];
+      double? currentUserLongitude = _userData?['locale']['longitude'];
+      if (currentUserLatitude == null || currentUserLongitude == null) {
+        return;
+      }
+      // Calculate and assign distance for each user
+      _allUsers.forEach((user) {
+        // Check if user has 'locale' property and it contains 'latitude' and 'longitude'
+        if (user.containsKey('locale') &&
+            user['locale'] is Map<String, dynamic> &&
+            user['locale'].containsKey('latitude') &&
+            user['locale'].containsKey('longitude')) {
+          double userLatitude = user['locale']['latitude'];
+          double userLongitude = user['locale']['longitude'];
+          double distance = DistanceCalculator.calculateDistance(
+            currentUserLatitude!,
+            currentUserLongitude!,
+            userLatitude,
+            userLongitude,
+          );
+          user['distance'] = distance.toStringAsFixed(2);
+          print(
+              'Distance to user ${user['userId']}: ${user['distance']} miles');
+        } else {
+          // Indicate if latitude or longitude is missing
+          print(
+              'Unable to calculate distance to user ${user['userId']}: Latitude or longitude missing');
+        }
+      });
     } catch (e) {
       print('Error fetching and storing all users: $e');
     }
+  }
+
+  List<Map<String, dynamic>> filterUsersWithinDistance(
+      List<Map<String, dynamic>> users, double maxDistance) {
+    return users
+        .where((user) =>
+            user.containsKey('distance') &&
+            double.parse(user['distance']) <= maxDistance)
+        .toList();
   }
 
   Future<void> generateRomanceMatches() async {

@@ -7,6 +7,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+import '../distance_calculator.dart';
+
 class ProfileCardWeb extends StatelessWidget {
   final Map<String, dynamic> profile;
   final ScrollController scrollController;
@@ -115,6 +117,13 @@ class ProfileCardWeb extends StatelessWidget {
 
                                */
                               SizedBox(height: 4),
+                              TripleDetailRow(
+                                titles: [
+                                  DistanceCalculator()
+                                      .getLocationString(profile)
+                                ],
+                                icons: [FontAwesomeIcons.locationArrow],
+                              ),
                               if (profile['DOB'] != null)
                                 TripleDetailRow(
                                   titles: [

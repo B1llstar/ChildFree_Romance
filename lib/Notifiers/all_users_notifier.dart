@@ -1,5 +1,5 @@
 // TODO: Update user collection for production (right now it's testing only)
-
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:childfree_romance/Services/reverse_geocode_service.dart';
@@ -7,6 +7,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:http/http.dart' as http;
 
 class AllUsersNotifier extends ChangeNotifier {
   List<Map<String, dynamic>> _profiles = [];
@@ -17,6 +19,13 @@ class AllUsersNotifier extends ChangeNotifier {
   Map<String, dynamic> get currentUser => _currentUser;
   List<String> get profilePictures => _profilePictures;
   String uid = '';
+  int _selectedItemPosition = 0;
+  int get selectedItemPosition => _selectedItemPosition;
+  set selectedItemPosition(int value) {
+    _selectedItemPosition = value;
+    notifyListeners();
+  }
+
   ReverseGeocodeService? _reverseGeocodeService;
   List<String> _matchIds = [];
   List<String> _matchProfilePictures = [];
@@ -59,13 +68,13 @@ class AllUsersNotifier extends ChangeNotifier {
   init(String userId) async {
     await fetchCurrentUser(userId);
 
-    await _getAndUploadFCMToken();
     await fetchProfilesExcludingUser(userId, true);
     await loadProfilePictures();
     await loadInterests();
     print('Init called...');
+
     uid = userId;
-    //_reverseGeocodeService = ReverseGeocodeService(uid);
+    _reverseGeocodeService = ReverseGeocodeService(uid);
 //    await fetchMatches();
     notifyListeners();
   }
@@ -92,6 +101,30 @@ class AllUsersNotifier extends ChangeNotifier {
     });
   }
 
+  Future<void> requestPermission() async {
+    // Instantiate FB Messaging
+    FirebaseMessaging messaging = FirebaseMessaging.instance;
+
+    NotificationSettings settings = await messaging.requestPermission(
+      alert: true,
+      announcement: false,
+      badge: true,
+      carPlay: false,
+      criticalAlert: false,
+      provisional: false,
+      sound: true,
+    );
+
+    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+      print('User granted permission');
+    } else if (settings.authorizationStatus ==
+        AuthorizationStatus.provisional) {
+      print('User granted provisional permission');
+    } else {
+      print('User declined or has not accepted permission');
+    }
+  }
+
   Future<void> _getAndUploadFCMToken() async {
     try {
       print('Getting token');
@@ -102,7 +135,7 @@ class AllUsersNotifier extends ChangeNotifier {
       if (fcmToken != null) {
         var tokens =
             _db.collection('users').doc(uid).collection('tokens').doc(fcmToken);
-
+        print('Token: $tokens');
         await tokens.set({
           'token': fcmToken,
           'createdAt': FieldValue.serverTimestamp(), // optional
@@ -111,6 +144,90 @@ class AllUsersNotifier extends ChangeNotifier {
       }
     } catch (e) {
       print('Error: $e');
+    }
+  }
+
+  void onDidReceiveNotificationResponse(
+      NotificationResponse notificationResponse) async {
+    final String? payload = notificationResponse.payload;
+    if (notificationResponse.payload != null) {
+      debugPrint('notification payload: $payload');
+    }
+  }
+
+  initInfo() {
+    FirebaseMessaging messaging = FirebaseMessaging.instance;
+
+    var androidInitialize =
+        const AndroidInitializationSettings('@mipmap/launcher_icon');
+    var iOSInitialize = const DarwinInitializationSettings();
+    var initializationSettings =
+        InitializationSettings(android: androidInitialize, iOS: iOSInitialize);
+    FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+        FlutterLocalNotificationsPlugin();
+    flutterLocalNotificationsPlugin.initialize(initializationSettings,
+        onDidReceiveNotificationResponse: onDidReceiveNotificationResponse);
+
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+      print('On Message has been called');
+      print('Title: ${message.notification?.title}');
+      print('Body: ${message.notification?.body}');
+      print(message.data);
+      BigTextStyleInformation bigTextStyleInformation = BigTextStyleInformation(
+          message.data['title'],
+          htmlFormatBigText: true,
+          contentTitle: message.data['title'],
+          htmlFormatContentTitle: true);
+
+      AndroidNotificationDetails androidPlatformChannelSpecifics =
+          AndroidNotificationDetails('cfc', 'cfc',
+              importance: Importance.high,
+              styleInformation: bigTextStyleInformation,
+              priority: Priority.high,
+              playSound: true);
+
+      NotificationDetails platformChannelSpecifics = NotificationDetails(
+          android: androidPlatformChannelSpecifics,
+          iOS: DarwinNotificationDetails());
+
+      await flutterLocalNotificationsPlugin.show(0, message.data['title'],
+          message.data['body'], platformChannelSpecifics,
+          payload: message.data['body']);
+    });
+  }
+
+  Future<void> sendPushNotification(String userId, String messageTitle,
+      String messageBody, String type, String docIdIfApplicable) async {
+    try {
+      // Define the URL of your Cloud Function
+      final url =
+          'https://us-central1-childfree-connection.cloudfunctions.net/sendPushNotification';
+
+      // Define the request body
+      final body = json.encode({
+        'userId': userId,
+        "title": messageTitle,
+        "body": messageBody,
+        "type": type,
+        "id": docIdIfApplicable
+      });
+
+      // Make the POST request
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {'Content-Type': 'application/json'},
+        body: body,
+      );
+
+      // Check if the request was successful
+      if (response.statusCode == 200) {
+        print('Notification sent successfully');
+      } else {
+        print(
+            'Failed to send notification. Status code: ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error sending notification: $error');
     }
   }
 

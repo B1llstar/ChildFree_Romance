@@ -1,9 +1,12 @@
+import 'dart:convert';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:http/http.dart' as http;
 import 'package:uuid/uuid.dart';
 
 import '../Notifiers/all_users_notifier.dart';
@@ -47,6 +50,7 @@ class _ChatWidgetState extends State<ChatWidget> {
       if (docSnapshot.exists) {
         final data = docSnapshot.data() as Map<String, dynamic>;
         final messages = data['messages'] as List<dynamic>;
+
         final lastMessage = messages.isNotEmpty ? messages.last : null;
         if (lastMessage != null) {
           final id = lastMessage['userId'] as String;
@@ -65,6 +69,42 @@ class _ChatWidgetState extends State<ChatWidget> {
         }
       }
     });
+  }
+
+  Future<void> sendPushNotification(String userId, String messageTitle,
+      String messageBody, String type, String id) async {
+    try {
+      print('CALLED SEND PUSH NOTIFICATION');
+      // Define the URL of your Cloud Function
+      final url =
+          'https://us-central1-childfree-connection.cloudfunctions.net/sendPushNotification';
+
+      // Define the request body
+      final body = json.encode({
+        'userId': userId,
+        "title": messageTitle,
+        "body": messageBody,
+        "type": type,
+        "id": id
+      });
+
+      // Make the POST request
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {'Content-Type': 'application/json'},
+        body: body,
+      );
+
+      // Check if the request was successful
+      if (response.statusCode == 200) {
+        print('Notification sent successfully');
+      } else {
+        print(
+            'Failed to send notification. Status code: ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error sending notification: $error');
+    }
   }
 
   void loadMessagesFromMatchId() async {
@@ -134,6 +174,19 @@ class _ChatWidgetState extends State<ChatWidget> {
 
     // Add the message to the local list immediately
     addTextMessageToMessages(newTextMessage);
+
+    // Get Snapshot of matches document
+    DocumentSnapshot matchesCollection = await FirebaseFirestore.instance
+        .collection('matches')
+        .doc(widget.matchId)
+        .get();
+    Map<String, dynamic> data =
+        matchesCollection.data() as Map<String, dynamic>;
+    List<dynamic> userIds = data['userIds'] as List<dynamic>;
+    userIds.removeWhere((element) => element == widget.uid);
+    String idToSendNotification = userIds[0];
+    sendPushNotification(idToSendNotification, 'You have a new message!', '',
+        "chatMessage", "-1");
 
     // Upload the message to Firestore
     try {
