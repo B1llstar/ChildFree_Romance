@@ -23,20 +23,23 @@ class _InterestsChoiceChipDisplayState
           Divider(),
           Text('Interests', style: TextStyle(fontSize: 18)),
           SizedBox(height: 8),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Wrap(
-              direction: Axis.horizontal,
-              spacing: 8.0,
-              runSpacing: 8.0,
-              alignment: WrapAlignment.center,
-              verticalDirection: VerticalDirection.down,
-              children: [
-                for (var interest in widget.interests!)
-                  Chip(
-                    label: Text(interest.toString()),
-                  ),
-              ],
+          ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Wrap(
+                direction: Axis.horizontal,
+                spacing: 8.0,
+                runSpacing: 8.0,
+                alignment: WrapAlignment.center,
+                verticalDirection: VerticalDirection.down,
+                children: [
+                  for (var interest in widget.interests!)
+                    Chip(
+                      label: Text(interest.toString()),
+                    ),
+                ],
+              ),
             ),
           ),
         ],

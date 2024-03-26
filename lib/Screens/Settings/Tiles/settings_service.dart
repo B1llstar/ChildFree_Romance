@@ -135,6 +135,9 @@ class MatchService extends ChangeNotifier {
           .toList();
       // Remove where visibility is false
       _allUsers.removeWhere((user) => user['visible'] == false);
+      _allUsers.removeWhere((user) =>
+          user['profilePictures'] == null ||
+          user['profilePictures'] != null && user['profilePictures'].isEmpty);
 
       double? currentUserLatitude = _userData?['locale']['latitude'];
       double? currentUserLongitude = _userData?['locale']['longitude'];
@@ -214,10 +217,13 @@ class MatchService extends ChangeNotifier {
         if (docData != null) {
           String? swipedUserId = docData['swipedUserId'];
           String? swipeType = docData['swipeType'];
+          String userId = docData['userId'];
+          String uid = FirebaseAuth.instance.currentUser!.uid;
           String? relationshipType = docData['relationshipType'];
           if (swipedUserId != null &&
               swipeType != null &&
-              swipeType == 'standardYes') {
+              swipeType == 'standardYes' &&
+              uid == userId) {
             // Remove swiped user from romanceMatches
             if (relationshipType == 'Romance')
               _romanceMatches

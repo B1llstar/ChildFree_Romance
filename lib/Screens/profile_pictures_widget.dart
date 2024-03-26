@@ -50,8 +50,7 @@ class _ProfilePicturesWidgetState extends State<ProfilePicturesWidget> {
                 );
               },
               errorWidget: (context, url, error) => Icon(Icons.error),
-              height: MediaQuery.of(context).size.height * .7,
-              width: 400,
+              height: MediaQuery.of(context).size.height * .73,
               fit: BoxFit.cover,
             ),
             if (currentIndex > 0)
@@ -90,7 +89,7 @@ class _ProfilePicturesWidgetState extends State<ProfilePicturesWidget> {
                 padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 color: Colors.black.withOpacity(0.7),
                 child: Text(
-                  widget.profile['name'],
+                  widget.profile['name'] ?? 'No name provided',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 16,

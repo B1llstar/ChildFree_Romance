@@ -36,10 +36,11 @@ class _CardViewFriendshipState extends State<CardViewFriendship> {
   void initState() {
     super.initState();
     _flipCardController = FlipCardController();
+    Provider.of<MatchService>(context, listen: false).refresh();
+
     WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
       loadData();
     });
-    Provider.of<MatchService>(context, listen: false).refresh();
   }
 
   Future loadData() async {
@@ -133,6 +134,7 @@ class _CardViewFriendshipState extends State<CardViewFriendship> {
                                   backgroundCardCount: 0,
                                   backgroundCardScale: .8,
                                   controller: _swiperController,
+                                  threshold: 200,
                                   loop: false,
                                   onEnd: () {
                                     print('We\'re all out of cards!');
@@ -141,6 +143,7 @@ class _CardViewFriendshipState extends State<CardViewFriendship> {
                                       SwiperActivity activity) {
                                     if (activity.end!.dx > 0.0) {
                                       print('Swiped right');
+                                      print('WE SWIPED OR SOMETHING');
                                       if (index <
                                           matchService
                                               .friendshipMatches.length) {
@@ -149,7 +152,7 @@ class _CardViewFriendshipState extends State<CardViewFriendship> {
                                         _swipeService.makeSwipe(
                                             swipedUserId: swipedUserId,
                                             swipeType: 'standardYes',
-                                            isRomance: false);
+                                            isRomance: true);
                                       }
                                     } else {
                                       print('Swiped left');
@@ -157,11 +160,13 @@ class _CardViewFriendshipState extends State<CardViewFriendship> {
                                           matchService
                                               .friendshipMatches.length) {
                                         String swipedUserId = matchService
-                                            .friendshipMatches[index]['userId'];
+                                                    .friendshipMatches[index]
+                                                ['userId'] ??
+                                            '123';
                                         _swipeService.makeSwipe(
                                             swipedUserId: swipedUserId,
                                             swipeType: 'nope',
-                                            isRomance: false);
+                                            isRomance: true);
                                       }
                                     }
                                     _currentIndex =
@@ -190,19 +195,112 @@ class _CardViewFriendshipState extends State<CardViewFriendship> {
                                   cardBuilder: (context, index) {
                                     if (index <
                                         matchService.friendshipMatches.length) {
-                                      return !kIsWeb
-                                          ? ProfileCardWeb(
+                                      return Column(
+                                        children: [
+                                          Expanded(
+                                            child: ProfileCardWeb(
                                               profile: matchService
                                                   .friendshipMatches[index],
                                               scrollController:
                                                   _scrollController,
-                                            )
-                                          : ProfileCardWeb(
-                                              profile: matchService
-                                                  .friendshipMatches[index],
-                                              scrollController:
-                                                  _scrollController,
-                                            );
+                                            ),
+                                          ),
+                                          SizedBox(height: kIsWeb ? 50 : 8),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Container(
+                                                child: ElevatedButton(
+                                                  onPressed: _isButtonDisabled
+                                                      ? null
+                                                      : () {
+                                                          if (_currentIndex ==
+                                                                  matchService
+                                                                          .friendshipMatches
+                                                                          .length -
+                                                                      1 &&
+                                                              _currentIndex !=
+                                                                  0) {
+                                                            print(
+                                                                'Can\'t swipe any further!');
+                                                            return;
+                                                          }
+                                                          // _debounceButton();
+                                                          _swiperController
+                                                              .swipeLeft();
+
+                                                          /*
+                        String swipedUserId =
+                            matchService.friendshipMatches[_currentIndex]
+                                ['userId']; // Use current index
+                        _swipeService.makeSwipe(
+                            swipedUserId: swipedUserId,
+                            swipeType:
+                                'nope'); // Call makeSwipe with appropriate index
+
+                         */
+                                                          scrollBackUp();
+                                                          print(
+                                                              'Red button clicked');
+                                                        },
+                                                  style:
+                                                      ElevatedButton.styleFrom(
+                                                          backgroundColor:
+                                                              Colors.white,
+                                                          elevation: 6),
+                                                  child: Icon(Icons.close,
+                                                      color: Colors.black,
+                                                      size: 40),
+                                                ),
+                                              ),
+                                              SizedBox(
+                                                width: 16,
+                                              ),
+                                              ElevatedButton(
+                                                onPressed: _isButtonDisabled
+                                                    ? null
+                                                    : () {
+                                                        if (_currentIndex ==
+                                                                matchService
+                                                                        .friendshipMatches
+                                                                        .length -
+                                                                    1 &&
+                                                            _currentIndex !=
+                                                                0) {
+                                                          print(
+                                                              'Can\'t swipe any further!');
+                                                          return;
+                                                        }
+                                                        //_debounceButton();
+                                                        _swiperController
+                                                            .swipeRight();
+                                                        /*
+                      String swipedUserId =
+                          matchService.friendshipMatches[_currentIndex]
+                              ['userId']; // Use current index
+                      _swipeService.makeSwipe(
+                          swipedUserId: swipedUserId,
+                          swipeType:
+                              'standardYes'); // Call makeSwipe with appropriate index
+
+                       */
+                                                        scrollBackUp();
+                                                        print(
+                                                            'Green button clicked');
+                                                      },
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor: Colors.white,
+                                                  elevation: 6,
+                                                ),
+                                                child: Icon(Icons.check,
+                                                    color: Colors.black,
+                                                    size: 40),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      );
                                     } else {
                                       return SizedBox(); // Return an empty SizedBox if index is out of bounds
                                     }
@@ -218,102 +316,36 @@ class _CardViewFriendshipState extends State<CardViewFriendship> {
                                 ),
                               )
                         : Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Image.asset('assets/cfc_logo_med_2.png'),
-                                SizedBox(height: 2),
-                                Text(
+                            child: Consumer<AllUsersNotifier>(
+                              builder: (context, _allUsersNotifier, _) =>
+                                  Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Image.asset('assets/cfc_logo_med_2.png'),
+                                  SizedBox(height: 2),
+                                  Text(
                                     'Thanks for participating in the Closed Beta!',
                                     style: TextStyle(
-                                        color: _allUsersNotifier.darkMode
-                                            ? Colors.white
-                                            : Colors.black)),
-                                Text('Check back soon for more matches!',
+                                      color: _allUsersNotifier.darkMode
+                                          ? Colors.white
+                                          : Colors.black,
+                                    ),
+                                  ),
+                                  Text(
+                                    'Check back soon for more profiles!',
                                     style: TextStyle(
-                                        color: _allUsersNotifier.darkMode
-                                            ? Colors.white
-                                            : Colors.black)),
-                              ],
+                                      color: _allUsersNotifier.darkMode
+                                          ? Colors.white
+                                          : Colors.black,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                   ),
                 ),
               ],
-            ),
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    child: ElevatedButton(
-                      onPressed: _isButtonDisabled
-                          ? null
-                          : () {
-                              if (_currentIndex ==
-                                  matchService.friendshipMatches.length - 1) {
-                                print('Can\'t swipe any further!');
-                                return;
-                              }
-                              //       _debounceButton();
-                              _swiperController.swipeLeft();
-
-                              /*
-                        String swipedUserId =
-                            matchService.friendshipMatches[_currentIndex]
-                                ['userId']; // Use current index
-                        _swipeService.makeSwipe(
-                            swipedUserId: swipedUserId,
-                            swipeType:
-                                'nope'); // Call makeSwipe with appropriate index
-
-                         */
-                              scrollBackUp();
-                              print('Red button clicked');
-                            },
-                      style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white, elevation: 6),
-                      child: Icon(Icons.close, color: Colors.black, size: 40),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 16,
-                  ),
-                  ElevatedButton(
-                    onPressed: _isButtonDisabled
-                        ? null
-                        : () {
-                            if (_currentIndex ==
-                                matchService.friendshipMatches.length - 1) {
-                              print('Can\'t swipe any further!');
-                              return;
-                            }
-                            //    _debounceButton();
-                            _swiperController.swipeRight();
-                            /*
-                      String swipedUserId =
-                          matchService.friendshipMatches[_currentIndex]
-                              ['userId']; // Use current index
-                      _swipeService.makeSwipe(
-                          swipedUserId: swipedUserId,
-                          swipeType:
-                              'standardYes'); // Call makeSwipe with appropriate index
-
-                       */
-                            scrollBackUp();
-                            print('Green button clicked');
-                          },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      elevation: 6,
-                    ),
-                    child: Icon(Icons.check, color: Colors.black, size: 40),
-                  ),
-                ],
-              ),
             ),
           ],
         );

@@ -8,12 +8,11 @@ admin.initializeApp({
 
 const db = admin.firestore();
 const fcm = admin.messaging();
-const messaging = admin.messaging(); // Fixed typo here
 
 exports.sendPushNotification = functions.https.onRequest(async (req, res) => {
     try {
         // Extract userId from request body
-        const { userId, title, body, type, id } = req.body;
+        const { userId, title, body, type, id} = req.body;
         if (!userId) {
             throw new Error('User ID is required.');
         }
@@ -32,36 +31,30 @@ exports.sendPushNotification = functions.https.onRequest(async (req, res) => {
         // Extract registration tokens from documents
         const registrationTokens = snapshot.docs.map(doc => doc.id);
 
-        const notification = {
-            title: title,
-            body: body,
-            image: 'https://firebasestorage.googleapis.com/v0/b/childfree-connection.appspot.com/o/FCMImages%2Fcfc_logo.png?alt=media&token=099593e8-c462-40f2-b0b0-a1941de77a9e'
+        // Construct the message to be sent
+        const message = {
+            data: {
+                title: title,
+                body: body,
+                type: type,
+                id: id
+            }
         };
 
-        const messages = [];
-        registrationTokens.forEach((child) => {
-            console.log(child);
-            messages.push({ token: child, notification: notification });
+        // Iterate through each registration token and send a message
+        registrationTokens.forEach((token) => {
+            const tokenMessage = { ...message, token }; // Clone the message object and set the token
+            fcm.send(tokenMessage)
+                .then((response) => {
+                    // Response is a message ID string.
+                    console.log('Successfully sent message to token:', token, response);
+                })
+                .catch((error) => {
+                    console.error('Error sending message to token:', token, error);
+                });
         });
 
-        // Send messages and handle responses
-        const sendPromises = messages.map((message) => {
-            const payload = {
-                token: message.token,
-                notification: message.notification
-            };
-            return fcm.send(payload).then((response) => {
-                console.log("Successfully sent message: " + message.token, response);
-                return { success: true };
-            });
-        });
-
-        // Wait for all messages to be sent
-        await Promise.all(sendPromises);
-
-        console.log("All messages sent successfully.");
-        return res.status(200).send('Messages sent successfully.');
-
+        res.status(200).send('Notifications sent successfully');
     } catch (error) {
         console.error('Error sending messages:', error);
         res.status(500).send('Error sending notification');

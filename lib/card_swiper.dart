@@ -193,19 +193,112 @@ class _CardViewState extends State<CardView> {
                                   cardBuilder: (context, index) {
                                     if (index <
                                         matchService.romanceMatches.length) {
-                                      return !kIsWeb
-                                          ? ProfileCardWeb(
+                                      return Column(
+                                        children: [
+                                          Expanded(
+                                            child: ProfileCardWeb(
                                               profile: matchService
                                                   .romanceMatches[index],
                                               scrollController:
                                                   _scrollController,
-                                            )
-                                          : ProfileCardWeb(
-                                              profile: matchService
-                                                  .romanceMatches[index],
-                                              scrollController:
-                                                  _scrollController,
-                                            );
+                                            ),
+                                          ),
+                                          SizedBox(height: kIsWeb ? 50 : 8),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Container(
+                                                child: ElevatedButton(
+                                                  onPressed: _isButtonDisabled
+                                                      ? null
+                                                      : () {
+                                                          if (_currentIndex ==
+                                                                  matchService
+                                                                          .romanceMatches
+                                                                          .length -
+                                                                      1 &&
+                                                              _currentIndex !=
+                                                                  0) {
+                                                            print(
+                                                                'Can\'t swipe any further!');
+                                                            return;
+                                                          }
+                                                          // _debounceButton();
+                                                          _swiperController
+                                                              .swipeLeft();
+
+                                                          /*
+                        String swipedUserId =
+                            matchService.romanceMatches[_currentIndex]
+                                ['userId']; // Use current index
+                        _swipeService.makeSwipe(
+                            swipedUserId: swipedUserId,
+                            swipeType:
+                                'nope'); // Call makeSwipe with appropriate index
+
+                         */
+                                                          scrollBackUp();
+                                                          print(
+                                                              'Red button clicked');
+                                                        },
+                                                  style:
+                                                      ElevatedButton.styleFrom(
+                                                          backgroundColor:
+                                                              Colors.white,
+                                                          elevation: 6),
+                                                  child: Icon(Icons.close,
+                                                      color: Colors.black,
+                                                      size: 40),
+                                                ),
+                                              ),
+                                              SizedBox(
+                                                width: 16,
+                                              ),
+                                              ElevatedButton(
+                                                onPressed: _isButtonDisabled
+                                                    ? null
+                                                    : () {
+                                                        if (_currentIndex ==
+                                                                matchService
+                                                                        .romanceMatches
+                                                                        .length -
+                                                                    1 &&
+                                                            _currentIndex !=
+                                                                0) {
+                                                          print(
+                                                              'Can\'t swipe any further!');
+                                                          return;
+                                                        }
+                                                        //_debounceButton();
+                                                        _swiperController
+                                                            .swipeRight();
+                                                        /*
+                      String swipedUserId =
+                          matchService.romanceMatches[_currentIndex]
+                              ['userId']; // Use current index
+                      _swipeService.makeSwipe(
+                          swipedUserId: swipedUserId,
+                          swipeType:
+                              'standardYes'); // Call makeSwipe with appropriate index
+
+                       */
+                                                        scrollBackUp();
+                                                        print(
+                                                            'Green button clicked');
+                                                      },
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor: Colors.white,
+                                                  elevation: 6,
+                                                ),
+                                                child: Icon(Icons.check,
+                                                    color: Colors.black,
+                                                    size: 40),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      );
                                     } else {
                                       return SizedBox(); // Return an empty SizedBox if index is out of bounds
                                     }
@@ -250,82 +343,6 @@ class _CardViewState extends State<CardView> {
                   ),
                 ),
               ],
-            ),
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    child: ElevatedButton(
-                      onPressed: _isButtonDisabled
-                          ? null
-                          : () {
-                              if (_currentIndex ==
-                                      matchService.romanceMatches.length - 1 &&
-                                  _currentIndex != 0) {
-                                print('Can\'t swipe any further!');
-                                return;
-                              }
-                              // _debounceButton();
-                              _swiperController.swipeLeft();
-
-                              /*
-                        String swipedUserId =
-                            matchService.romanceMatches[_currentIndex]
-                                ['userId']; // Use current index
-                        _swipeService.makeSwipe(
-                            swipedUserId: swipedUserId,
-                            swipeType:
-                                'nope'); // Call makeSwipe with appropriate index
-
-                         */
-                              scrollBackUp();
-                              print('Red button clicked');
-                            },
-                      style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white, elevation: 6),
-                      child: Icon(Icons.close, color: Colors.black, size: 40),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 16,
-                  ),
-                  ElevatedButton(
-                    onPressed: _isButtonDisabled
-                        ? null
-                        : () {
-                            if (_currentIndex ==
-                                    matchService.romanceMatches.length - 1 &&
-                                _currentIndex != 0) {
-                              print('Can\'t swipe any further!');
-                              return;
-                            }
-                            //_debounceButton();
-                            _swiperController.swipeRight();
-                            /*
-                      String swipedUserId =
-                          matchService.romanceMatches[_currentIndex]
-                              ['userId']; // Use current index
-                      _swipeService.makeSwipe(
-                          swipedUserId: swipedUserId,
-                          swipeType:
-                              'standardYes'); // Call makeSwipe with appropriate index
-
-                       */
-                            scrollBackUp();
-                            print('Green button clicked');
-                          },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      elevation: 6,
-                    ),
-                    child: Icon(Icons.check, color: Colors.black, size: 40),
-                  ),
-                ],
-              ),
             ),
           ],
         );
