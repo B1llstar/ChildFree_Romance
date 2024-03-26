@@ -264,6 +264,7 @@ class _LoginPageState extends State<LoginPage> {
       // Initialize AllUsersNotifier
       AllUsersNotifier _allUsersNotifier = AllUsersNotifier();
       _allUsersNotifier.init(uid);
+      await FirebaseMessaging.instance.getInitialMessage();
 
       // Initialize MatchmakingNotifier
       MatchmakingNotifier matchmakingNotifier =
