@@ -27,6 +27,9 @@ class DistanceCalculator {
       if (data.containsKey('distance')) {
         locationString = '$locationString (${data['distance']} mi.)';
       }
+      if (locationString.contains('N\/A, ')) {
+        locationString = locationString.replaceAll('N\/A, ', '');
+      }
       return locationString;
     }
   }

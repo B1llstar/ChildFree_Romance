@@ -74,10 +74,8 @@ class _ChatWidgetState extends State<ChatWidget> {
   Future<void> sendPushNotification(String userId, String messageTitle,
       String messageBody, String type, String id) async {
     try {
-      print('CALLED SEND PUSH NOTIFICATION');
       // Define the URL of your Cloud Function
-      final url =
-          'https://us-central1-childfree-connection.cloudfunctions.net/sendPushNotification';
+      final url = 'https://aianyone.net/cfc/send_notification_to_device';
 
       // Define the request body
       final body = json.encode({

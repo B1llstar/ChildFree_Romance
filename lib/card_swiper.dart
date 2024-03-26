@@ -264,7 +264,8 @@ class _CardViewState extends State<CardView> {
                           ? null
                           : () {
                               if (_currentIndex ==
-                                  matchService.romanceMatches.length - 1) {
+                                      matchService.romanceMatches.length - 1 &&
+                                  _currentIndex != 0) {
                                 print('Can\'t swipe any further!');
                                 return;
                               }
@@ -297,7 +298,8 @@ class _CardViewState extends State<CardView> {
                         ? null
                         : () {
                             if (_currentIndex ==
-                                matchService.romanceMatches.length - 1) {
+                                    matchService.romanceMatches.length - 1 &&
+                                _currentIndex != 0) {
                               print('Can\'t swipe any further!');
                               return;
                             }

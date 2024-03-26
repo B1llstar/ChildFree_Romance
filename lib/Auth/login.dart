@@ -16,6 +16,7 @@ import '../Notifiers/all_users_notifier.dart';
 import '../Notifiers/user_notifier.dart';
 import '../Screens/Settings/Tiles/settings_service.dart';
 import '../Services/matchmaking_service.dart';
+import '../TinderCard/card_provider.dart';
 import '../Utils/debug_utils.dart';
 
 class LoginPage extends StatefulWidget {
@@ -283,6 +284,7 @@ class _LoginPageState extends State<LoginPage> {
               ChangeNotifierProvider(create: (_) => _allUsersNotifier),
               ChangeNotifierProvider(create: (_) => matchmakingNotifier),
               ChangeNotifierProvider(create: (_) => _service),
+              ChangeNotifierProvider(create: (_) => CardProvider())
               // Add more providers if needed
             ],
             child: MyHomePage(startingIndex: 0),

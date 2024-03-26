@@ -41,21 +41,13 @@ class ProfileCardWeb extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: ClipRRect(
-        borderRadius: BorderRadius.circular(18),
-        child: Row(
+      body: SingleChildScrollView(
+        child: Column(
           children: [
-            Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    color: Colors.transparent),
-                constraints: BoxConstraints(
-                  maxWidth: width,
-                  maxHeight: !kIsWeb
-                      ? MediaQuery.of(context).size.height * .80
-                      : MediaQuery.of(context).size.height * 1,
-                ),
+            Container(
+              decoration: BoxDecoration(color: Colors.transparent),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(32.0),
                 child: Card(
                   color: Colors.white,
                   elevation: 4,
@@ -64,165 +56,157 @@ class ProfileCardWeb extends StatelessWidget {
                       // The height of the card
                       Container(
                         height: !kIsWeb
-                            ? MediaQuery.of(context).size.height * .68
+                            ? MediaQuery.of(context).size.height * .7
                             : MediaQuery.of(context).size.height * 1,
                         child: SingleChildScrollView(
                           controller: scrollController,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: <Widget>[
-                              Padding(
-                                padding: const EdgeInsets.only(
-                                    top: 8.0, left: 8.0, right: 8.0),
-                                child: Text(
-                                    profile['name'] ?? 'No Name Provided',
-                                    style: TextStyle(
-                                        fontSize: 30,
-                                        fontWeight: FontWeight.bold)),
-                              ),
-                              Divider(),
-                              ClipRRect(
-                                  child:
-                                      ProfilePicturesWidget(profile: profile)),
-                              /*
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(8.0),
-                                child: CachedNetworkImage(
-                                  progressIndicatorBuilder:
-                                      (context, url, downloadProgress) {
-                                    return Shimmer(
-                                      gradient: LinearGradient(
-                                        colors: [Colors.grey, Colors.white],
-                                      ),
-                                      child: Container(
-                                        height: 500,
-                                        width: 500,
-                                        child: Card(),
-                                      ),
-                                    );
-                                  },
-                                  height: 400,
-                                  width: width,
-                                  fit: kIsWeb
-                                      ? BoxFit.fitHeight
-                                      : BoxFit.fitWidth,
-                                  imageUrl: profile
-                                              .containsKey('profilePictures') &&
-                                          profile['profilePictures'] != null &&
-                                          profile['profilePictures'].length > 0
-                                      ? profile['profilePictures'][0]
-                                      : 'Crigne',
+                          child: Expanded(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: <Widget>[
+                                ClipRRect(
+                                    child: ProfilePicturesWidget(
+                                        profile: profile)),
+                                /*
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(8.0),
+                                  child: CachedNetworkImage(
+                                    progressIndicatorBuilder:
+                                        (context, url, downloadProgress) {
+                                      return Shimmer(
+                                        gradient: LinearGradient(
+                                          colors: [Colors.grey, Colors.white],
+                                        ),
+                                        child: Container(
+                                          height: 500,
+                                          width: 500,
+                                          child: Card(),
+                                        ),
+                                      );
+                                    },
+                                    height: 400,
+                                    width: width,
+                                    fit: kIsWeb
+                                        ? BoxFit.fitHeight
+                                        : BoxFit.fitWidth,
+                                    imageUrl: profile
+                                                .containsKey('profilePictures') &&
+                                            profile['profilePictures'] != null &&
+                                            profile['profilePictures'].length > 0
+                                        ? profile['profilePictures'][0]
+                                        : 'Crigne',
+                                  ),
                                 ),
-                              ),
-
-                               */
-                              SizedBox(height: 4),
-                              TripleDetailRow(
-                                titles: [
-                                  DistanceCalculator()
-                                      .getLocationString(profile)
-                                ],
-                                icons: [FontAwesomeIcons.locationArrow],
-                              ),
-                              if (profile['DOB'] != null)
+                            
+                                 */
+                                SizedBox(height: 4),
                                 TripleDetailRow(
                                   titles: [
-                                    '${calculateAge(profile['DOB'])}',
-                                    profile['isSterilized'] == 'Yes'
-                                        ? 'Sterilized'
-                                        : profile['isSterilized'] == 'No'
-                                            ? 'Not Sterilized'
-                                            : 'Will Sterilize',
-                                    profile['sexuality']
+                                    DistanceCalculator()
+                                        .getLocationString(profile)
                                   ],
-                                  icons: [
-                                    FontAwesomeIcons.birthdayCake,
-                                    FontAwesomeIcons.briefcaseMedical,
-                                    FontAwesomeIcons.smileWink
-                                  ],
-                                )
-                              else
-                                TripleDetailRow(
-                                  titles: [
-                                    profile['isSterilized'] == 'Yes'
-                                        ? 'Sterilized'
-                                        : profile['isSterilized'] == 'No'
-                                            ? 'Not Sterilized'
-                                            : 'Will Sterilize',
-                                    profile['sexuality']
-                                  ],
-                                  icons: [
-                                    FontAwesomeIcons.briefcaseMedical,
-                                    FontAwesomeIcons.smileWink
-                                  ],
+                                  icons: [FontAwesomeIcons.locationArrow],
                                 ),
-                              Divider(),
-                              TripleDetailRow(
-                                titles: [
-                                  profile['job'],
-                                  profile['educationLevel']
-                                ],
-                                icons: [
-                                  FontAwesomeIcons.briefcase,
-                                  FontAwesomeIcons.school
-                                ],
-                              ),
-                              if (profile['job'] != null &&
-                                      profile['job'].isNotEmpty ||
-                                  profile['educationLevel'] != null &&
-                                      profile['educationLevel'].isNotEmpty)
-                                Divider(),
-                              TripleDetailRow(
-                                icons: [
-                                  FontAwesomeIcons.globe,
-                                  FontAwesomeIcons.suitcaseRolling
-                                ],
-                                titles: [
-                                  profile['willDoLongDistance'] == 'Yes'
-                                      ? 'Not open to long-distance'
-                                      : 'Not open to long-distance',
-                                  profile['willRelocate'] == 'Yes'
-                                      ? 'Open to relocating'
-                                      : 'Not open to relocating',
-                                ],
-                              ),
-                              Divider(),
-                              TripleDetailRow(
-                                icons: [
-                                  FontAwesomeIcons.beer,
-                                  FontAwesomeIcons.smoking,
-                                  FontAwesomeIcons.cannabis
-                                ],
-                                titles: [
-                                  profile['doesDrink'],
-                                  profile['doesSmoke'],
-                                  profile['does420']
-                                ],
-                              ),
-                              profile['politics'] != null &&
-                                          profile['politics'].isNotEmpty ||
-                                      profile['religion'] != null &&
-                                          profile['religion'].isNotEmpty
-                                  ? Divider()
-                                  : Container(),
-                              TripleDetailRow(icons: [
-                                FontAwesomeIcons.landmark,
-                                FontAwesomeIcons.pray
-                              ], titles: [
-                                profile['politics'],
-                                profile['religion']
-                              ]),
-                              TriplePromptWidget(profile: profile),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  InterestsChoiceChipDisplay(
-                                    interests:
-                                        profile['selectedInterests'] ?? [],
+                                if (profile['DOB'] != null)
+                                  TripleDetailRow(
+                                    titles: [
+                                      '${calculateAge(profile['DOB'])}',
+                                      profile['isSterilized'] == 'Yes'
+                                          ? 'Sterilized'
+                                          : profile['isSterilized'] == 'No'
+                                              ? 'Not Sterilized'
+                                              : 'Will Sterilize',
+                                      profile['sexuality']
+                                    ],
+                                    icons: [
+                                      FontAwesomeIcons.birthdayCake,
+                                      FontAwesomeIcons.briefcaseMedical,
+                                      FontAwesomeIcons.smileWink
+                                    ],
                                   )
-                                ],
-                              ),
-                            ],
+                                else
+                                  TripleDetailRow(
+                                    titles: [
+                                      profile['isSterilized'] == 'Yes'
+                                          ? 'Sterilized'
+                                          : profile['isSterilized'] == 'No'
+                                              ? 'Not Sterilized'
+                                              : 'Will Sterilize',
+                                      profile['sexuality']
+                                    ],
+                                    icons: [
+                                      FontAwesomeIcons.briefcaseMedical,
+                                      FontAwesomeIcons.smileWink
+                                    ],
+                                  ),
+                                Divider(),
+                                TripleDetailRow(
+                                  titles: [
+                                    profile['job'],
+                                    profile['educationLevel']
+                                  ],
+                                  icons: [
+                                    FontAwesomeIcons.briefcase,
+                                    FontAwesomeIcons.school
+                                  ],
+                                ),
+                                if (profile['job'] != null &&
+                                        profile['job'].isNotEmpty ||
+                                    profile['educationLevel'] != null &&
+                                        profile['educationLevel'].isNotEmpty)
+                                  Divider(),
+                                TripleDetailRow(
+                                  icons: [
+                                    FontAwesomeIcons.globe,
+                                    FontAwesomeIcons.suitcaseRolling
+                                  ],
+                                  titles: [
+                                    profile['willDoLongDistance'] == 'Yes'
+                                        ? 'Not open to long-distance'
+                                        : 'Not open to long-distance',
+                                    profile['willRelocate'] == 'Yes'
+                                        ? 'Open to relocating'
+                                        : 'Not open to relocating',
+                                  ],
+                                ),
+                                Divider(),
+                                TripleDetailRow(
+                                  icons: [
+                                    FontAwesomeIcons.beer,
+                                    FontAwesomeIcons.smoking,
+                                    FontAwesomeIcons.cannabis
+                                  ],
+                                  titles: [
+                                    profile['doesDrink'],
+                                    profile['doesSmoke'],
+                                    profile['does420']
+                                  ],
+                                ),
+                                profile['politics'] != null &&
+                                            profile['politics'].isNotEmpty ||
+                                        profile['religion'] != null &&
+                                            profile['religion'].isNotEmpty
+                                    ? Divider()
+                                    : Container(),
+                                TripleDetailRow(icons: [
+                                  FontAwesomeIcons.landmark,
+                                  FontAwesomeIcons.pray
+                                ], titles: [
+                                  profile['politics'],
+                                  profile['religion']
+                                ]),
+                                TriplePromptWidget(profile: profile),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    InterestsChoiceChipDisplay(
+                                      interests:
+                                          profile['selectedInterests'] ?? [],
+                                    )
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),

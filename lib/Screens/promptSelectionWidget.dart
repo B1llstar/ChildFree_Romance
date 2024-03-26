@@ -24,6 +24,11 @@ class _FirestorePromptsWidgetState extends State<FirestorePromptsWidget> {
       "The best part about being childfree",
       "My childfree hero",
       "A short term goal",
+      "My favorite place to be",
+      "I'm weirdly attracted to",
+      "I\'m convinced that",
+      "My greatest strength",
+      "Typical Sunday",
       "A life goal",
       "I knew I was childfree when"
     ]; // Combined prompt list

@@ -50,7 +50,7 @@ class _ProfilePicturesWidgetState extends State<ProfilePicturesWidget> {
                 );
               },
               errorWidget: (context, url, error) => Icon(Icons.error),
-              height: 400,
+              height: MediaQuery.of(context).size.height * .7,
               width: 400,
               fit: BoxFit.cover,
             ),
@@ -84,6 +84,21 @@ class _ProfilePicturesWidgetState extends State<ProfilePicturesWidget> {
                   },
                 ),
               ),
+            Positioned(
+              bottom: 10,
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                color: Colors.black.withOpacity(0.7),
+                child: Text(
+                  widget.profile['name'],
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ],

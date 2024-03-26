@@ -2,6 +2,7 @@
 // i.e. Do you smoke? Y/No/Sometimes
 
 import 'package:badges/badges.dart' as badges;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_settings_ui/flutter_settings_ui.dart';
 import 'package:provider/provider.dart';
@@ -58,7 +59,13 @@ class _CustomSettingsTileSingleAnswerState
             )
           : Text(widget.title),
       description: Text(description),
-      leading: Icon(widget.leadingIcon, size: 32, color: Colors.black),
+      leading: Icon(widget.leadingIcon,
+          size: 32,
+          color: !kIsWeb &&
+                  Provider.of<AllUsersNotifier>(widget.myContext, listen: false)
+                      .darkMode
+              ? Colors.white
+              : Colors.black),
       onPressed: (BuildContext context) {
         _showConfirmationDialog(
           widget.title,
