@@ -4,8 +4,10 @@ import 'package:shimmer/shimmer.dart';
 
 class ProfilePicturesWidget extends StatefulWidget {
   final Map<String, dynamic> profile;
-
-  const ProfilePicturesWidget({Key? key, required this.profile})
+  // Function callback
+  final void Function() onDownArrowPress;
+  const ProfilePicturesWidget(
+      {Key? key, required this.profile, required this.onDownArrowPress})
       : super(key: key);
 
   @override
@@ -50,7 +52,7 @@ class _ProfilePicturesWidgetState extends State<ProfilePicturesWidget> {
                 );
               },
               errorWidget: (context, url, error) => Icon(Icons.error),
-              height: MediaQuery.of(context).size.height * .73,
+              height: 900,
               fit: BoxFit.cover,
             ),
             if (currentIndex > 0)
@@ -84,7 +86,7 @@ class _ProfilePicturesWidgetState extends State<ProfilePicturesWidget> {
                 ),
               ),
             Positioned(
-              bottom: 10,
+              top: 10,
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 color: Colors.black.withOpacity(0.7),
@@ -95,6 +97,20 @@ class _ProfilePicturesWidgetState extends State<ProfilePicturesWidget> {
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
+                ),
+              ),
+            ),
+            Positioned(
+              bottom: 50,
+              right: 10,
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                color: Colors.black.withOpacity(0.7),
+                child: IconButton(
+                  icon: Icon(Icons.arrow_downward, color: Colors.white),
+                  onPressed: () {
+                    widget.onDownArrowPress();
+                  },
                 ),
               ),
             ),
