@@ -48,8 +48,10 @@ class SwipeService {
       // Check for match before uploading the swipe
       await swipesCollection.doc(swipe.swipeId).set(swipe.toMap());
       final userSwipeId = swipe.swipeId;
-      await checkForMatch(
-          swipe.swipedUserId, swipe.swipeType, userSwipeId, isRomance);
+
+      if (swipe.swipeType != 'nope')
+        await checkForMatch(
+            swipe.swipedUserId, swipe.swipeType, userSwipeId, isRomance);
 
       // Generate a unique swipeId
 

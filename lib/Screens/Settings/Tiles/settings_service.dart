@@ -68,6 +68,7 @@ class MatchService extends ChangeNotifier {
 
   refreshAllNopeSwipesForRelationshipType(String relationshipType) async {
     final swipesCollectionRef = _firestore.collection('swipes');
+    int count = 0;
     // Grab all documents where userId is equal to the current user and the swipeType is equal to 'nope'
     await swipesCollectionRef
         .where('userId', isEqualTo: _auth.currentUser!.uid)
@@ -79,9 +80,11 @@ class MatchService extends ChangeNotifier {
       querySnapshot.docs.forEach((doc) {
         print('Found a document');
         // Delete the document
+        count++;
         doc.reference.delete();
       });
     });
+    print('Docuiments removed: $count');
     notifyListeners();
   }
 

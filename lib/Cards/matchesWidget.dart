@@ -107,6 +107,7 @@ class _MatchesWidgetState extends State<MatchesWidget> {
 
   void _showProfilePopup(String matchId, Map<String, dynamic> userData,
       BuildContext providerContext) {
+    ScrollController controller = ScrollController();
     String uid = _auth.currentUser!.uid;
     String profilePictureUrl = _auth.currentUser!.photoURL ?? '';
     AllUsersNotifier _allUsersNotifier =
@@ -130,6 +131,7 @@ class _MatchesWidgetState extends State<MatchesWidget> {
                 children: [
                   Expanded(
                     child: ProfileCardWeb(
+                      onDownArrowPress: () => {},
                       profile: userData,
                       scrollController: ScrollController(),
                     ),

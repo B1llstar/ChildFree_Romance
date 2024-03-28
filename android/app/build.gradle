@@ -48,8 +48,8 @@ android {
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
         minSdkVersion flutter.minSdkVersion
         targetSdkVersion flutter.targetSdkVersion
-        versionCode 7
-        versionName "1.4 Closed Beta"
+        versionCode 9
+        versionName "1.4.1 Closed Beta"
         multiDexEnabled true
     }
 

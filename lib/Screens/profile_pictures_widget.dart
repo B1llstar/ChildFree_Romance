@@ -105,10 +105,11 @@ class _ProfilePicturesWidgetState extends State<ProfilePicturesWidget> {
               bottom: 50,
               right: 10,
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: EdgeInsets.symmetric(horizontal: 6, vertical: 6),
                 color: Colors.black.withOpacity(0.7),
-                child: IconButton(
-                  icon: Icon(Icons.arrow_downward, color: Colors.white),
+                child: TextButton(
+                  child: Text('Scroll for more',
+                      style: TextStyle(color: Colors.white)),
                   onPressed: () {
                     widget.onDownArrowPress();
                   },

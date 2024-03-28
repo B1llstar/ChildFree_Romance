@@ -70,6 +70,14 @@ class _CardViewState extends State<CardView> {
     _scrollController.jumpTo(0);
   }
 
+  void scrollDown() {
+    _scrollController.animateTo(
+      _scrollController.position.maxScrollExtent,
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeInOut,
+    );
+  }
+
   // Method to debounce button clicks
   void _debounceButton() {
     setState(() {
@@ -291,6 +299,8 @@ class _CardViewState extends State<CardView> {
                                                                   index],
                                                               scrollController:
                                                                   _scrollController,
+                                                              onDownArrowPress:
+                                                                  scrollDown,
                                                             ),
                                                           ),
                                                         ],

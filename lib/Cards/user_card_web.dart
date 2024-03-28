@@ -11,32 +11,28 @@ import '../distance_calculator.dart';
 class ProfileCardWeb extends StatefulWidget {
   final Map<String, dynamic> profile;
   final ScrollController scrollController;
+  // Function callback
+  final void Function() onDownArrowPress;
 
-  const ProfileCardWeb({
-    Key? key,
-    required this.profile,
-    required this.scrollController,
-  }) : super(key: key);
+  const ProfileCardWeb(
+      {Key? key,
+      required this.profile,
+      required this.scrollController,
+      required this.onDownArrowPress})
+      : super(key: key);
 
   @override
   _ProfileCardWebState createState() => _ProfileCardWebState();
 }
 
 class _ProfileCardWebState extends State<ProfileCardWeb> {
-  late ScrollController _scrollController;
-
   @override
   void initState() {
     super.initState();
-    _scrollController = ScrollController();
   }
 
   void scrollDownSlightly() {
-    _scrollController.animateTo(
-      _scrollController.position.maxScrollExtent,
-      duration: Duration(milliseconds: 500),
-      curve: Curves.easeInOut,
-    );
+    widget.onDownArrowPress();
   }
 
   @override
@@ -70,7 +66,7 @@ class _ProfileCardWebState extends State<ProfileCardWeb> {
           height: MediaQuery.of(context).size.height * .65,
           width: 600,
           child: ListView(
-            controller: _scrollController,
+            controller: widget.scrollController,
             children: [
               ProfilePicturesWidget(
                 profile: widget.profile,
@@ -151,25 +147,41 @@ class _ProfileCardWebState extends State<ProfileCardWeb> {
                   (widget.profile['educationLevel'] != null &&
                       widget.profile['educationLevel'].isNotEmpty))
                 Divider(),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  TripleDetailRow(
-                    icons: [
-                      FontAwesomeIcons.globe,
-                      FontAwesomeIcons.suitcaseRolling
-                    ],
-                    titles: [
-                      widget.profile['willDoLongDistance'] == 'Yes'
-                          ? 'Not open to long-distance'
-                          : 'Not open to long-distance',
-                      widget.profile['willRelocate'] == 'Yes'
-                          ? 'Open to relocating'
-                          : 'Not open to relocating',
-                    ],
-                  ),
-                ],
-              ),
+              if (!kIsWeb)
+                TripleDetailRow(
+                  icons: [
+                    FontAwesomeIcons.globe,
+                    FontAwesomeIcons.suitcaseRolling
+                  ],
+                  titles: [
+                    widget.profile['willDoLongDistance'] == 'Yes'
+                        ? 'Not open to long-distance'
+                        : 'Not open to long-distance',
+                    widget.profile['willRelocate'] == 'Yes'
+                        ? 'Open to relocating'
+                        : 'Not open to relocating',
+                  ],
+                )
+              else
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    TripleDetailRow(
+                      icons: [
+                        FontAwesomeIcons.globe,
+                        FontAwesomeIcons.suitcaseRolling
+                      ],
+                      titles: [
+                        widget.profile['willDoLongDistance'] == 'Yes'
+                            ? 'Not open to long-distance'
+                            : 'Not open to long-distance',
+                        widget.profile['willRelocate'] == 'Yes'
+                            ? 'Open to relocating'
+                            : 'Not open to relocating',
+                      ],
+                    ),
+                  ],
+                ),
               Divider(),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -227,7 +239,7 @@ class _ProfileCardWebState extends State<ProfileCardWeb> {
 
   @override
   void dispose() {
-    _scrollController.dispose();
+    widget.scrollController.dispose();
     super.dispose();
   }
 }
