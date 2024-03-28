@@ -92,6 +92,7 @@ class _LoginPageState extends State<LoginPage> {
       // Initialize AllUsersNotifier
       AllUsersNotifier _allUsersNotifier = AllUsersNotifier();
       _allUsersNotifier.init(uid);
+      await FirebaseMessaging.instance.getInitialMessage();
 
       // Initialize MatchmakingNotifier
       MatchmakingNotifier matchmakingNotifier =
@@ -99,8 +100,8 @@ class _LoginPageState extends State<LoginPage> {
 
       // Initialize MatchService
       MatchService _service = MatchService();
-      await requestPermission();
-      await _getAndUploadFCMToken();
+      requestPermission();
+      _getAndUploadFCMToken();
 
       // Navigate to the home page with providers
       Navigator.pushReplacement(

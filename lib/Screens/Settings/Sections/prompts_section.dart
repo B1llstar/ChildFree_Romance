@@ -28,7 +28,7 @@ class _PromptSectionState extends State<PromptSection> {
                   badgeStyle: badges.BadgeStyle(
                     badgeColor: Colors.transparent,
                   ),
-                  badgeContent: Text('*at least one required',
+                  badgeContent: Text('*at least one prompt required',
                       style: TextStyle(color: Colors.red)),
                 ),
               ],

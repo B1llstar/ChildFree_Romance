@@ -1,3 +1,4 @@
+import 'package:badges/badges.dart' as badges;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_settings_ui/flutter_settings_ui.dart';
@@ -24,6 +25,77 @@ class _EssentialsSettingsSectionState extends State<EssentialsSettingsSection> {
     return SettingsSection(
       title: Text('Essentials'),
       tiles: [
+        CustomSettingsTile(
+          child: SettingsTile(
+            title: Row(
+              children: [
+                Text('Name',
+                    style: TextStyle(
+                      color: _notifier.darkMode
+                          ? kIsWeb
+                              ? Colors.black
+                              : Colors.white
+                          : Colors.black,
+                    )),
+                SizedBox(width: 5), // Adjust spacing between title and badge
+                badges.Badge(
+                  badgeStyle: badges.BadgeStyle(
+                    badgeColor: Colors.transparent,
+                  ),
+                  badgeContent:
+                      Text('*required', style: TextStyle(color: Colors.red)),
+                ),
+              ],
+            ),
+            leading: Icon(
+              FontAwesomeIcons.briefcase,
+              color: _notifier.darkMode
+                  ? kIsWeb
+                      ? Colors.black
+                      : Colors.white
+                  : Colors.black,
+            ),
+            description: Text(_notifier.currentUser['name'] ?? ''),
+            onPressed: (context) {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  String newName = _notifier.currentUser['name'] ??
+                      ''; // Initialize with current job value
+                  return AlertDialog(
+                    title: Text('Enter your name'),
+                    content: TextField(
+                      onChanged: (value) {
+                        newName =
+                            value; // Update newName variable as the user types
+                      },
+                      decoration: InputDecoration(hintText: 'Name'),
+                    ),
+                    actions: <Widget>[
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop(); // Close the dialog
+                        },
+                        child: Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          // Update data provider and notifier with new job value
+                          _userDataProvider.setProperty('name', newName);
+                          setState(() {
+                            _notifier.currentUser['name'] = newName;
+                          });
+                          Navigator.of(context).pop(); // Close the dialog
+                        },
+                        child: Text('Save'),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+          ),
+        ),
         CustomSettingsTile(
           child: CustomSettingsTileSingleAnswer(
               isImportant: true,

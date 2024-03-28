@@ -17,8 +17,18 @@ class MatchService extends ChangeNotifier {
   List<Map<String, dynamic>> get friendshipMatches => _friendshipMatches;
   List<Map<String, dynamic>> _friendshipAndRomanceMatches = [];
   List<Map<String, dynamic>> _matches = [];
-  List<Map<String, dynamic>> get matches => _matches;
+  bool _initialized = false;
+  bool get initialized => _initialized;
+  set initialized(bool value) {
+    _initialized = value;
+    notifyListeners();
+  }
 
+  List<Map<String, dynamic>> get matches => _matches;
+  int _totalNopeSwipes = 0;
+  int get totalNopeSwipes => _totalNopeSwipes;
+  int _totalStandardYesSwipes = 0;
+  int get totalStandardYesSwipes => _totalStandardYesSwipes;
   String _glowType = 'None';
   String get glowType => _glowType;
   set glowType(String value) {
@@ -56,14 +66,36 @@ class MatchService extends ChangeNotifier {
     notifyListeners();
   }
 
+  refreshAllNopeSwipesForRelationshipType(String relationshipType) async {
+    final swipesCollectionRef = _firestore.collection('swipes');
+    // Grab all documents where userId is equal to the current user and the swipeType is equal to 'nope'
+    await swipesCollectionRef
+        .where('userId', isEqualTo: _auth.currentUser!.uid)
+        .where('relationshipType', isEqualTo: relationshipType)
+        .where('swipeType', isEqualTo: 'nope')
+        .get()
+        .then((querySnapshot) {
+      // Loop through each document
+      querySnapshot.docs.forEach((doc) {
+        print('Found a document');
+        // Delete the document
+        doc.reference.delete();
+      });
+    });
+    notifyListeners();
+  }
+
   Future<void> init() async {
     await fetchAndStoreUserData();
     await fetchAndStoreAllUsers();
-    await generateRomanceMatches();
-    await generateFriendshipMatches();
     await Future.delayed(
         Duration.zero); // Wait for other async operations to complete
-    await removeSwipedUsers(); // Call removeSwipedUsers after other async operations
+    await removeSwipedUsers();
+    await generateRomanceMatches();
+    await generateFriendshipMatches();
+    initialized = true;
+    notifyListeners();
+    // Call removeSwipedUsers after other async operations
   }
 
   removeAllWhereVisibleIsFalse() async {
@@ -207,8 +239,11 @@ class MatchService extends ChangeNotifier {
   Future<void> removeSwipedUsers() async {
     try {
       print('Removing Swiped Users');
+      String uid = FirebaseAuth.instance.currentUser!.uid;
+
       // Fetch swipes from Firestore
-      QuerySnapshot swipeSnapshot = await _firestore.collection('swipes').get();
+      QuerySnapshot swipeSnapshot =
+          await FirebaseFirestore.instance.collection('swipes').get();
 
       // Iterate through swipes
       swipeSnapshot.docs.forEach((doc) {
@@ -220,21 +255,26 @@ class MatchService extends ChangeNotifier {
           String userId = docData['userId'];
           String uid = FirebaseAuth.instance.currentUser!.uid;
           String? relationshipType = docData['relationshipType'];
-          if (swipedUserId != null &&
-              swipeType != null &&
-              swipeType == 'standardYes' &&
-              uid == userId) {
-            // Remove swiped user from romanceMatches
-            if (relationshipType == 'Romance')
-              _romanceMatches
-                  .removeWhere((user) => user['userId'] == swipedUserId);
-            // Remove swiped user from friendshipMatches
-            if (relationshipType == 'Friendship')
-              _friendshipMatches
-                  .removeWhere((user) => user['userId'] == swipedUserId);
+
+          if (swipedUserId != null && uid == userId && swipeType == 'nope') {
+            if (swipeType == 'standardYes') {
+              _totalStandardYesSwipes++;
+              print('Total Yes Swipes: $_totalStandardYesSwipes');
+            }
+            if (swipeType == 'nope') {
+              _totalNopeSwipes++;
+              print('Total Nope Swipes: $_totalNopeSwipes');
+            }
+            print('Found a yes document');
+            print('Swiped user id: $swipedUserId');
+            // Remove swiped user based on relationship type
+            if (relationshipType == 'Romance') {
+              _allUsers.removeWhere((user) => user['userId'] == swipedUserId);
+            } else if (relationshipType == 'Friendship') {
+              _allUsers.removeWhere((user) => user['userId'] == swipedUserId);
+            }
             // Remove swiped user from friendshipAndRomanceMatches
-            _friendshipAndRomanceMatches
-                .removeWhere((user) => user['userId'] == swipedUserId);
+            _allUsers.removeWhere((user) => user['userId'] == swipedUserId);
           }
         }
       });
@@ -278,9 +318,10 @@ class MatchService extends ChangeNotifier {
     try {
       await fetchAndStoreUserData();
       await fetchAndStoreAllUsers();
+      await removeSwipedUsers();
+
       await generateRomanceMatches();
       await generateFriendshipMatches();
-      await removeSwipedUsers();
       print('Refresh completed');
     } catch (e) {
       print('Error refreshing data: $e');

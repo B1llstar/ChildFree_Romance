@@ -255,6 +255,7 @@ class AllUsersNotifier extends ChangeNotifier {
         userData['prompt_2'],
         userData['prompt_3']
       ];
+      String? name = userData['name'] ?? '';
       List<dynamic> profilePictures = userData['profilePictures'] ?? [];
       print(userData);
       String gender = userData['gender'] ?? ''; // Assuming 'gender' is a String
@@ -271,11 +272,14 @@ class AllUsersNotifier extends ChangeNotifier {
             prompt['answer'] != null &&
             prompt['answer'].isNotEmpty;
       });
+
+      bool nameIsPresent = name != null && name.isNotEmpty;
       print('Prompt is acceptable: $promptIsAcceptable');
 
       if (promptIsAcceptable &&
           profilePictures.isNotEmpty &&
-          gender.isNotEmpty) {
+          gender.isNotEmpty &&
+          nameIsPresent) {
         _canShow = true;
 
         notifyListeners();
@@ -331,9 +335,10 @@ class AllUsersNotifier extends ChangeNotifier {
                     'Please provide more information to show your profile:',
                   ),
                   SizedBox(height: 8),
+                  Text('- Name'),
+                  Text('- Gender'),
                   Text('- One prompt'),
                   Text('- One profile picture'),
-                  Text('- Gender'),
                   Text.rich(
                     TextSpan(
                       text: 'For your convenience, these fields are marked ',

@@ -26,7 +26,7 @@ class _PhotoManagerSectionState extends State<PhotoManagerSection> {
                   badgeStyle: badges.BadgeStyle(
                     badgeColor: Colors.transparent,
                   ),
-                  badgeContent: Text('*at least one required',
+                  badgeContent: Text('*at least one photo required',
                       style: TextStyle(color: Colors.red)),
                 ), // Adjust spacing between title and badge
               ],

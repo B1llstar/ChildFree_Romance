@@ -67,7 +67,7 @@ class _ProfileCardWebState extends State<ProfileCardWeb> {
         padding: const EdgeInsets.only(top: 16.0),
         child: Container(
           color: Colors.white,
-          height: 500,
+          height: MediaQuery.of(context).size.height * .65,
           width: 600,
           child: ListView(
             controller: _scrollController,
@@ -151,18 +151,23 @@ class _ProfileCardWebState extends State<ProfileCardWeb> {
                   (widget.profile['educationLevel'] != null &&
                       widget.profile['educationLevel'].isNotEmpty))
                 Divider(),
-              TripleDetailRow(
-                icons: [
-                  FontAwesomeIcons.globe,
-                  FontAwesomeIcons.suitcaseRolling
-                ],
-                titles: [
-                  widget.profile['willDoLongDistance'] == 'Yes'
-                      ? 'Not open to long-distance'
-                      : 'Not open to long-distance',
-                  widget.profile['willRelocate'] == 'Yes'
-                      ? 'Open to relocating'
-                      : 'Not open to relocating',
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TripleDetailRow(
+                    icons: [
+                      FontAwesomeIcons.globe,
+                      FontAwesomeIcons.suitcaseRolling
+                    ],
+                    titles: [
+                      widget.profile['willDoLongDistance'] == 'Yes'
+                          ? 'Not open to long-distance'
+                          : 'Not open to long-distance',
+                      widget.profile['willRelocate'] == 'Yes'
+                          ? 'Open to relocating'
+                          : 'Not open to relocating',
+                    ],
+                  ),
                 ],
               ),
               Divider(),
