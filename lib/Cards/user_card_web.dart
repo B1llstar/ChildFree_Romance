@@ -63,107 +63,159 @@ class _ProfileCardWebState extends State<ProfileCardWeb> {
 
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: ListView(
-        controller: _scrollController,
-        children: [
-          ProfilePicturesWidget(
-            profile: widget.profile,
-            onDownArrowPress: scrollDownSlightly,
-          ),
-          SizedBox(height: 4),
-          TripleDetailRow(
-            titles: [DistanceCalculator().getLocationString(widget.profile)],
-            icons: [FontAwesomeIcons.locationArrow],
-          ),
-          if (widget.profile['DOB'] != null)
-            TripleDetailRow(
-              titles: [
-                '${calculateAge(widget.profile['DOB'].toDate())}',
-                widget.profile['isSterilized'] == 'Yes'
-                    ? 'Sterilized'
-                    : widget.profile['isSterilized'] == 'No'
-                        ? 'Not Sterilized'
-                        : 'Will Sterilize',
-                widget.profile['sexuality']
-              ],
-              icons: [
-                FontAwesomeIcons.birthdayCake,
-                FontAwesomeIcons.briefcaseMedical,
-                FontAwesomeIcons.smileWink
-              ],
-            )
-          else
-            TripleDetailRow(
-              titles: [
-                widget.profile['isSterilized'] == 'Yes'
-                    ? 'Sterilized'
-                    : widget.profile['isSterilized'] == 'No'
-                        ? 'Not Sterilized'
-                        : 'Will Sterilize',
-                widget.profile['sexuality']
-              ],
-              icons: [
-                FontAwesomeIcons.briefcaseMedical,
-                FontAwesomeIcons.smileWink
-              ],
-            ),
-          Divider(),
-          TripleDetailRow(
-            titles: [widget.profile['job'], widget.profile['educationLevel']],
-            icons: [FontAwesomeIcons.briefcase, FontAwesomeIcons.school],
-          ),
-          if ((widget.profile['job'] != null &&
-                  widget.profile['job'].isNotEmpty) ||
-              (widget.profile['educationLevel'] != null &&
-                  widget.profile['educationLevel'].isNotEmpty))
-            Divider(),
-          TripleDetailRow(
-            icons: [FontAwesomeIcons.globe, FontAwesomeIcons.suitcaseRolling],
-            titles: [
-              widget.profile['willDoLongDistance'] == 'Yes'
-                  ? 'Not open to long-distance'
-                  : 'Not open to long-distance',
-              widget.profile['willRelocate'] == 'Yes'
-                  ? 'Open to relocating'
-                  : 'Not open to relocating',
-            ],
-          ),
-          Divider(),
-          TripleDetailRow(
-            icons: [
-              FontAwesomeIcons.beer,
-              FontAwesomeIcons.smoking,
-              FontAwesomeIcons.cannabis
-            ],
-            titles: [
-              widget.profile['doesDrink'],
-              widget.profile['doesSmoke'],
-              widget.profile['does420']
-            ],
-          ),
-          if ((widget.profile['politics'] != null &&
-                  widget.profile['politics'].isNotEmpty) ||
-              (widget.profile['religion'] != null &&
-                  widget.profile['religion'].isNotEmpty))
-            Divider(),
-          TripleDetailRow(
-            icons: [FontAwesomeIcons.landmark, FontAwesomeIcons.pray],
-            titles: [widget.profile['politics'], widget.profile['religion']],
-          ),
-          TriplePromptWidget(profile: widget.profile),
-          if (interests.isNotEmpty)
-            ClipRRect(
-              borderRadius: BorderRadius.circular(16.0),
-              child: Row(
+      body: Padding(
+        padding: const EdgeInsets.only(top: 16.0),
+        child: Container(
+          color: Colors.white,
+          height: 500,
+          width: 600,
+          child: ListView(
+            controller: _scrollController,
+            children: [
+              ProfilePicturesWidget(
+                profile: widget.profile,
+                onDownArrowPress: scrollDownSlightly,
+              ),
+              SizedBox(height: 4),
+              Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  InterestsChoiceChipDisplay(
-                    interests: interests,
-                  )
+                  TripleDetailRow(
+                    titles: [
+                      DistanceCalculator().getLocationString(widget.profile)
+                    ],
+                    icons: [FontAwesomeIcons.locationArrow],
+                  ),
                 ],
               ),
-            ),
-        ],
+              if (widget.profile['DOB'] != null)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    TripleDetailRow(
+                      titles: [
+                        '${calculateAge(widget.profile['DOB'].toDate())}',
+                        widget.profile['isSterilized'] == 'Yes'
+                            ? 'Sterilized'
+                            : widget.profile['isSterilized'] == 'No'
+                                ? 'Not Sterilized'
+                                : 'Will Sterilize',
+                        widget.profile['sexuality']
+                      ],
+                      icons: [
+                        FontAwesomeIcons.birthdayCake,
+                        FontAwesomeIcons.briefcaseMedical,
+                        FontAwesomeIcons.smileWink
+                      ],
+                    ),
+                  ],
+                )
+              else
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    TripleDetailRow(
+                      titles: [
+                        widget.profile['isSterilized'] == 'Yes'
+                            ? 'Sterilized'
+                            : widget.profile['isSterilized'] == 'No'
+                                ? 'Not Sterilized'
+                                : 'Will Sterilize',
+                        widget.profile['sexuality']
+                      ],
+                      icons: [
+                        FontAwesomeIcons.briefcaseMedical,
+                        FontAwesomeIcons.smileWink
+                      ],
+                    ),
+                  ],
+                ),
+              Divider(),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TripleDetailRow(
+                    titles: [
+                      widget.profile['job'],
+                      widget.profile['educationLevel']
+                    ],
+                    icons: [
+                      FontAwesomeIcons.briefcase,
+                      FontAwesomeIcons.school
+                    ],
+                  ),
+                ],
+              ),
+              if ((widget.profile['job'] != null &&
+                      widget.profile['job'].isNotEmpty) ||
+                  (widget.profile['educationLevel'] != null &&
+                      widget.profile['educationLevel'].isNotEmpty))
+                Divider(),
+              TripleDetailRow(
+                icons: [
+                  FontAwesomeIcons.globe,
+                  FontAwesomeIcons.suitcaseRolling
+                ],
+                titles: [
+                  widget.profile['willDoLongDistance'] == 'Yes'
+                      ? 'Not open to long-distance'
+                      : 'Not open to long-distance',
+                  widget.profile['willRelocate'] == 'Yes'
+                      ? 'Open to relocating'
+                      : 'Not open to relocating',
+                ],
+              ),
+              Divider(),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TripleDetailRow(
+                    icons: [
+                      FontAwesomeIcons.beer,
+                      FontAwesomeIcons.smoking,
+                      FontAwesomeIcons.cannabis
+                    ],
+                    titles: [
+                      widget.profile['doesDrink'],
+                      widget.profile['doesSmoke'],
+                      widget.profile['does420']
+                    ],
+                  ),
+                ],
+              ),
+              if ((widget.profile['politics'] != null &&
+                      widget.profile['politics'].isNotEmpty) ||
+                  (widget.profile['religion'] != null &&
+                      widget.profile['religion'].isNotEmpty))
+                Divider(),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TripleDetailRow(
+                    icons: [FontAwesomeIcons.landmark, FontAwesomeIcons.pray],
+                    titles: [
+                      widget.profile['politics'],
+                      widget.profile['religion']
+                    ],
+                  ),
+                ],
+              ),
+              TriplePromptWidget(profile: widget.profile),
+              if (interests.isNotEmpty)
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(16.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      InterestsChoiceChipDisplay(
+                        interests: interests,
+                      )
+                    ],
+                  ),
+                ),
+            ],
+          ),
+        ),
       ),
     );
   }

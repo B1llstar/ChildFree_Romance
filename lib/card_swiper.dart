@@ -46,17 +46,17 @@ class _CardViewState extends State<CardView> {
   Future loadData() async {
     setState(() {
       isLoading = true;
+      print('Setting isLoading to true');
     });
     while (Provider.of<MatchService>(context, listen: false)
         .romanceMatches
         .isEmpty) {
       await Future.delayed(Duration(seconds: 1));
     }
-    await Provider.of<MatchService>(context, listen: false)
-        .getProfilePictures(context);
 
     setState(() {
       isLoading = false;
+      print('Is loading is false');
     });
   }
 

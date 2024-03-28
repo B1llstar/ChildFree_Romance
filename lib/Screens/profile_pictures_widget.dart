@@ -52,7 +52,8 @@ class _ProfilePicturesWidgetState extends State<ProfilePicturesWidget> {
                 );
               },
               errorWidget: (context, url, error) => Icon(Icons.error),
-              height: 900,
+              height: 500,
+              width: 600,
               fit: BoxFit.cover,
             ),
             if (currentIndex > 0)
