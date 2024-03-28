@@ -256,7 +256,7 @@ class MatchService extends ChangeNotifier {
           String uid = FirebaseAuth.instance.currentUser!.uid;
           String? relationshipType = docData['relationshipType'];
 
-          if (swipedUserId != null && uid == userId && swipeType == 'nope') {
+          if (swipedUserId != null && uid == userId) {
             if (swipeType == 'standardYes') {
               _totalStandardYesSwipes++;
               print('Total Yes Swipes: $_totalStandardYesSwipes');
